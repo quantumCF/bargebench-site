@@ -7,6 +7,10 @@
   instructions and a payment link) and a direct Stripe payment link (hosted checkout on
   buy.stripe.com; no card details are collected on this page itself). Vapi, Retell, Bland, Pipecat, and LiveKit appear only as
   sources of the buyer's own call recordings.
+  Per standing policy (2026-07-03): this page carries no company identity, backer names, or press mentions until
+  BargeBench has results worth citing on its own. Copy uses neutral first person ("we" / "our team") instead. The only
+  company-linked detail retained is the working reply address (david@attentionlabs.ai) and the card-statement line
+  disclosing the billing entity, both kept because they are functional, not promotional.
 -->
 <meta charset="UTF-8">
 <title>BargeBench | Barge-In Reliability Testing for Voice Agents</title>
@@ -39,16 +43,15 @@
   "@graph": [
     {
       "@type": "Organization",
-      "name": "Attention Labs",
-      "description": "A voice-AI research company.",
-      "url": "https://attentionlabs.ai"
+      "name": "BargeBench",
+      "url": "https://bargebench.com"
     },
     {
       "@type": "Service",
       "name": "BargeBench barge-in reliability report",
       "serviceType": "voice agent reliability testing",
       "description": "A one-time report that scores how a voice agent handles barge-in on three fixed criteria, using the buyer's own recorded calls. Returned in about a week.",
-      "provider": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "provider": { "@type": "Organization", "name": "BargeBench", "url": "https://bargebench.com" },
       "areaServed": "Worldwide",
       "offers": {
         "@type": "Offer",
@@ -108,7 +111,7 @@
         {
           "@type": "Question",
           "name": "Can I re-run the report after I ship a fix?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Send a fresh batch of recordings and we score it again." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. One re-scored and re-attested check of up to 5 calls within 60 days is included with the report. After that, a fresh batch is scored as a new report." }
         },
         {
           "@type": "Question",
@@ -119,6 +122,16 @@
           "@type": "Question",
           "name": "Can I see how scoring works before I pay?",
           "acceptedAnswer": { "@type": "Answer", "text": "Yes. The scoring method is public: a test harness with the same three criteria is published at github.com/quantumCF/voice-agent-barge-in-tests, under our engineering org quantumCF. Your report is scored by a person against the same fixed rules." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not just do this yourself?",
+          "acceptedAnswer": { "@type": "Answer", "text": "You can. The scoring harness is open source and the methodology is published, so an engineer can produce timing numbers in roughly a day. Teams buy the report for independent judgment: events marked by a reviewer with no stake in the result with a per event audit trail, scoring from the audio rather than the pipeline's own logs, fix guidance mapped to the stack's configuration, and a forwardable result that is not self graded homework." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I just feed the recordings into a general purpose AI model and ask it to score them?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not with numbers you can trust today. General purpose audio models report event times at roughly whole second resolution, and barge-in is judged in fractions of a second. Every number in a BargeBench report traces to a specific point in the audio with published marking criteria, so any event can be replayed and verified." }
         },
         {
           "@type": "Question",
@@ -160,9 +173,20 @@
     --accent-ink:#ffffff;
     --accent-wash:rgba(229,82,45,0.10);
     --accent-line:rgba(229,82,45,0.35);
-    --radius:12px;
+    --radius:8px;
     --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+
+    /* spacing scale: the only margins/paddings on this page are built from these seven values */
+    --s1:8px;
+    --s2:16px;
+    --s3:24px;
+    --s4:40px;
+    --s5:64px;
+    --s6:96px;
+    --s7:128px;
+    --section-pad:120px;
+    --section-pad-m:72px;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -171,99 +195,126 @@
     background:var(--bg);
     color:var(--ink);
     font-family:var(--sans);
-    line-height:1.55;
-    font-size:16px;
+    line-height:1.62;
+    font-size:16.5px;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
     overflow-x:hidden;
   }
-  .wrap{max-width:1000px;margin:0 auto;padding:0 24px;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
   a{color:var(--accent);text-decoration:none;}
-  h1,h2,h3{letter-spacing:-0.02em;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{letter-spacing:-0.025em;font-weight:700;margin:0;}
+  p{margin:0;}
 
   /* header */
-  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
-  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;}
-  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.92);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .wrap{display:flex;align-items:center;height:64px;gap:var(--s4);}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);flex-shrink:0;}
   .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
   .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
   .wordmark .mk span+span{margin-left:3px;}
-  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
-  .top-cta:hover{background:#cf4826;}
+  .nav-main{display:flex;align-items:center;gap:var(--s3);margin-right:auto;}
+  .nav-main a{font-size:14px;font-weight:550;color:var(--ink-2);}
+  .nav-main a:hover{color:var(--ink);text-decoration:none;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:var(--radius);white-space:nowrap;flex-shrink:0;}
+  .top-cta:hover{background:#cf4826;text-decoration:none;}
 
-  /* generic section rhythm */
-  section{padding:76px 0;border-top:1px solid var(--line);}
-  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 16px;font-weight:600;}
-  h2{font-size:clamp(24px,3vw,30px);line-height:1.18;margin:0 0 12px;}
-  .lede{color:var(--ink-2);margin:0 0 28px;max-width:60ch;font-size:17px;}
-  .note{color:var(--ink-2);font-size:14.5px;}
+  /* generic section rhythm: eyebrow -> h2 -> lede, fixed internal spacing, everywhere */
+  section{padding:var(--section-pad) 0;border-top:1px solid var(--line);}
+  section.fused{border-top:none;padding-top:0;}
+  section:has(+ section.fused){padding-bottom:var(--s2);}
+  .eyebrow{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:0.11em;color:var(--ink-2);margin:0 0 var(--s2);font-weight:550;}
+  .eyebrow.mid{margin-top:var(--s4);}
+  h2{font-size:clamp(24px,3vw,32px);line-height:1.22;margin:0 0 var(--s2);}
+  .lede{color:var(--ink-2);margin:0 0 var(--s3);max-width:64ch;font-size:19px;line-height:1.55;}
+  .note{color:var(--ink-2);font-size:14.5px;max-width:64ch;margin:0 0 var(--s2);}
+  .note.mt{margin-top:var(--s3);}
+  .note:last-child{margin-bottom:0;}
 
   /* hero */
-  .hero{padding:72px 0 84px;border-top:none;}
-  .hero-grid{display:grid;grid-template-columns:1.12fr 0.88fr;gap:56px;align-items:center;}
-  h1{font-size:clamp(32px,5vw,52px);line-height:1.06;margin:0 0 22px;}
-  .hero .sub{font-size:19px;color:var(--ink-2);max-width:54ch;margin:0 0 30px;line-height:1.5;}
-  .hero .sub b{color:var(--ink);font-weight:600;}
-  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;}
-  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;padding:14px 24px;border-radius:10px;border:none;cursor:pointer;font-family:var(--sans);}
-  .btn:hover{background:#cf4826;}
+  .hero{padding:var(--section-pad) 0;border-top:none;}
+  .hero-grid{display:grid;grid-template-columns:1.12fr 0.88fr;gap:var(--s6);align-items:center;}
+  h1{font-size:clamp(34px,4.8vw,50px);line-height:1.08;margin:0 0 var(--s3);}
+  .hero .sub{font-size:19px;color:var(--ink-2);max-width:54ch;margin:0 0 var(--s4);line-height:1.55;}
+  .hero .sub b{color:var(--ink);font-weight:700;}
+  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:550;font-size:16px;padding:14px 24px;border-radius:var(--radius);border:none;cursor:pointer;font-family:var(--sans);}
+  .btn:hover{background:#cf4826;text-decoration:none;}
   .btn .arw{font-size:15px;}
   .btn-ghost{display:inline-flex;align-items:center;font-weight:550;font-size:15px;color:var(--ink);padding:14px 6px;}
-  .btn-ghost:hover{color:var(--accent);}
-  .cred{margin-top:26px;font-size:13.5px;color:var(--ink-3);max-width:52ch;line-height:1.5;}
-  .cred b{color:var(--ink-2);font-weight:600;}
+  .btn-ghost:hover{color:var(--accent);text-decoration:none;}
+  .cred{margin-top:var(--s3);font-size:13.5px;color:var(--ink-3);max-width:52ch;line-height:1.55;}
+  .cred b{color:var(--ink-2);font-weight:550;}
 
   /* hero visual card */
-  .glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 2px rgba(20,22,25,0.03),0 12px 30px -18px rgba(20,22,25,0.18);}
-  .hero-card{padding:20px 20px 22px;}
-  .hero-card .hc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);}
+  .hero-card{padding:var(--s3);}
+  .hero-card .hc-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 var(--s2);padding-bottom:var(--s2);border-bottom:1px solid var(--line-2);}
   .hc-title{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);}
-  .hc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
   .hero-svg{width:100%;height:auto;display:block;}
-  .hc-legend{display:flex;gap:18px;margin-top:14px;font-size:12px;color:var(--ink-2);}
+  .hc-legend{display:flex;gap:var(--s3);margin-top:var(--s2);font-size:12px;color:var(--ink-2);}
   .hc-legend span{display:inline-flex;align-items:center;gap:6px;}
   .swatch{width:11px;height:11px;border-radius:3px;display:inline-block;}
 
   /* cards grid */
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;}
-  .card .ic{width:38px;height:38px;border-radius:9px;background:var(--accent-wash);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
-  .card h3{font-size:16.5px;margin:0 0 7px;color:var(--ink);}
-  .card .k{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:10px;font-weight:600;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);}
+  .card .ic{width:36px;height:36px;border-radius:var(--radius);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:var(--s2);}
+  .card h3{font-size:16.5px;margin:0 0 6px;color:var(--ink);}
+  .card .k{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-2);display:block;margin-bottom:var(--s1);font-weight:550;}
   .card p{margin:0;font-size:14.5px;color:var(--ink-2);}
-  .map-note{margin-top:22px;font-size:13.5px;color:var(--ink-3);}
+  .map-note{margin-top:var(--s3);font-size:13.5px;color:var(--ink-3);max-width:64ch;}
+  .map-note + .map-note{margin-top:var(--s1);}
 
   /* how it works flow */
-  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative;}
-  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;position:relative;}
-  .step .n{width:28px;height:28px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-  .step h3{font-size:16px;margin:0 0 6px;}
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);}
+  .step .n{width:26px;height:26px;border-radius:6px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:var(--s2);}
+  .step h3{font-size:16.5px;margin:0 0 6px;}
   .step p{margin:0;font-size:14.5px;color:var(--ink-2);}
-  .flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-3);}
-  .reinforce{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;}
-  .pill{font-size:13px;font-weight:550;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;}
+  .reinforce{display:flex;flex-wrap:wrap;gap:var(--s1);margin-top:var(--s3);}
+  .pill{font-size:13px;font-weight:550;color:var(--ink-2);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;}
   .pill b{color:var(--ink);}
 
+  /* shared flow strip (scoring consistency + where it fits) */
+  .flowstrip{display:flex;align-items:stretch;gap:var(--s1);margin-top:var(--s3);}
+  .flowstrip .fs-node{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;font-size:14px;color:var(--ink-2);display:flex;flex-direction:column;gap:5px;line-height:1.4;}
+  .flowstrip .fs-node .fs-k{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-2);font-weight:550;}
+  .flowstrip .fs-node.accent{border-color:var(--line);background:var(--panel-2);color:var(--ink);}
+  .flowstrip .fs-node.accent .fs-k{color:var(--accent);}
+  .flowstrip .fs-node b{color:var(--ink);font-weight:700;}
+  .flowstrip .fs-arrow{display:flex;align-items:center;color:var(--ink-3);flex-shrink:0;}
+  @media (max-width:720px){
+    .flowstrip{flex-direction:column;}
+    .flowstrip .fs-arrow{transform:rotate(90deg);align-self:center;margin:-2px 0;}
+  }
+
   /* report / scorecard centerpiece */
-  .report{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -26px rgba(20,22,25,0.22);}
-  .report-bar{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);}
-  .report-bar .rd{width:10px;height:10px;border-radius:50%;background:#dcd9d1;}
-  .report-bar .rd.a{background:var(--accent);}
-  .report-bar .rt{margin-left:8px;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);letter-spacing:0.02em;}
+  .report{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  .report-bar{display:flex;align-items:center;gap:var(--s1);padding:13px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .report-bar .rt{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);letter-spacing:0.02em;}
   .report-bar .rmeta{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);}
   .table-scroll{overflow-x:auto;}
+  .table-scroll.mt{margin-top:var(--s3);}
   .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .diagram-scroll svg{display:block;}
+  .diagram-cap{margin-top:var(--s2);font-size:12.5px;color:var(--ink-3);font-family:var(--mono);text-align:center;}
   .swipe-hint{display:none;}
   @media (max-width:720px){
     .diagram-scroll svg{min-width:720px;}
     .hero-svg text{font-size:14px;}
-    .swipe-hint{display:block;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin:10px 0 0;text-align:center;}
+    .swipe-hint{display:block;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin:var(--s1) 0 0;text-align:center;}
+    /* edge fade so an overflowing table/diagram trails off smoothly instead of hard-clipping mid glyph */
+    .diagram-scroll,.table-scroll{
+      -webkit-mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+      mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    }
   }
   table.sc{width:100%;border-collapse:collapse;font-size:14px;min-width:560px;}
   table.sc th,table.sc td{text-align:left;padding:12px 18px;border-bottom:1px solid var(--line-2);white-space:nowrap;}
-  table.sc thead th{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel);}
-  table.sc td:first-child,table.sc th:first-child{font-weight:600;color:var(--ink);}
+  table.sc thead th{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:550;background:var(--panel);}
+  table.sc td:first-child,table.sc th:first-child{font-weight:700;color:var(--ink);}
   table.sc .num{font-family:var(--mono);color:var(--ink);}
   table.sc tbody tr:hover{background:var(--panel-2);}
   .flag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12.5px;}
@@ -271,75 +322,81 @@
   .flag.bad{color:var(--accent);}
   .flag.bad .d{background:var(--accent);}
   .flag.ok{color:var(--ink-2);}
-  table.sc tfoot td{border-top:1px solid var(--line);border-bottom:none;background:var(--panel-2);font-weight:600;}
+  table.sc tfoot td{border-top:1px solid var(--line);border-bottom:none;background:var(--panel-2);font-weight:700;}
   table.sc tfoot .num{font-weight:700;}
-  .report-cap{margin-top:14px;font-size:12.5px;color:var(--ink-3);font-family:var(--mono);}
-  .what-get-list{margin:26px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px 26px;}
+  .report-cap{margin-top:var(--s2);font-size:12.5px;color:var(--ink-3);font-family:var(--mono);max-width:70ch;}
+  .what-get-list{margin:var(--s3) 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:var(--s1) 26px;}
   .what-get-list li{display:flex;gap:10px;font-size:14.5px;color:var(--ink-2);align-items:flex-start;}
-  .what-get-list li .chk{color:var(--accent);flex-shrink:0;margin-top:2px;}
+  .what-get-list li .chk{color:var(--ink-2);flex-shrink:0;margin-top:2px;}
 
   /* stack chips */
-  .chips{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 0;}
-  .chip{font-size:14.5px;font-weight:550;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;display:inline-flex;align-items:center;gap:9px;}
-  .chip .cd{width:8px;height:8px;border-radius:2px;background:var(--accent);opacity:0.85;}
+  .chips{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s1) 0 0;}
+  .chip{font-size:14.5px;font-weight:550;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 18px;display:inline-flex;align-items:center;}
   .chip.any{color:var(--ink-2);border-style:dashed;}
-  .chip.any .cd{background:var(--ink-3);}
 
   /* self test */
-  .selftest{display:grid;grid-template-columns:1fr 0.9fr;gap:40px;align-items:center;}
-  .selftest .st-copy p{color:var(--ink-2);font-size:16px;max-width:48ch;}
-  .selftest .st-copy .big{color:var(--ink);font-size:17px;}
-  .selftest .st-copy b{color:var(--ink);font-weight:600;}
-  .mini{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 14px 34px -24px rgba(20,22,25,0.2);}
-  .mini .mt{font-family:var(--mono);font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
-  .mini .mt b{color:var(--accent);}
+  .selftest{display:grid;grid-template-columns:1fr 0.9fr;gap:var(--s5);align-items:center;}
+  .selftest .st-copy p{color:var(--ink-2);font-size:16.5px;max-width:48ch;margin:0 0 var(--s2);}
+  .selftest .st-copy p:last-child{margin-bottom:0;}
+  .selftest .st-copy .big{color:var(--ink);font-size:19px;}
+  .selftest .st-copy b{color:var(--ink);font-weight:700;}
+  .mini{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);}
+  .mini .mt-row{font-family:var(--mono);font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s2);display:flex;align-items:center;justify-content:space-between;}
+  .mini .mt-row b{color:var(--accent);}
   .mini .row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line-2);font-size:14px;}
   .mini .row:last-child{border-bottom:none;}
   .mini .row .lab{color:var(--ink-2);}
-  .mini .row .val{font-family:var(--mono);color:var(--ink);font-weight:600;}
+  .mini .row .val{font-family:var(--mono);color:var(--ink);font-weight:700;}
   .mini .row .val.bad{color:var(--accent);}
   .dots{display:inline-flex;gap:5px;}
   .dots i{width:11px;height:11px;border-radius:50%;background:var(--line);display:inline-block;}
   .dots i.on{background:var(--accent);}
 
   /* scope */
-  .scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .scope-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
-  .scope-card h3{font-size:16px;margin:0 0 12px;}
+  .scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);}
+  .scope-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);}
+  .scope-card h3{font-size:16.5px;margin:0 0 var(--s2);}
   .scope-card ul{margin:0;padding:0;list-style:none;}
   .scope-card li{display:flex;gap:10px;font-size:14.5px;color:var(--ink-2);padding:7px 0;}
-  .scope-card li .m{flex-shrink:0;font-family:var(--mono);color:var(--accent);}
-  .scope-card.not li .m{color:var(--ink-3);}
+  .scope-card li .m{flex-shrink:0;font-family:var(--mono);color:var(--ink-2);}
 
   /* pricing */
-  .price-wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:32px;align-items:center;}
-  .price-card{background:var(--panel);border:1px solid var(--accent-line);border-radius:16px;padding:30px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -26px rgba(229,82,45,0.28);}
-  .price-card .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;}
-  .price-card .amt{font-size:52px;font-weight:700;letter-spacing:-0.03em;margin:8px 0 2px;color:var(--ink);}
-  .price-card .amt small{font-size:16px;font-weight:500;color:var(--ink-2);letter-spacing:0;}
-  .price-card .oneoff{font-size:14px;color:var(--ink-2);margin:0 0 20px;}
+  .price-wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:var(--s5);align-items:center;}
+  .price-card{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:var(--radius);padding:var(--s4);}
+  .price-card .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-2);font-weight:550;}
+  .price-card .amt{font-size:48px;font-weight:700;letter-spacing:-0.025em;margin:8px 0 2px;color:var(--ink);}
+  .price-card .amt small{font-size:16px;font-weight:400;color:var(--ink-2);letter-spacing:0;}
+  .price-card .oneoff{font-size:14px;color:var(--ink-2);margin:0 0 var(--s3);}
   .price-card .btn{width:100%;justify-content:center;}
   .price-incl{margin:0;padding:0;list-style:none;}
-  .price-incl li{display:flex;gap:12px;font-size:15.5px;color:var(--ink);padding:10px 0;border-bottom:1px solid var(--line-2);}
+  .price-incl li{display:flex;gap:12px;font-size:15.5px;color:var(--ink);padding:12px 0;border-bottom:1px solid var(--line-2);}
   .price-incl li:last-child{border-bottom:none;}
-  .price-incl li .chk{color:var(--accent);flex-shrink:0;font-weight:700;}
+  .price-incl li .chk{color:var(--ink-2);flex-shrink:0;font-weight:700;}
   .price-incl li span.sub{color:var(--ink-2);}
 
   /* request form */
-  #request .lede{margin-bottom:24px;}
-  .form-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px;max-width:520px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 16px 40px -28px rgba(20,22,25,0.22);}
-  #lead-form .field{margin-bottom:16px;display:flex;flex-direction:column;gap:6px;}
-  #lead-form label{font-size:13.5px;font-weight:600;color:var(--ink);}
+  #request .lede{margin-bottom:var(--s3);}
+  .request-wrap{display:grid;grid-template-columns:1.05fr 0.95fr;gap:var(--s5);align-items:start;}
+  .request-aside{padding-top:var(--s1);}
+  .next-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--s2);}
+  .next-steps li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--ink-2);line-height:1.5;}
+  .next-steps .ns-n{width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .request-recap{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .request-recap .rr-amt{font-size:24px;font-weight:700;letter-spacing:-0.025em;color:var(--ink);}
+  .request-recap .rr-label{font-size:14px;color:var(--ink-2);}
+  .form-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s4);max-width:520px;}
+  #lead-form .field{margin-bottom:var(--s2);display:flex;flex-direction:column;gap:6px;}
+  #lead-form label{font-size:13.5px;font-weight:700;color:var(--ink);}
   #lead-form label .req{color:var(--accent);}
-  #lead-form input,#lead-form select,#lead-form textarea{font-family:var(--sans);font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);color:var(--ink);width:100%;}
+  #lead-form input,#lead-form select,#lead-form textarea{font-family:var(--sans);font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel-2);color:var(--ink);width:100%;}
   #lead-form textarea{resize:vertical;}
   #lead-form input:focus,#lead-form select:focus,#lead-form textarea:focus{outline:2px solid var(--accent);outline-offset:1px;background:var(--panel);}
   #lead-form .btn{width:100%;justify-content:center;margin-top:6px;font-size:16px;}
-  .pay-alt{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);text-align:center;}
-  .pay-alt .pa-h{font-size:13px;color:var(--ink-2);margin:0 0 10px;font-weight:550;}
-  .pay-alt .btn-pay{display:inline-flex;align-items:center;gap:9px;background:var(--panel);color:var(--ink);font-weight:600;font-size:15px;padding:12px 22px;border-radius:10px;border:1px solid var(--accent-line);text-decoration:none;}
+  .pay-alt{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line);text-align:center;}
+  .pay-alt .pa-h{font-size:13px;color:var(--ink-2);margin:0 0 var(--s1);font-weight:550;}
+  .pay-alt .btn-pay{display:inline-flex;align-items:center;gap:9px;background:var(--panel);color:var(--ink);font-weight:550;font-size:15px;padding:12px 22px;border-radius:var(--radius);border:1px solid var(--line);text-decoration:none;}
   .pay-alt .btn-pay:hover{border-color:var(--accent);color:var(--accent);}
-  .pay-alt .pa-note{font-size:12.5px;color:var(--ink-3);margin:10px 0 0;line-height:1.5;}
+  .pay-alt .pa-note{font-size:12.5px;color:var(--ink-3);margin:var(--s2) 0 0;line-height:1.55;}
   #lead-form button:disabled{opacity:0.6;cursor:not-allowed;}
   .fineprint{font-size:13px;color:var(--ink-2);margin-top:8px;}
   #lead-status{min-height:18px;}
@@ -347,64 +404,60 @@
   #lead-status.err{color:#b3261e;}
 
   /* faq */
-  details{border-bottom:1px solid var(--line);padding:18px 0;}
+  details{border-bottom:1px solid var(--line);padding:var(--s2) 0;}
   details:first-of-type{border-top:1px solid var(--line);}
-  summary{font-size:16.5px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary{font-size:16.5px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:var(--s2);color:var(--ink);}
   summary::-webkit-details-marker{display:none;}
-  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
-  details[open] summary::after{content:"\2212";}
-  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;max-width:64ch;}
+  summary::after{content:"+";color:var(--ink-2);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";color:var(--accent);}
+  details p{margin:var(--s2) 0 0;color:var(--ink-2);font-size:15px;max-width:64ch;}
+  details ul{margin:var(--s1) 0 0;padding-left:20px;color:var(--ink-2);font-size:15px;max-width:64ch;}
+  details li{margin-bottom:6px;}
 
   /* final cta */
-  .final{border-top:1px solid var(--line);text-align:center;padding:88px 0;}
-  .final h2{font-size:clamp(26px,3.4vw,34px);margin-bottom:14px;}
-  .final .sub{color:var(--ink-2);font-size:18px;max-width:52ch;margin:0 auto 30px;}
+  .final{border-top:1px solid var(--line);text-align:center;padding:var(--section-pad) 0;}
+  .final h2{font-size:clamp(26px,3.4vw,34px);margin-bottom:var(--s2);}
+  .final .sub{color:var(--ink-2);font-size:18px;max-width:52ch;margin:0 auto var(--s4);}
   .final .cta-row{justify-content:center;}
 
   /* footer */
-  footer{border-top:1px solid var(--line);padding:40px 0 56px;background:var(--panel-2);}
-  footer .f-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:22px;}
-  footer .built{font-size:14px;color:var(--ink-2);max-width:60ch;line-height:1.5;}
-  footer .built b{color:var(--ink);font-weight:600;}
-  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.5;margin:0;}
-  footer .f-guides{margin:26px 0 22px;}
-  footer .f-guides .fg-h{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px;font-weight:600;}
+  footer{border-top:1px solid var(--line);padding:var(--s5) 0;background:var(--panel-2);}
+  footer .f-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s3);}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:60ch;line-height:1.55;}
+  footer .built b{color:var(--ink);font-weight:700;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.55;margin:0;}
+  footer .f-guides{margin:var(--s4) 0 var(--s3);}
+  footer .f-guides .fg-h{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 var(--s2);font-weight:550;}
   footer .f-guides ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 28px;}
   footer .f-guides a{font-size:13.5px;color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;}
   footer .f-guides a:hover{color:var(--ink);border-bottom-color:var(--ink-3);}
 
   /* methodology definitions */
-  .defs{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 1px 2px rgba(20,22,25,0.03),0 14px 34px -26px rgba(20,22,25,0.2);}
-  .def{display:grid;grid-template-columns:180px 1fr;gap:22px;padding:20px 22px;border-bottom:1px solid var(--line-2);}
+  .defs{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
+  .def{display:grid;grid-template-columns:180px 1fr;gap:var(--s3);padding:var(--s2) var(--s3);border-bottom:1px solid var(--line-2);}
   .def:last-child{border-bottom:none;}
-  .def .term{font-weight:650;color:var(--ink);font-size:15px;display:flex;align-items:center;gap:10px;}
-  .def .term .tn{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0;}
-  .def .desc{color:var(--ink-2);font-size:14.5px;margin:0;}
-  .def .desc b{color:var(--ink);font-weight:600;}
-  .method-note{margin-top:20px;font-size:14px;color:var(--ink-2);}
-  .method-note b{color:var(--ink);font-weight:600;}
+  .def .term{font-weight:700;color:var(--ink);font-size:15px;display:flex;align-items:center;gap:10px;}
+  .def .term .tn{font-family:var(--mono);font-size:11px;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0;}
+  .def .desc{color:var(--ink-2);font-size:14.5px;margin:0;max-width:64ch;}
+  .def .desc b{color:var(--ink);font-weight:700;}
+  .method-note{margin-top:var(--s3);font-size:14px;color:var(--ink-2);max-width:70ch;}
+  .method-note b{color:var(--ink);font-weight:700;}
 
   /* data handling */
-  .data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
-  .data-item{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;gap:14px;align-items:flex-start;}
-  .data-item .di{width:34px;height:34px;border-radius:9px;background:var(--accent-wash);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s2);}
+  .data-item{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s3);display:flex;gap:14px;align-items:flex-start;}
+  .data-item .di{width:32px;height:32px;border-radius:var(--radius);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .data-item h3{font-size:15px;margin:0 0 4px;color:var(--ink);}
   .data-item p{margin:0;font-size:14px;color:var(--ink-2);}
 
-  /* per-event detail + reference band */
-  .event-line{margin-top:14px;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;padding:11px 14px;overflow-x:auto;white-space:nowrap;}
-  .event-line b{color:var(--accent);}
-  .ref-line{margin-top:16px;font-size:13.5px;color:var(--ink-2);display:flex;gap:10px;align-items:flex-start;max-width:70ch;}
-  .ref-line .rk{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent-line);border-radius:6px;padding:2px 8px;flex-shrink:0;text-transform:uppercase;letter-spacing:0.05em;}
-
   /* hero complement callout */
-  .hero-complement{margin-top:24px;font-size:14px;color:var(--ink-2);line-height:1.55;max-width:52ch;border-left:2px solid var(--accent-line);padding-left:14px;}
-  .hero-complement b{color:var(--ink);font-weight:600;}
+  .hero-complement{margin-top:var(--s3);font-size:14px;color:var(--ink-2);line-height:1.55;max-width:52ch;border-left:2px solid var(--line);padding-left:14px;}
+  .hero-complement b{color:var(--ink);font-weight:700;}
 
-  /* reference grade band (delivers the benchmark read) */
-  .band{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px;}
+  /* reference grade band */
+  .band{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);margin-top:var(--s3);}
   .bcell{border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;background:var(--panel);}
-  .bcell .bh{display:flex;align-items:center;gap:8px;font-weight:650;font-size:14.5px;color:var(--ink);margin-bottom:7px;}
+  .bcell .bh{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;color:var(--ink);margin-bottom:7px;}
   .bcell .bh .bdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
   .bcell .brange{font-family:var(--mono);font-size:12px;color:var(--ink-2);line-height:1.45;}
   .bcell .bdot.n{background:var(--ink);}
@@ -412,10 +465,10 @@
   .bcell .bdot.a{background:var(--accent);}
   .bcell.flagcell{border-color:var(--accent-line);background:var(--accent-wash);}
   .bcell.flagcell .bh{color:var(--accent);}
-  .band-note{margin-top:12px;font-size:13px;color:var(--ink-3);max-width:72ch;}
+  .band-note{margin-top:var(--s2);font-size:13px;color:var(--ink-3);max-width:64ch;}
 
-  /* single-call detail (visible sample deliverable) */
-  .calldetail{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);}
+  /* single-call detail */
+  .calldetail{margin-top:var(--s2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel);}
   .calldetail .cd-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line-2);background:var(--panel-2);font-family:var(--mono);font-size:12px;color:var(--ink-2);flex-wrap:wrap;}
   .calldetail .cd-h b{color:var(--ink);}
   .cd-ev{display:flex;align-items:center;gap:10px 14px;padding:11px 16px;border-bottom:1px solid var(--line-2);font-family:var(--mono);font-size:12.5px;color:var(--ink-2);flex-wrap:wrap;}
@@ -426,17 +479,7 @@
   .cd-ev .tag.bad{color:var(--accent);}
   .cd-ev .tag.bad .td{background:var(--accent);}
 
-  /* shared flow strip (scoring consistency + where it fits) */
-  .flowstrip{display:flex;align-items:stretch;gap:10px;margin-top:24px;}
-  .flowstrip .fs-node{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;font-size:14px;color:var(--ink-2);display:flex;flex-direction:column;gap:5px;line-height:1.4;}
-  .flowstrip .fs-node .fs-k{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);font-weight:600;}
-  .flowstrip .fs-node.accent{border-color:var(--accent-line);background:var(--accent-wash);color:var(--ink);}
-  .flowstrip .fs-node b{color:var(--ink);font-weight:600;}
-  .flowstrip .fs-arrow{display:flex;align-items:center;color:var(--ink-3);flex-shrink:0;}
-  @media (max-width:720px){
-    .flowstrip{flex-direction:column;}
-    .flowstrip .fs-arrow{transform:rotate(90deg);align-self:center;margin:-2px 0;}
-  }
+  .diagram-panel{padding:var(--s4) var(--s3);}
 
   @media (max-width:640px){
     .def{grid-template-columns:1fr;gap:7px;}
@@ -444,20 +487,26 @@
   }
 
   @media (max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:40px;}
-    .selftest{grid-template-columns:1fr;gap:28px;}
-    .price-wrap{grid-template-columns:1fr;gap:26px;}
+    .hero-grid{grid-template-columns:1fr;gap:var(--s4);}
+    .selftest{grid-template-columns:1fr;gap:var(--s3);}
+    .price-wrap{grid-template-columns:1fr;gap:var(--s3);}
+    .request-wrap{grid-template-columns:1fr;gap:var(--s3);}
+    .request-aside{padding-top:0;}
     .what-get-list{grid-template-columns:1fr;}
+    .scope-grid{grid-template-columns:1fr;}
+    .nav-main{display:none;}
   }
   @media (max-width:640px){
-    section{padding:56px 0;}
-    .hero{padding:52px 0 60px;}
+    section{padding:var(--section-pad-m) 0;}
+    .hero{padding:var(--section-pad-m) 0;}
+    .eyebrow.mid{margin-top:var(--s3);}
     .grid3{grid-template-columns:1fr;}
     .flow{grid-template-columns:1fr;}
-    .flow-arrow{display:none;}
-    .scope-grid{grid-template-columns:1fr;}
     .band{grid-template-columns:1fr;}
-    .final{padding:64px 0;}
+    .final{padding:var(--section-pad-m) 0;}
+    .price-card .amt{font-size:40px;}
+    /* when the CTA row wraps, the ghost link's text must start flush with the button's text above it */
+    .cta-row .btn-ghost{padding-left:24px;}
   }
 </style>
 
@@ -469,6 +518,12 @@
       <span class="mk"><span></span><span></span></span>
       BargeBench
     </a>
+    <nav class="nav-main" aria-label="Primary">
+      <a href="#method">Method</a>
+      <a href="#deliverable">Report</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
     <a class="top-cta" href="#request">Request the report</a>
   </div>
 </header>
@@ -482,19 +537,17 @@
         <div>
           <p class="eyebrow">Voice agent reliability testing</p>
           <h1>Does your voice agent stop talking when the caller does?</h1>
-          <p class="sub">Barge-in is the moment a caller talks over your agent. Send us <b>10 to 15 of your own recorded calls</b> and we score how your agent handles it on three fixed criteria, then return a reliability report in <b>about a week</b>. <b>$499, one time, no integration.</b></p>
+          <p class="sub">Barge-in is the moment a caller talks over your agent. Send us <b>10 to 15 of your own recorded calls</b> and we score every barge-in event on three fixed criteria, map each failure to the stack settings most likely behind it, and return a reliability report in about a week. <b>$499, one time, no integration.</b></p>
           <div class="cta-row">
             <a class="btn" href="#request">Request the report <span class="arw">&rsaquo;</span></a>
             <a class="btn-ghost" href="#measure">See what we measure</a>
           </div>
           <p class="hero-complement">Simulated-call testing platforms probe your agent with synthetic callers. This is the one thing they miss: how your agent behaves when a <b>real caller talks over it</b>. Run it before or alongside a continuous testing platform, on your own real calls.</p>
-          <p class="cred">Built by <a href="https://attentionlabs.ai" target="_blank" rel="noopener" style="color:inherit;"><b>Attention Labs</b></a>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
         </div>
 
         <div class="glass hero-card">
           <div class="hc-top">
             <span class="hc-title">Barge-in event</span>
-            <span class="hc-dot"></span>
           </div>
           <svg class="hero-svg" viewBox="0 0 420 210" role="img" aria-label="A dual-track audio timeline showing a caller starting to speak while the agent keeps talking, with the overlap highlighted.">
             <!-- lane labels -->
@@ -536,9 +589,9 @@
       <p class="eyebrow">The reliability gap</p>
       <h2>An agent can sound great in a demo and still talk over real callers.</h2>
       <p class="lede">Barge-in is when the caller starts speaking while the agent is still talking. A reliable agent yields to the caller. A broken one keeps talking over them. This is the moment a voice agent stops feeling reliable, and it only shows up on real calls.</p>
-      <p class="note" style="max-width:66ch;margin:-10px 0 24px;">We start with barge-in because it is the turn-taking failure callers notice first. When your agent keeps talking over someone who is trying to speak, the call feels broken no matter how good the answer is.</p>
+      <p class="note" style="margin-bottom:var(--s4);">We start with barge-in because it is the turn-taking failure callers notice first. When your agent keeps talking over someone who is trying to speak, the call feels broken no matter how good the answer is.</p>
 
-      <div class="glass" style="padding:26px 24px;">
+      <div class="glass diagram-panel">
         <div class="diagram-scroll">
         <svg width="100%" viewBox="0 0 900 230" role="img" aria-label="Dual-track audio timeline: the caller begins speaking mid-utterance while the agent continues, creating an overlap where both talk at once.">
           <!-- axis -->
@@ -561,9 +614,10 @@
           <line x1="430" y1="182" x2="680" y2="182" stroke="#e5522d" stroke-width="1.4"/>
           <line x1="430" y1="177" x2="430" y2="187" stroke="#e5522d" stroke-width="1.4"/>
           <line x1="680" y1="177" x2="680" y2="187" stroke="#e5522d" stroke-width="1.4"/>
-          <text x="555" y="212" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="12.5" fill="#e5522d">both voices live at once = talk-over, measured in seconds to yield</text>
+          <text x="555" y="205" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="12.5" fill="#e5522d">time to yield</text>
         </svg>
         </div>
+        <p class="diagram-cap">Both voices live at once = talk-over, measured in seconds to yield.</p>
         <p class="swipe-hint">Swipe sideways to see the full timeline</p>
       </div>
     </div>
@@ -574,11 +628,11 @@
     <div class="wrap">
       <p class="eyebrow">What we measure</p>
       <h2>Three fixed, objective criteria per barge-in event.</h2>
-      <p class="lede">No black box and no subjective grade. Every barge-in event in your calls is scored the same three ways, and each one maps onto the timeline above.</p>
+      <p class="lede">Every barge-in event in your calls is scored the same three ways, and each one maps onto the timeline above.</p>
       <div class="grid3">
         <div class="card">
           <div class="ic">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </div>
           <span class="k">Criterion 1</span>
           <h3>Did it yield?</h3>
@@ -586,7 +640,7 @@
         </div>
         <div class="card">
           <div class="ic">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </div>
           <span class="k">Criterion 2</span>
           <h3>Time to yield</h3>
@@ -594,7 +648,7 @@
         </div>
         <div class="card">
           <div class="ic">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2 6 4-14 2 8h6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2 6 4-14 2 8h6"/></svg>
           </div>
           <span class="k">Criterion 3</span>
           <h3>Talk-over</h3>
@@ -602,7 +656,7 @@
         </div>
       </div>
       <p class="map-note">Yield maps to whether the agent block stops at the interrupt line. Time to yield is the accent bracket. Talk-over is the accent overlap where both voices are live.</p>
-      <p class="map-note">We only count genuine barge-in, where the caller is taking the floor. Backchannels like mhm or uh-huh are not counted, so a good agent is not marked down for talking through them. <a href="#method">See how we score each event.</a></p>
+      <p class="map-note">We only count genuine barge-in, where the caller is taking the floor. <a href="#method">See how we score each event, including how backchannels are handled.</a></p>
     </div>
   </section>
 
@@ -631,21 +685,31 @@
         </div>
       </div>
       <div class="flowstrip">
-        <div class="fs-node"><span class="fs-k">Human review</span>A person listens and marks every barge-in event.</div>
+        <div class="fs-node"><span class="fs-k">Human review</span><span class="fs-t">A person listens and marks every barge-in event.</span></div>
         <div class="fs-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>
-        <div class="fs-node"><span class="fs-k">Read the audio</span>Timing comes from the recording, not a guess by ear.</div>
+        <div class="fs-node"><span class="fs-k">Read the audio</span><span class="fs-t">Timing comes from the recording, not a guess by ear.</span></div>
         <div class="fs-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>
-        <div class="fs-node"><span class="fs-k">Fixed rule</span>The same one-second line is applied to every event.</div>
+        <div class="fs-node accent"><span class="fs-k">Fixed rule</span><span class="fs-t">The same one-second line is applied to every event.</span></div>
       </div>
-      <p class="method-note">Because the rule is fixed and the timing comes from the recording, every call is scored the same way against the same line, including the one we ran on <b>our own system</b>, which is why we can publish our own failing score below. Scoring is done by the team at <b>Attention Labs</b>, a voice-AI research company that studies how people and voice agents take turns in conversation. The scoring code behind our timing measurements is published in a public test harness, where synthetic CI scenarios use per scenario talk-over tolerances from 0.6s to 1.5s; for real recorded calls we hold every event to the same one second line, a deliberate simplification that keeps your scores comparable across calls.</p>
+      <p class="method-note">Because the rule is fixed and the timing comes from the recording, every call is scored the same way against the same line, including the one we ran on <b>our own system</b>, which is why we can publish our own failing score below. The same small team scores every report, and every real call is held to the same one-second line so your scores stay comparable from batch to batch.</p>
+    </div>
+  </section>
+
+  <!-- 3c. OPEN HARNESS (fused with How we score: same "how we score" narrative beat) -->
+  <section id="open" class="fused">
+    <div class="wrap">
+      <p class="eyebrow mid">Reproducible by design</p>
+      <h2 style="font-size:24px;">Our scoring harness is open source. That is the point.</h2>
+      <p class="lede" style="font-size:16.5px;">Everything we measure, you can re-measure. The harness, the scenarios, and the methodology are <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">public</a>, so every number in your report is reproducible and none of it is a black box. What you are paying for is not secret software. It is independent judgment, the hours, the fix plan, and a result you did not grade yourself.</p>
+      <p class="note">Your logs cannot do this job alone. If your pipeline's turn detector missed the caller cutting in, there is usually no log line for it. The way to find what your own detector did not detect is a pass over the raw audio by something other than your pipeline.</p>
     </div>
   </section>
 
   <!-- 4. HOW IT WORKS -->
-  <section id="how">
+  <section id="how" class="fused">
     <div class="wrap">
-      <p class="eyebrow">How it works</p>
-      <h2>Three steps. No platform to onboard.</h2>
+      <p class="eyebrow mid">How it works</p>
+      <h2 style="font-size:24px;">Three steps. No platform to onboard.</h2>
       <div class="flow">
         <div class="step">
           <div class="n">1</div>
@@ -681,7 +745,6 @@
 
       <div class="report">
         <div class="report-bar">
-          <span class="rd a"></span><span class="rd"></span><span class="rd"></span>
           <span class="rt">barge-in-reliability-report.pdf</span>
           <span class="rmeta">12 calls scored</span>
         </div>
@@ -732,9 +795,9 @@
         <div class="cd-ev"><span class="t">2:04.3</span> caller takes the floor &middot; <span class="t">2:07.3</span> agent yields &middot; <span class="t">3.0s</span> to yield <span class="tag bad"><span class="td"></span>talk-over</span></div>
       </div>
 
-      <p class="eyebrow" style="margin-top:40px;">How to read your score</p>
-      <h3 style="font-size:18px;margin:0 0 4px;color:var(--ink);letter-spacing:-0.02em;">A reference band, so a number like 0.9s or 2.6s means something.</h3>
-      <p class="note" style="max-width:64ch;margin-bottom:4px;">The same fixed line is applied to every call we score, including our own. Your report places each event and your median on this scale.</p>
+      <p class="eyebrow mid">How to read your score</p>
+      <h3 style="font-size:19px;margin:0 0 6px;">A reference band, so a number like 0.9s or 2.6s means something.</h3>
+      <p class="note">Your report places each event and your median on this scale.</p>
       <div class="band">
         <div class="bcell">
           <div class="bh"><span class="bdot n"></span>Clean</div>
@@ -751,15 +814,18 @@
       </div>
       <p class="band-note">This band comes from the one-second rule above, not from other companies' numbers. It is a reference for reading your own calls, not a peer leaderboard.</p>
 
-      <p class="note" style="margin-top:22px;">The scorecard and per-event drill-down above are the real report format. Want a full multi-call sample end to end? <a href="#request">Ask us</a> and we will send one.</p>
+      <p class="note mt">The scorecard and per-event drill-down above are the real report format. Want a full multi-call sample end to end? <a href="#request">Ask us</a> and we will send one.</p>
 
       <ul class="what-get-list">
         <li><span class="chk">&check;</span> Per-call rows with every barge-in event we found</li>
         <li><span class="chk">&check;</span> Yield yes or no for each event</li>
         <li><span class="chk">&check;</span> Seconds to yield for each event</li>
         <li><span class="chk">&check;</span> Talk-over flag for each event</li>
+        <li><span class="chk">&check;</span> Fix guidance for each failed event, mapped to your stack's settings</li>
+        <li><span class="chk">&check;</span> One re-scored, re-attested check of up to 5 calls within 60 days, included</li>
+        <li><span class="chk">&check;</span> A dated, signed attestation page you can forward</li>
         <li><span class="chk">&check;</span> An aggregate roll-up across all your calls</li>
-        <li><span class="chk">&check;</span> Delivered as a report in about a week</li>
+        <li><span class="chk">&check;</span> Delivered as a single PDF report</li>
       </ul>
     </div>
   </section>
@@ -770,63 +836,79 @@
       <p class="eyebrow">Works with your stack</p>
       <h2>Bring recordings from the stack you already run.</h2>
       <div class="chips">
-        <span class="chip"><span class="cd"></span>Vapi</span>
-        <span class="chip"><span class="cd"></span>Retell</span>
-        <span class="chip"><span class="cd"></span>Bland</span>
-        <span class="chip"><span class="cd"></span>Pipecat</span>
-        <span class="chip"><span class="cd"></span>Self-hosted LiveKit</span>
-        <span class="chip any"><span class="cd"></span>Any stack that produces call recordings</span>
+        <span class="chip">Vapi</span>
+        <span class="chip">Retell</span>
+        <span class="chip">Bland</span>
+        <span class="chip">Pipecat</span>
+        <span class="chip">Self-hosted LiveKit</span>
+        <span class="chip any">Any stack that produces call recordings</span>
       </div>
-      <p class="note" style="margin-top:20px;max-width:56ch;">Because you send your own recordings, nothing connects to your system. There is no API access, no keys, and no code to add.</p>
+      <p class="note mt">Because you send your own recordings, nothing connects to your system. There is no API access, no keys, and no code to add.</p>
     </div>
   </section>
 
-  <!-- 6b. YOUR RECORDINGS -->
-  <section id="data">
+  <!-- 6b. YOUR RECORDINGS (Trust, part 1; fused with Works with your stack above) -->
+  <section id="data" class="fused">
     <div class="wrap">
-      <p class="eyebrow">Your recordings</p>
-      <h2>Your call audio stays yours.</h2>
+      <p class="eyebrow mid">Your recordings</p>
+      <h2 style="font-size:24px;">Your call audio stays yours.</h2>
       <p class="lede">You are sending real calls, so here is exactly how we handle them.</p>
       <div class="data-grid">
         <div class="data-item">
-          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></div>
+          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></div>
           <div><h3>Deleted within 14 days</h3><p>We delete your recordings and all working files within 14 days of delivering your report.</p></div>
         </div>
         <div class="data-item">
-          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></div>
+          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></div>
           <div><h3>Never leaves our machines</h3><p>Scoring runs locally on our own hardware in the United States. Your audio is never sent to third party AI services and never used to train any model.</p></div>
         </div>
         <div class="data-item">
-          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg></div>
-          <div><h3>DPA or NDA before anything moves</h3><p>Ask and we sign before you send a single file. We are not a HIPAA business associate, so healthcare teams should redact PHI first.</p></div>
+          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg></div>
+          <div><h3>DPA or NDA before anything moves</h3><p>Ask and we sign before you send a single file. If your calls include healthcare information, redact PHI (names, numbers, account details) before sending. Scoring only needs the timing of speech, not the content.</p></div>
         </div>
         <div class="data-item">
-          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12h3"/><path d="M14 12h2"/></svg></div>
+          <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12h3"/><path d="M14 12h2"/></svg></div>
           <div><h3>Redacted audio is fine</h3><p>Scoring is about the timing of speech, not the words, so you can bleep names and numbers first.</p></div>
         </div>
       </div>
-      <p class="note" style="margin-top:18px;">The person who scores your calls signs the report and answers your questions directly at david@attentionlabs.ai.</p>
+      <p class="note mt">The person who scores your calls signs the report and answers your questions directly at david@attentionlabs.ai.</p>
     </div>
   </section>
 
-  <!-- 7. HONEST SELF-TEST -->
-  <section id="selftest">
+  <!-- 7. HONEST SELF-TEST (Trust, part 2, fused with recordings above) -->
+  <section id="selftest" class="fused">
     <div class="wrap">
-      <p class="eyebrow">Honest self-test</p>
-      <h2>We ran it on our own system first, and published the failing score.</h2>
+      <p class="eyebrow mid">Honest self-test</p>
+      <h2 style="font-size:24px;">We ran it on our own system first, and published the failing score.</h2>
       <div class="selftest">
         <div class="st-copy">
-          <p class="big">We ran BargeBench on our own multi-agent voice system before offering it to anyone. It <b>talked over the caller in 3 of 5 barge-in events</b>, with a <b>median of about 7 seconds to respond</b>.</p>
+          <p class="big">We ran BargeBench on our own multi-agent voice system before offering it to anyone. It talked over the caller in <b>3 of 5</b> barge-in events, with a median of <b>about 7 seconds</b> to respond.</p>
           <p>We publish our own score, so you can trust the method. A reliability test is only worth buying if it is honest about the tester too.</p>
         </div>
         <div class="mini">
-          <div class="mt"><span>Our own system</span><b>failing</b></div>
+          <div class="mt-row"><span>Our own system</span><b>failing</b></div>
           <div class="row"><span class="lab">Barge-in events</span><span class="val">5</span></div>
           <div class="row"><span class="lab">Talked over the caller</span><span class="val bad">3 of 5</span></div>
           <div class="row"><span class="lab">Median time to respond</span><span class="val bad">~7s</span></div>
           <div class="row"><span class="lab">Event outcomes</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
         </div>
       </div>
+      <div class="table-scroll mt">
+        <table class="sc">
+          <thead>
+            <tr><th>Event</th><th>Overlap</th><th>Yielded in overlap</th><th>Time to next real turn</th><th>Talk-over</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td class="num">1.59s</td><td>yes</td><td class="num">6.6s</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
+            <tr><td>2</td><td class="num">1.32s</td><td>yes</td><td class="num">none in window</td><td><span class="flag ok"><span class="d"></span>no</span></td></tr>
+            <tr><td>3</td><td class="num">1.47s</td><td>yes</td><td class="num">7.1s</td><td><span class="flag ok"><span class="d"></span>no</span></td></tr>
+            <tr><td>4</td><td class="num">5.34s</td><td>no</td><td class="num">11.0s</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
+            <tr><td>5</td><td class="num">1.68s</td><td>yes</td><td class="num">none in window</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="swipe-hint">Swipe the table sideways for all five columns</p>
+      <p class="note mt">Five events across two recorded sessions with a scripted interruption line: a self-test, not a benchmark. Two events had no further agent turn inside the recording window, so their response times are excluded rather than counted as zero. The median above is taken over the three measured events.</p>
     </div>
   </section>
 
@@ -851,19 +933,17 @@
             <li><span class="m">&times;</span> Not simulated callers</li>
             <li><span class="m">&times;</span> Not an integration or a platform</li>
             <li><span class="m">&times;</span> Not a test of the agent cutting the caller off, only of it talking over them</li>
-            <li><span class="m">&times;</span> One focused, one-time report on the barge-in failure mode</li>
+            <li><span class="m">&times;</span> Not ongoing monitoring: one focused, one-time report on the barge-in failure mode</li>
           </ul>
         </div>
       </div>
-      <p class="note" style="margin-top:22px;max-width:70ch;">Ten to fifteen calls is a deliberate, focused read on one failure mode. It is a diagnostic that surfaces the failure, not a statistical certification of reliability. If a batch turns out thin on barge-in events, we tell you and you can send a few more at no extra cost. Shipped a fix? Send a fresh batch and we score it again.</p>
-
-      <p class="eyebrow" style="margin-top:40px;">Where it fits</p>
+      <p class="eyebrow mid">Where it fits</p>
       <div class="flowstrip">
-        <div class="fs-node"><span class="fs-k">Start</span>Your own real calls, the ones simulations do not cover.</div>
+        <div class="fs-node"><span class="fs-k">Start</span><span class="fs-t">Your own real calls, the ones simulations do not cover.</span></div>
         <div class="fs-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>
-        <div class="fs-node accent"><span class="fs-k">BargeBench</span>A focused human read of <b>barge-in</b> on those real calls.</div>
+        <div class="fs-node accent"><span class="fs-k">BargeBench</span><span class="fs-t">A focused human read of <b>barge-in</b> on those real calls.</span></div>
         <div class="fs-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>
-        <div class="fs-node"><span class="fs-k">Then</span>Run it before or alongside a <b>continuous testing platform</b> or a broader eval suite.</div>
+        <div class="fs-node"><span class="fs-k">Then</span><span class="fs-t">Run it before or alongside a <b>continuous testing platform</b> or a broader eval suite.</span></div>
       </div>
     </div>
   </section>
@@ -877,7 +957,7 @@
         <div class="price-card">
           <span class="tag">Barge-in reliability report</span>
           <div class="amt">$499<small> one time</small></div>
-          <p class="oneoff">Flat. No setup fee, no monthly charge.</p>
+          <p class="oneoff">Flat. No setup fee, no monthly charge. Includes the per-event fix map, one re-attested retest within 60 days, and a signed attestation page.</p>
           <a class="btn" href="#request">Request the report <span class="arw">&rsaquo;</span></a>
           <a class="btn-ghost" href="https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Or pay now and start today &rsaquo;</a>
         </div>
@@ -886,9 +966,97 @@
           <li><span class="chk">&check;</span> <span>Three fixed criteria on every barge-in event: yield, seconds to yield, talk-over</span></li>
           <li><span class="chk">&check;</span> <span>A per-call scorecard</span></li>
           <li><span class="chk">&check;</span> <span>An aggregate reliability report</span></li>
-          <li><span class="chk">&check;</span> <span>Returned in about a week</span></li>
-          <li><span class="chk">&check;</span> <span>No integration and no onboarding</span></li>
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <p class="eyebrow">FAQ</p>
+      <h2>Answers before you ask.</h2>
+      <div>
+        <details>
+          <summary>What is barge-in for a voice agent?</summary>
+          <p>Barge-in is when the caller starts speaking while the agent is still talking. A reliable agent yields to the caller. An unreliable one keeps talking over them.</p>
+        </details>
+        <details>
+          <summary>How do you test barge-in?</summary>
+          <p>You send 10 to 15 of your own recorded calls. We score every barge-in event on three fixed criteria: did the agent yield, how many seconds it took to yield, and whether it kept talking over the caller.</p>
+        </details>
+        <details>
+          <summary>How do you detect and score barge-in events?</summary>
+          <p>A person on our team listens to every call and marks each barge-in event, then reads the timing from the call's audio rather than by ear. Human review finds the events, the recording fixes the timing, and the same fixed rule is applied to every event. There is no automated black box and no subjective grade.</p>
+        </details>
+        <details>
+          <summary>Can I see how scoring works before I pay?</summary>
+          <p>Yes. The scoring method is public: we publish a test harness with the same three criteria, synthetic scenarios, and adapters at <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">github.com/quantumCF/voice-agent-barge-in-tests</a>, published under our engineering org quantumCF. Your report is scored by a person against the same fixed rules.</p>
+        </details>
+        <details>
+          <summary>Why not just do this yourself?</summary>
+          <p>You can. The scoring harness we use is open source under an MIT license, and our methodology is published. If you have dual channel recordings and an engineer comfortable in Python, you can produce your own timing numbers in roughly a day: listen through every call, find every interruption, judge which were real interruptions versus backchannels, mark each onset, run the scorer, and sanity check the output against the waveform.</p>
+          <p>Teams buy the report for the same reasons teams with security engineers still commission penetration tests:</p>
+          <ul>
+            <li>The marking is not done by the people being graded. Every event is judged by a reviewer with no stake in the result, and the appendix shows the per event audit trail so you can check any call yourself.</li>
+            <li>We score the audio, not your pipeline's logs. Your stack's telemetry can only report the interruptions its own detector noticed. Listening to the recordings is how the missed ones get found.</li>
+            <li>Each failed event comes with fix guidance mapped to the configuration options your stack exposes, not just a number.</li>
+            <li>It costs you zero engineering hours, and you get a document you can hand to a customer, a partner, or a reviewer as independent output instead of self graded homework.</li>
+          </ul>
+          <p>If you would rather do it yourself, use the harness. It is free and we maintain it. If you want it done independently, done once, and delivered with a fix plan attached, that is what the report is for.</p>
+        </details>
+        <details>
+          <summary>Can I just feed the recordings into a general purpose AI model and ask it to score them?</summary>
+          <p>Not with numbers you can trust today. General purpose audio models currently report event times at roughly whole second resolution, and barge-in behavior is judged in fractions of a second. Overlapping speech on mixed channel, telephone bandwidth audio is also the hardest case for automated listening, and the failure mode is the bad kind: a model states a confident time you cannot check against anything. Our scoring is the opposite by design. Every number in your report traces to a specific point in the audio, with the marking criteria published, so you can replay any event and verify it yourself.</p>
+        </details>
+        <details>
+          <summary>What happens to the recordings I send?</summary>
+          <p>We delete your recordings within 14 days of delivering the report, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words.</p>
+        </details>
+        <details>
+          <summary>Do you count backchannels like uh-huh?</summary>
+          <p>No. We only count moments where the caller is taking the floor. An agent that keeps talking through a backchannel like mhm or uh-huh is not marked down.</p>
+        </details>
+        <details>
+          <summary>What counts as a good score?</summary>
+          <p>A yield under about one second reads as clean, because that is roughly where a pause stops feeling like natural turn-taking and starts sounding like the agent ignoring the caller. Anything longer, or the agent finishing its sentence over the caller, is flagged.</p>
+        </details>
+        <details>
+          <summary>Will 10 to 15 calls surface enough barge-in events?</summary>
+          <p>Ten to fifteen real calls is a diagnostic read, not a statistical certification. Its job is to surface how your agent behaves when it is interrupted. If a batch has few barge-in events we tell you, and you can send a few more calls at no extra cost.</p>
+        </details>
+        <details>
+          <summary>Do you also score the agent interrupting the caller?</summary>
+          <p>No. This report scores the agent talking over the caller during barge-in. The inverse, an over-eager agent cutting the caller off, is out of scope for this focused check.</p>
+        </details>
+        <details>
+          <summary>How is this different from a continuous testing platform?</summary>
+          <p>It is narrower and one-time. A continuous testing platform runs simulated calls and watches your agent over time. This is a focused human read of one failure mode on your own real calls, made to run before or alongside that kind of setup, not to replace it.</p>
+        </details>
+        <details>
+          <summary>Can I re-run the report after I ship a fix?</summary>
+          <p>Yes. One re-scored and re-attested check of up to 5 calls within 60 days is included with your report. After that, a fresh batch is scored as a new report.</p>
+        </details>
+        <details>
+          <summary>Do I need to integrate anything?</summary>
+          <p>No. There is no onboarding and nothing connects to your system. You send recorded calls and we return a report.</p>
+        </details>
+        <details>
+          <summary>Which voice stacks does this work with?</summary>
+          <p>Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that produces call recordings.</p>
+        </details>
+        <details>
+          <summary>What do I get?</summary>
+          <p>A per-call scorecard and an aggregate reliability report, returned in about a week.</p>
+        </details>
+        <details>
+          <summary>Is this continuous monitoring?</summary>
+          <p>No. It is a one-time report focused on the barge-in failure mode.</p>
+        </details>
+        <details>
+          <summary>How much does it cost?</summary>
+          <p>$499, one time.</p>
+        </details>
       </div>
     </div>
   </section>
@@ -899,6 +1067,7 @@
       <p class="eyebrow">Start a report</p>
       <h2>Request your report.</h2>
       <p class="lede">Tell us about your stack and we reply within one business day with upload instructions and a payment link. Or skip the wait and pay directly below. The form itself never charges you.</p>
+      <div class="request-wrap">
       <div class="form-panel">
         <form id="lead-form" novalidate>
         <div class="field">
@@ -934,82 +1103,21 @@
       <div class="pay-alt">
         <p class="pa-h">Ready to start today?</p>
         <a class="btn-pay" href="https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00" target="_blank" rel="noopener">Pay $499 now <span class="arw">&rsaquo;</span></a>
-        <p class="pa-note">Secure Stripe checkout. After payment, send us a link to your recordings and the one week clock starts. Charges appear on your card statement as Attention Labs Incorporated, BargeBench's parent company.</p>
+        <p class="pa-note">Secure Stripe checkout. After payment, send us a link to your recordings and the clock starts. Charges appear on your card statement as Attention Labs Incorporated, BargeBench's parent company.</p>
       </div>
       </div>
-    </div>
-  </section>
-
-  <!-- 10. FAQ -->
-  <section id="faq">
-    <div class="wrap">
-      <p class="eyebrow">FAQ</p>
-      <h2>Answers before you ask.</h2>
-      <div style="max-width:760px;">
-        <details>
-          <summary>What is barge-in for a voice agent?</summary>
-          <p>Barge-in is when the caller starts speaking while the agent is still talking. A reliable agent yields to the caller. An unreliable one keeps talking over them.</p>
-        </details>
-        <details>
-          <summary>How do you test barge-in?</summary>
-          <p>You send 10 to 15 of your own recorded calls. We score every barge-in event on three fixed criteria: did the agent yield, how many seconds it took to yield, and whether it kept talking over the caller.</p>
-        </details>
-        <details>
-          <summary>How do you detect and score barge-in events?</summary>
-          <p>A person on our team listens to every call and marks each barge-in event, then reads the timing from the call's audio rather than by ear. Human review finds the events, the recording fixes the timing, and the same fixed rule is applied to every event. There is no automated black box and no subjective grade.</p>
-        </details>
-        <details>
-          <summary>Can I see how scoring works before I pay?</summary>
-          <p>Yes. The scoring method is public: we publish a test harness with the same three criteria, synthetic scenarios, and adapters at <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">github.com/quantumCF/voice-agent-barge-in-tests</a>, published under our engineering org quantumCF. Your report is scored by a person against the same fixed rules.</p>
-        </details>
-        <details>
-          <summary>What happens to the recordings I send?</summary>
-          <p>We delete your recordings within 14 days of delivering the report, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words.</p>
-        </details>
-        <details>
-          <summary>Do you count backchannels like uh-huh?</summary>
-          <p>No. We only count moments where the caller is taking the floor. An agent that keeps talking through a backchannel like mhm or uh-huh is not marked down.</p>
-        </details>
-        <details>
-          <summary>What counts as a good score?</summary>
-          <p>A yield under about one second reads as clean, because that is roughly where a pause stops feeling like natural turn-taking and starts sounding like the agent ignoring the caller. Anything longer, or the agent finishing its sentence over the caller, is flagged.</p>
-        </details>
-        <details>
-          <summary>Will 10 to 15 calls surface enough barge-in events?</summary>
-          <p>Ten to fifteen real calls is a diagnostic read, not a statistical certification. Its job is to surface how your agent behaves when it is interrupted. If a batch has few barge-in events we tell you, and you can send a few more calls at no extra cost.</p>
-        </details>
-        <details>
-          <summary>Do you also score the agent interrupting the caller?</summary>
-          <p>No. This report scores the agent talking over the caller during barge-in. The inverse, an over-eager agent cutting the caller off, is out of scope for this focused check.</p>
-        </details>
-        <details>
-          <summary>How is this different from a continuous testing platform?</summary>
-          <p>It is narrower and one-time. A continuous testing platform runs simulated calls and watches your agent over time. This is a focused human read of one failure mode on your own real calls, made to run before or alongside that kind of setup, not to replace it.</p>
-        </details>
-        <details>
-          <summary>Can I re-run the report after I ship a fix?</summary>
-          <p>Yes. Send a fresh batch of recordings and we score it again.</p>
-        </details>
-        <details>
-          <summary>Do I need to integrate anything?</summary>
-          <p>No. There is no onboarding and nothing connects to your system. You send recorded calls and we return a report.</p>
-        </details>
-        <details>
-          <summary>Which voice stacks does this work with?</summary>
-          <p>Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that produces call recordings.</p>
-        </details>
-        <details>
-          <summary>What do I get?</summary>
-          <p>A per-call scorecard and an aggregate reliability report, returned in about a week.</p>
-        </details>
-        <details>
-          <summary>Is this continuous monitoring?</summary>
-          <p>No. It is a one-time report focused on the barge-in failure mode.</p>
-        </details>
-        <details>
-          <summary>How much does it cost?</summary>
-          <p>$499, one time.</p>
-        </details>
+      <aside class="request-aside">
+        <p class="eyebrow">What happens next</p>
+        <ol class="next-steps">
+          <li><span class="ns-n">1</span><span>Tell us about your stack.</span></li>
+          <li><span class="ns-n">2</span><span>We reply within one business day with upload instructions and a payment link.</span></li>
+          <li><span class="ns-n">3</span><span>Send your recordings. The report comes back in about a week.</span></li>
+        </ol>
+        <div class="request-recap">
+          <span class="rr-amt">$499</span>
+          <span class="rr-label">Flat, one time. No seats, no subscription.</span>
+        </div>
+      </aside>
       </div>
     </div>
   </section>
@@ -1018,7 +1126,7 @@
   <section class="final">
     <div class="wrap">
       <h2>Find out how your agent handles being interrupted.</h2>
-      <p class="sub">Ten to fifteen recorded calls is all it takes to get a real read on barge-in.</p>
+      <p class="sub">One batch of your own recorded calls is all it takes to get a real read on barge-in.</p>
       <div class="cta-row">
         <a class="btn" href="#request">Request the report, $499 <span class="arw">&rsaquo;</span></a>
       </div>
@@ -1036,7 +1144,6 @@
       </a>
       <a class="top-cta" href="#request">Request the report</a>
     </div>
-    <p class="built">BargeBench is built and scored by <a href="https://attentionlabs.ai" target="_blank" rel="noopener" style="color:inherit;"><b>Attention Labs</b></a>, a voice-AI research company.</p>
     <div class="f-guides">
       <p class="fg-h">Guides</p>
       <ul>
@@ -1046,7 +1153,7 @@
         <li><a href="/guides/barge-in-on-telephony-twilio-8khz/">Barge-in on 8kHz telephony: why phone audio breaks it</a></li>
       </ul>
     </div>
-    <p class="legal">BargeBench is a one-time barge-in reliability report. It scores your own recorded calls on three fixed criteria. It is not continuous monitoring, not simulated callers, and not an integration. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as sources of your own call recordings.</p>
+    <p class="legal">BargeBench is a one-time barge-in reliability report that scores your own recorded calls on three fixed criteria. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as sources of your own call recordings.</p>
   </div>
 </footer>
 
@@ -1088,7 +1195,7 @@
       source: lead_source,
       _subject: "BargeBench report request",
       _template: "table",
-      _autoresponse: "Got your request for a barge-in reliability report. We reply within one business day with a payment link and upload instructions.\n\nIf you want to skip the wait, you can pay directly here: https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00\n\nTalk soon,\nBargeBench (Attention Labs)"
+      _autoresponse: "Got your request for a barge-in reliability report. We reply within one business day with a payment link and upload instructions.\n\nIf you want to skip the wait, you can pay directly here: https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00\n\nTalk soon,\nBargeBench"
     };
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";

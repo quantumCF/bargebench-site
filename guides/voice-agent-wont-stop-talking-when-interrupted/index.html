@@ -45,8 +45,6 @@
       "@type": "Article",
       "headline": "Why Your Voice Agent Keeps Talking Over the Caller (Pipecat and LiveKit Debugging Guide)",
       "description": "A symptom to root cause map across the cascaded STT, VAD or turn, LLM, and TTS pipeline, with a way to confirm each cause from the call recording.",
-      "author": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
-      "publisher": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
       "mainEntityOfPage": "https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted/",
       "about": "Barge-in and interruption handling in cascaded voice agent pipelines",
       "datePublished": "2026-07-02T22:27:28-04:00",
@@ -114,11 +112,20 @@
     --accent-ink:#ffffff;
     --accent-wash:rgba(229,82,45,0.10);
     --accent-line:rgba(229,82,45,0.35);
-    --code-bg:#1c1f24;
-    --code-ink:#e7e4dc;
-    --radius:12px;
+    --code-bg:#17191d;
+    --code-ink:#e9e6df;
+    --radius:8px;
     --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+
+    /* spacing scale: the only margins/paddings on this page are built from these seven values */
+    --s1:8px;
+    --s2:16px;
+    --s3:24px;
+    --s4:40px;
+    --s5:64px;
+    --s6:96px;
+    --s7:128px;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -127,139 +134,140 @@
     background:var(--bg);
     color:var(--ink);
     font-family:var(--sans);
-    line-height:1.6;
-    font-size:16px;
+    line-height:1.62;
+    font-size:16.5px;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
     overflow-x:hidden;
   }
-  .wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
   a{color:var(--accent);text-decoration:none;}
   a:hover{text-decoration:underline;}
-  h1,h2,h3{letter-spacing:-0.02em;}
+  h1,h2,h3{letter-spacing:-0.025em;font-weight:700;}
 
   /* header */
-  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
-  header.top .bar{max-width:820px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;}
-  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.92);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .bar{max-width:1040px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
   .wordmark:hover{text-decoration:none;}
   .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
   .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
   .wordmark .mk span+span{margin-left:3px;}
-  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:var(--radius);white-space:nowrap;}
   .top-cta:hover{background:#cf4826;text-decoration:none;}
 
   /* article shell */
-  article{padding:44px 0 24px;}
-  .crumbs{font-family:var(--mono);font-size:12px;letter-spacing:0.02em;color:var(--ink-3);margin:0 0 22px;}
+  article{padding:var(--s5) 0 var(--s3);}
+  .crumbs{font-family:var(--mono);font-size:13px;letter-spacing:0.02em;color:var(--ink-3);margin:0 0 var(--s2);}
   .crumbs a{color:var(--ink-3);}
   .crumbs a:hover{color:var(--accent);}
-  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 14px;font-weight:600;}
-  h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;margin:0 0 20px;}
-  .standfirst{font-size:19px;color:var(--ink-2);line-height:1.5;margin:0 0 18px;}
-  .standfirst b{color:var(--ink);font-weight:600;}
-  .byline{font-size:13.5px;color:var(--ink-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin:26px 0 0;}
-  .byline b{color:var(--ink-2);font-weight:600;}
+  .eyebrow{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:0.11em;color:var(--ink-2);margin:0 0 var(--s2);font-weight:550;}
+  h1{font-size:clamp(28px,4.4vw,40px);line-height:1.1;margin:0 0 var(--s2);}
+  .standfirst{font-size:19px;color:var(--ink-2);line-height:1.55;margin:0 0 var(--s2);}
+  .standfirst b{color:var(--ink);font-weight:700;}
+  .byline{font-size:13px;color:var(--ink-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:var(--s2) 0;margin:var(--s3) 0 0;}
+  .byline b{color:var(--ink-2);font-weight:700;}
 
   /* prose */
-  .prose{padding:8px 0 0;}
-  .prose h2{font-size:clamp(21px,2.6vw,26px);line-height:1.2;margin:52px 0 14px;padding-top:8px;}
-  .prose h3{font-size:17.5px;margin:34px 0 8px;color:var(--ink);}
-  .prose p{margin:0 0 16px;color:var(--ink);font-size:16.5px;}
+  .prose{padding:var(--s1) 0 0;}
+  .prose h2{font-size:clamp(21px,2.6vw,26px);line-height:1.2;margin:var(--s4) 0 var(--s2);padding-top:6px;}
+  .prose h3{font-size:17.5px;margin:var(--s3) 0 var(--s1);color:var(--ink);}
+  .prose p{margin:0 0 var(--s2);color:var(--ink);font-size:16.5px;}
   .prose p.muted{color:var(--ink-2);font-size:15.5px;}
-  .prose ul,.prose ol{margin:0 0 16px;padding-left:22px;color:var(--ink);font-size:16.5px;}
-  .prose li{margin:0 0 8px;}
-  .prose strong{font-weight:650;}
-  .prose code{font-family:var(--mono);font-size:13.5px;background:var(--accent-wash);color:#b5401f;padding:1.5px 6px;border-radius:5px;white-space:nowrap;}
+  .prose ul,.prose ol{margin:0 0 var(--s2);padding-left:22px;color:var(--ink);font-size:16.5px;}
+  .prose li{margin:0 0 var(--s1);}
+  .prose strong{font-weight:700;}
+  .prose code{font-family:var(--mono);font-size:0.87em;background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:1px 5px;border-radius:5px;}
 
   /* figure card */
-  figure{margin:26px 0;}
-  .fig{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 12px 30px -22px rgba(20,22,25,0.18);}
+  figure{margin:var(--s3) 0;}
+  .fig{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3) var(--s3);}
   .fig svg{width:100%;height:auto;display:block;}
-  figcaption{font-size:13px;color:var(--ink-3);margin-top:12px;font-family:var(--mono);}
+  figcaption{font-size:13px;color:var(--ink-3);margin-top:var(--s2);font-family:var(--mono);}
 
   /* code block */
-  pre{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:18px 18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;margin:20px 0;-webkit-overflow-scrolling:touch;}
+  pre{background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);padding:var(--s3) var(--s3);overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;margin:var(--s2) 0;border:1px solid #23262b;-webkit-overflow-scrolling:touch;}
   pre code{font-family:var(--mono);background:none;color:inherit;padding:0;white-space:pre;font-size:13px;}
-  pre .c{color:#8f9aa6;}
+  pre .c{color:#8a9099;}
   pre .k{color:#e58a6d;}
-  pre .s{color:#b7d18b;}
+  pre .s{color:#9fc08a;}
 
   /* callout */
-  .callout{border:1px solid var(--accent-line);background:var(--accent-wash);border-radius:12px;padding:16px 18px;margin:20px 0;font-size:15.5px;color:var(--ink);}
-  .callout b{color:var(--ink);font-weight:650;}
-  .callout .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;display:block;margin-bottom:6px;}
+  .callout{border:1px solid var(--accent-line);background:var(--accent-wash);border-radius:var(--radius);padding:var(--s2) var(--s3);margin:var(--s3) 0;font-size:15.5px;color:var(--ink);}
+  .callout b{color:var(--ink);font-weight:700;}
+  .callout .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;display:block;margin-bottom:6px;}
 
   /* symptom map table */
-  .table-scroll{overflow-x:auto;margin:22px 0;-webkit-overflow-scrolling:touch;}
+  .table-scroll{overflow-x:auto;margin:var(--s3) 0;-webkit-overflow-scrolling:touch;}
   table.map{width:100%;border-collapse:collapse;font-size:14px;min-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
-  table.map th,table.map td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line-2);vertical-align:top;}
-  table.map thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel-2);}
-  table.map td:first-child{font-weight:600;color:var(--ink);}
-  table.map .layer{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap;}
+  table.map th,table.map td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);vertical-align:top;}
+  table.map thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:550;background:var(--panel-2);}
+  table.map td:first-child{font-weight:700;color:var(--ink);}
+  table.map .layer{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap;}
   table.map tbody tr:last-child td{border-bottom:none;}
   table.map tbody tr:hover{background:var(--panel-2);}
-  table.map a{font-weight:600;}
+  table.map a{font-weight:550;}
 
   /* symptom blocks */
-  .sym{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:22px 22px 6px;margin:20px 0;}
-  .sym > .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 4px;}
-  .sym h3{margin:0 0 10px;font-size:18px;}
-  .sym .layerline{font-size:13.5px;color:var(--ink-2);margin:0 0 14px;font-family:var(--mono);}
+  .sym{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:var(--s3) var(--s3) var(--s1);margin:var(--s3) 0;}
+  .sym > .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-2);font-weight:550;margin:0 0 4px;}
+  .sym h3{margin:0 0 var(--s2);font-size:18px;}
+  .sym .layerline{font-size:13.5px;color:var(--ink-2);margin:0 0 var(--s2);font-family:var(--mono);}
   .sym .layerline b{color:var(--ink);}
-  .sym .confirm{border-left:3px solid var(--accent-line);padding:2px 0 2px 14px;margin:16px 0;}
-  .sym .confirm .h{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);font-weight:600;display:block;margin-bottom:4px;}
-  .sym .confirm p{font-size:15px;color:var(--ink-2);margin:0 0 12px;}
+  .sym .confirm{border-left:3px solid var(--accent-line);padding:2px 0 2px 14px;margin:var(--s2) 0;}
+  .sym .confirm .h{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);font-weight:700;display:block;margin-bottom:4px;}
+  .sym .confirm p{font-size:15px;color:var(--ink-2);margin:0 0 var(--s2);}
 
   /* two column knob sheet */
-  .cheat{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0;}
-  .cheat .col{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:20px;}
-  .cheat .col h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:9px;}
-  .cheat .col h3 .cd{width:9px;height:9px;border-radius:2px;background:var(--accent);}
+  .cheat{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin:var(--s3) 0;}
+  .cheat .col{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:var(--s3);}
+  .cheat .col h3{margin:0 0 var(--s2);font-size:16px;display:flex;align-items:center;gap:9px;}
+  .cheat .col h3 .cd{width:9px;height:9px;border-radius:2px;background:var(--ink);}
   .cheat .col ul{list-style:none;margin:0;padding:0;}
   .cheat .col li{padding:9px 0;border-bottom:1px solid var(--line-2);font-size:14px;color:var(--ink-2);}
   .cheat .col li:last-child{border-bottom:none;}
-  .cheat .col li code{font-family:var(--mono);font-size:12.5px;color:#b5401f;background:var(--accent-wash);padding:1px 5px;border-radius:4px;white-space:normal;}
+  .cheat .col li code{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--panel-2);padding:1px 5px;border-radius:5px;border:1px solid var(--line-2);white-space:normal;}
   .cheat .col li b{color:var(--ink);}
 
   /* CTA */
-  .cta{border:1px solid var(--accent-line);border-radius:16px;background:var(--panel);padding:30px 28px;margin:48px 0 24px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -28px rgba(229,82,45,0.28);}
-  .cta .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
-  .cta h2{font-size:22px;margin:0 0 10px;padding:0;}
-  .cta p{color:var(--ink-2);font-size:15.5px;margin:0 0 18px;max-width:60ch;}
-  .cta p b{color:var(--ink);font-weight:600;}
-  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15.5px;padding:13px 22px;border-radius:10px;}
+  .cta{border:1px solid var(--accent-line);border-radius:var(--radius);background:var(--panel);padding:var(--s4);margin:var(--s4) 0 var(--s3);}
+  .cta .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-2);font-weight:550;margin:0 0 var(--s2);}
+  .cta h2{font-size:22px;margin:0 0 var(--s2);padding:0;}
+  .cta p{color:var(--ink-2);font-size:15.5px;margin:0 0 var(--s3);max-width:60ch;}
+  .cta p b{color:var(--ink);font-weight:700;}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:550;font-size:15.5px;padding:13px 22px;border-radius:var(--radius);}
   .btn:hover{background:#cf4826;text-decoration:none;}
 
   /* faq */
-  .faq{margin:20px 0 0;}
-  details{border-bottom:1px solid var(--line);padding:16px 0;}
+  .faq{margin:var(--s2) 0 0;}
+  details{border-bottom:1px solid var(--line);padding:var(--s2) 0;}
   details:first-of-type{border-top:1px solid var(--line);}
-  summary{font-size:16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary{font-size:16.5px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:var(--s2);color:var(--ink);}
   summary::-webkit-details-marker{display:none;}
-  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
-  details[open] summary::after{content:"\2212";}
-  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;}
+  summary::after{content:"+";color:var(--ink-2);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";color:var(--accent);}
+  details p{margin:var(--s2) 0 0;color:var(--ink-2);font-size:15px;}
 
   /* footer */
-  footer{border-top:1px solid var(--line);padding:38px 0 54px;background:var(--panel-2);margin-top:40px;}
-  footer .built{font-size:14px;color:var(--ink-2);max-width:64ch;line-height:1.5;margin:0 0 14px;}
-  footer .built b{color:var(--ink);font-weight:600;}
-  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.5;margin:0;}
-  footer a{font-weight:600;}
-  footer .f-guides{margin:26px 0 22px;}
-  footer .f-guides .fg-h{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px;font-weight:600;}
+  footer{border-top:1px solid var(--line);padding:var(--s5) 0;background:var(--panel-2);margin-top:var(--s4);}
+  footer .wrap{max-width:1040px;}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:64ch;line-height:1.55;margin:0 0 var(--s2);}
+  footer .built b{color:var(--ink);font-weight:700;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.55;margin:0;}
+  footer a{font-weight:550;}
+  footer .f-guides{margin:var(--s3) 0 var(--s3);}
+  footer .f-guides .fg-h{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 var(--s2);font-weight:550;}
   footer .f-guides ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 28px;}
   footer .f-guides a{font-size:13.5px;color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;}
   footer .f-guides a:hover{color:var(--ink);border-bottom-color:var(--ink-3);}
 
   /* CTA secondary button */
-  .cta .cta-btns{display:flex;flex-wrap:wrap;align-items:center;gap:14px;}
-  .btn-secondary{display:inline-flex;align-items:center;gap:9px;background:var(--panel);color:var(--ink);font-weight:600;font-size:15.5px;padding:13px 22px;border-radius:10px;border:1px solid var(--accent-line);}
+  .cta .cta-btns{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);}
+  .btn-secondary{display:inline-flex;align-items:center;gap:9px;background:var(--panel);color:var(--ink);font-weight:550;font-size:15.5px;padding:13px 22px;border-radius:var(--radius);border:1px solid var(--accent-line);}
   .btn-secondary:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
 
   @media (max-width:640px){
-    article{padding:30px 0 8px;}
+    article{padding:var(--s4) 0 var(--s1);}
     .cheat{grid-template-columns:1fr;}
     .prose p,.prose ul,.prose ol{font-size:16px;}
   }
@@ -283,7 +291,7 @@
     <p class="eyebrow">Engineering guide</p>
     <h1>Why Your Voice Agent Keeps Talking Over the Caller (Pipecat and LiveKit Debugging Guide)</h1>
     <p class="standfirst">Barge-in looks like one bug, but it is really a timing problem spread across four stages of a cascaded pipeline. This is a symptom to root cause map: for each way a <b>voice agent doesn't stop speaking when the caller talks over it</b>, the layer to check and how to confirm it from the call recording.</p>
-    <p class="byline">Written by the engineering team at <b>Attention Labs</b>, a voice-AI research company. We build multi-talker turn-taking systems, and we test barge-in for a living.</p>
+    <p class="byline">We build multi-talker turn-taking systems, and we test barge-in for a living.</p>
   </div>
 
   <div class="wrap prose">
@@ -623,7 +631,7 @@ agent_on  = ea > thr
 
 <footer>
   <div class="wrap">
-    <p class="built">Written by the engineering team at <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures. We built <a href="https://bargebench.com/">BargeBench</a> to score how voice agents handle barge-in on real recorded calls.</p>
+    <p class="built">We built <a href="https://bargebench.com/">BargeBench</a> to score how voice agents handle barge-in on real recorded calls.</p>
     <div class="f-guides">
       <p class="fg-h">Guides</p>
       <ul>

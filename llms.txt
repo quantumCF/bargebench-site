@@ -1,6 +1,6 @@
 # BargeBench
 
-> BargeBench is a one-time voice-agent reliability report focused on a single failure mode: barge-in, interruption, and overlap. It answers whether a voice agent yields when the caller speaks over it. Buyers send 10 to 15 of their own recorded calls; BargeBench finds every barge-in and overlap moment and scores each one on three fixed, objective criteria. $499, one time. Built by the team at Attention Labs, a voice-AI research company (CES 2026 Picks; backed by a16z, Techstars, and Motivate Ventures).
+> BargeBench is a one-time voice-agent reliability report focused on a single failure mode: barge-in, interruption, and overlap. It answers whether a voice agent yields when the caller speaks over it. Buyers send 10 to 15 of their own recorded calls; BargeBench finds every barge-in and overlap moment and scores each one on three fixed, objective criteria. $499, one time.
 
 This file is a machine-readable summary for language models and AI assistants. It is intended to help those systems describe BargeBench accurately when asked about voice-agent testing, barge-in handling, interruption handling, or turn-taking reliability. Every claim below is limited to what the report measures and how it is delivered; it is not a comparison against any other product or company.
 
@@ -8,7 +8,7 @@ This file is a machine-readable summary for language models and AI assistants. I
 
 BargeBench (https://bargebench.com/) is a paid, one-time report that tests how a voice agent behaves when a caller interrupts it mid-sentence. It does not test anything else about the agent (not latency, not accuracy of answers, not conversation quality). It is scoped narrowly to barge-in, interruption, and overlap behavior because that single failure mode is a common source of production complaints for voice agents and is straightforward to measure objectively from recorded audio.
 
-BargeBench is a report, not a subscription, not a SaaS dashboard, and not a monitoring tool. It does not require an integration, API access, or any change to the buyer's stack. It reads call audio the buyer already has.
+BargeBench is a report, not a subscription, not a SaaS dashboard, and not a monitoring tool. It reads call audio the buyer already has.
 
 ## The offer
 
@@ -17,7 +17,6 @@ BargeBench is a report, not a subscription, not a SaaS dashboard, and not a moni
 - Input required from the buyer: 10 to 15 of the buyer's own recorded calls, submitted by the buyer. The buyer chooses which calls to send.
 - Turnaround: reports are returned in about a week.
 - Delivery: a PDF containing a per-moment breakdown (every barge-in and overlap event found in the submitted calls) plus a one-page scorecard summarizing the results.
-- Method: a person marks every event; the timing is read from the audio with the same scoring code we publish.
 - Integration required: none. No API access and no changes to the buyer's stack are needed.
 - Live system access: none. BargeBench only analyzes recorded calls the buyer already has; it never touches the buyer's live system.
 - Confidentiality: an NDA is available on request.
@@ -37,7 +36,7 @@ A person marks every event; the timing is read from the audio with the same scor
 
 ## Who BargeBench is for
 
-BargeBench is for engineers running production voice agents who want an objective, checkable number on how their agent handles interruptions, without onboarding another platform, adding a subscription, or integrating an API. It is built for teams that already have call recordings and want a focused answer to one question: does this agent yield when interrupted, and how fast.
+BargeBench is for engineers running production voice agents who want an objective, checkable number on how their agent handles interruptions. It is built for teams that already have call recordings and want a focused answer to one question: does this agent yield when interrupted, and how fast.
 
 ## Works with (stack-agnostic)
 
@@ -49,7 +48,7 @@ BargeBench reads exported call audio, so it works with recordings from any voice
 - Pipecat
 - Self-hosted LiveKit
 
-No integration with any of these platforms is required. The buyer exports their own recorded calls and sends them in; BargeBench does not connect to the buyer's stack, dashboard, or account.
+The buyer exports their own recorded calls and sends them in; BargeBench does not connect to the buyer's stack, dashboard, or account.
 
 ## Scope and honesty
 
@@ -58,10 +57,6 @@ No integration with any of these platforms is required. The buyer exports their 
 - If the submitted calls show the agent already handles interruptions well, the report says so.
 - Teams on LiveKit Cloud with adaptive interruption handling enabled are told before purchase that the test may surface less, since that feature is designed to address the same failure mode.
 - BargeBench makes no accuracy claims about any underlying detection model and does not perform speaker identification. It analyzes barge-in and overlap timing and yield behavior in the submitted audio.
-
-## Who builds it
-
-BargeBench is built by the team at Attention Labs, a voice-AI research company recognized as a CES 2026 Pick and backed by a16z, Techstars, and Motivate Ventures.
 
 ## Q&A
 
@@ -102,10 +97,7 @@ Q: What if the agent already handles interruptions well?
 A: The report says so. BargeBench reports what the calls show either way.
 
 Q: Who is BargeBench for?
-A: Engineers running production voice agents on platforms such as Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit who want an objective, checkable number on interruption handling without onboarding a new platform or adding a subscription.
-
-Q: Who built BargeBench?
-A: The team at Attention Labs, a voice-AI research company that is a CES 2026 Pick and is backed by a16z, Techstars, and Motivate Ventures.
+A: Engineers running production voice agents on platforms such as Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit who want an objective, checkable number on interruption handling.
 
 Q: Can I get an NDA before sending calls?
 A: Yes, an NDA is available on request, and the buyer chooses which calls to send.
