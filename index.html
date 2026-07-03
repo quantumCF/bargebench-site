@@ -78,7 +78,7 @@
         {
           "@type": "Question",
           "name": "What happens to the recordings I send?",
-          "acceptedAnswer": { "@type": "Answer", "text": "We delete your recordings after the report is delivered, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words." }
+          "acceptedAnswer": { "@type": "Answer", "text": "We delete your recordings within 14 days of delivering the report, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words." }
         },
         {
           "@type": "Question",
@@ -118,7 +118,7 @@
         {
           "@type": "Question",
           "name": "Can I see how scoring works before I pay?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The scoring method is public: a test harness with the same three criteria is published at github.com/quantumCF/voice-agent-barge-in-tests. Your report is scored by a person against the same fixed rules." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The scoring method is public: a test harness with the same three criteria is published at github.com/quantumCF/voice-agent-barge-in-tests, under our engineering org quantumCF. Your report is scored by a person against the same fixed rules." }
         },
         {
           "@type": "Question",
@@ -488,7 +488,7 @@
             <a class="btn-ghost" href="#measure">See what we measure</a>
           </div>
           <p class="hero-complement">Simulated-call testing platforms probe your agent with synthetic callers. This is the one thing they miss: how your agent behaves when a <b>real caller talks over it</b>. Run it before or alongside a continuous testing platform, on your own real calls.</p>
-          <p class="cred">Built by <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
+          <p class="cred">Built by <a href="https://attentionlabs.ai" target="_blank" rel="noopener" style="color:inherit;"><b>Attention Labs</b></a>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
         </div>
 
         <div class="glass hero-card">
@@ -790,21 +790,22 @@
       <div class="data-grid">
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></div>
-          <div><h3>Deleted after delivery</h3><p>We delete your recordings once the report is delivered.</p></div>
+          <div><h3>Deleted within 14 days</h3><p>We delete your recordings and all working files within 14 days of delivering your report.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></div>
-          <div><h3>Never used to train</h3><p>Your audio is never used to train any model.</p></div>
+          <div><h3>Never leaves our machines</h3><p>Scoring runs locally on our own hardware in the United States. Your audio is never sent to third party AI services and never used to train any model.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg></div>
-          <div><h3>NDA and DPA on request</h3><p>We will sign an NDA or a data processing agreement before you send anything.</p></div>
+          <div><h3>DPA or NDA before anything moves</h3><p>Ask and we sign before you send a single file. We are not a HIPAA business associate, so healthcare teams should redact PHI first.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e5522d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12h3"/><path d="M14 12h2"/></svg></div>
           <div><h3>Redacted audio is fine</h3><p>Scoring is about the timing of speech, not the words, so you can bleep names and numbers first.</p></div>
         </div>
       </div>
+      <p class="note" style="margin-top:18px;">The person who scores your calls signs the report and answers your questions directly at david@attentionlabs.ai.</p>
     </div>
   </section>
 
@@ -959,11 +960,11 @@
         </details>
         <details>
           <summary>Can I see how scoring works before I pay?</summary>
-          <p>Yes. The scoring method is public: we publish a test harness with the same three criteria, synthetic scenarios, and adapters at <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">github.com/quantumCF/voice-agent-barge-in-tests</a>. Your report is scored by a person against the same fixed rules.</p>
+          <p>Yes. The scoring method is public: we publish a test harness with the same three criteria, synthetic scenarios, and adapters at <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">github.com/quantumCF/voice-agent-barge-in-tests</a>, published under our engineering org quantumCF. Your report is scored by a person against the same fixed rules.</p>
         </details>
         <details>
           <summary>What happens to the recordings I send?</summary>
-          <p>We delete your recordings after the report is delivered, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words.</p>
+          <p>We delete your recordings within 14 days of delivering the report, never use them to train any model, and will sign an NDA or a data processing agreement first. Redacted audio is fine because scoring is about the timing of speech, not the words.</p>
         </details>
         <details>
           <summary>Do you count backchannels like uh-huh?</summary>
@@ -1035,7 +1036,7 @@
       </a>
       <a class="top-cta" href="#request">Request the report</a>
     </div>
-    <p class="built">Built by <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
+    <p class="built">BargeBench is built and scored by <a href="https://attentionlabs.ai" target="_blank" rel="noopener" style="color:inherit;"><b>Attention Labs</b></a>, a voice-AI research company.</p>
     <div class="f-guides">
       <p class="fg-h">Guides</p>
       <ul>
