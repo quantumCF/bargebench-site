@@ -1,0 +1,522 @@
+<!--
+  Guide: How to test voice agent barge-in from recorded calls.
+  Every claim here is plainly true and checkable. No accuracy or performance
+  percentages about our own detection, no fabricated logos/testimonials/counts,
+  no "open source", no speaker-ID framing, no uniqueness/only-we claims, no
+  competitor names used as comparison. Vapi, Retell, Bland, Pipecat, and LiveKit
+  appear only as sources of the reader's own call recordings. No em or en dashes.
+-->
+<meta charset="UTF-8">
+<title>How to Test Voice Agent Barge-In: 3 Objective Signals</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Measure voice agent barge-in from recorded calls: three signals, did it yield, seconds to yield, and overlap seconds. Stack-agnostic, no integration.">
+<meta name="keywords" content="how to test voice agent barge-in, measure barge-in latency voice agent, benchmark voice agent interruption handling, voice agent interruption metrics, score voice agent yielded recorded calls, barge-in testing, turn-taking latency, overlap detection, voice agent QA">
+<link rel="canonical" href="https://bargebench.com/guides/how-to-test-voice-agent-barge-in/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#E5522D">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BargeBench">
+<meta property="og:title" content="How to Test Voice Agent Barge-In: Three Objective Signals from Recorded Calls">
+<meta property="og:description" content="A stack-agnostic method to measure interruption quality from call audio alone. Mark caller onset, mark the agent TTS energy drop, compute the gap, count overlap.">
+<meta property="og:url" content="https://bargebench.com/guides/how-to-test-voice-agent-barge-in/">
+<meta property="og:image" content="https://bargebench.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Barge-In Reliability Report scorecard for voice agents">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to Test Voice Agent Barge-In: Three Objective Signals">
+<meta name="twitter:description" content="Measure interruption quality from call recordings alone. Did the agent yield, seconds to yield, and overlap seconds. Works with any voice stack.">
+<meta name="twitter:image" content="https://bargebench.com/og.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E5522D'/%3E%3Crect x='10.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3Crect x='17.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "How to Test Voice Agent Barge-In: Three Objective Signals from Recorded Calls",
+      "description": "A stack-agnostic methodology for measuring voice agent interruption quality from call recordings alone, with no integration. Defines three objective signals and shows how to extract each from a WAV plus transcript.",
+      "author": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Attention Labs",
+        "url": "https://attentionlabs.ai"
+      },
+      "mainEntityOfPage": "https://bargebench.com/guides/how-to-test-voice-agent-barge-in",
+      "image": "https://bargebench.com/og.png",
+      "articleSection": "Voice agent reliability",
+      "keywords": "how to test voice agent barge-in, measure barge-in latency voice agent, benchmark voice agent interruption handling, voice agent interruption metrics, score voice agent yielded recorded calls"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you test voice agent barge-in?",
+          "acceptedAnswer": { "@type": "Answer", "text": "You test barge-in from the audio, not the internals. For each call recording, mark the moment the caller starts speaking, mark the moment the agent's speech energy drops to silence, and measure three things: whether the agent yielded, how many seconds it took to yield, and how many seconds it kept speaking over the caller. This reads audio, so it works for any stack that produces call recordings." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you measure barge-in latency for a voice agent?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Barge-in latency, the seconds to yield, is the gap between the caller speech onset and the point where the agent's text-to-speech energy drops and stays low. Compute short-time RMS energy on the agent audio in 20 ms frames, find the caller onset with a voice activity detector, and subtract. In natural human conversation the gap between turns is typically near 200 ms, so a responsive agent should yield well under a second." }
+        },
+        {
+          "@type": "Question",
+          "name": "What metrics should you track for voice agent interruptions?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Three objective signals cover the failure mode: did the agent yield when the caller spoke (a binary per event), seconds to yield (interruption latency), and overlap seconds (how long both voices ran at once after the caller began). Aggregate across calls into yield rate, median seconds to yield, and total overlap seconds to get a scorecard." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you benchmark voice agent interruption handling across a stack?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Collect 10 to 15 representative recorded calls that contain real interruptions, score every barge-in event on the same three signals, and report the distribution rather than a single number. Because the method reads audio, the same benchmark applies whether the calls came from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you score whether a voice agent yielded on recorded calls?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For each interruption, an agent yielded if its speech energy drops to the channel noise floor within a fixed window after the caller onset and does not resume over the caller. If the agent audio keeps its energy through the caller's turn, it did not yield. Prefer two-channel recordings so the caller and agent are on separate channels and cannot be confused." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this require integrating with my voice agent?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The method reads call audio and a transcript, so nothing connects to your system. It works with Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that can export recordings." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --ink:#16181b;
+    --ink-2:#565d66;
+    --ink-3:#8a9099;
+    --bg:#faf9f7;
+    --panel:#ffffff;
+    --panel-2:#faf9f6;
+    --line:#e8e6e0;
+    --line-2:#f0eee9;
+    --accent:#e5522d;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(229,82,45,0.10);
+    --accent-line:rgba(229,82,45,0.35);
+    --radius:12px;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.62;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{letter-spacing:-0.02em;color:var(--ink);}
+
+  /* header */
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1000px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  .wordmark:hover{text-decoration:none;}
+  .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
+  .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
+  .wordmark .mk span+span{margin-left:3px;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
+  .top-cta:hover{background:#cf4826;text-decoration:none;}
+
+  /* article shell */
+  article{padding:48px 0 24px;}
+  .crumb{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-3);text-transform:uppercase;margin:0 0 18px;}
+  .crumb a{color:var(--ink-3);}
+  .crumb a:hover{color:var(--accent);}
+  h1{font-size:clamp(28px,4.4vw,40px);line-height:1.1;margin:0 0 18px;}
+  .standfirst{font-size:18.5px;color:var(--ink-2);line-height:1.55;margin:0 0 20px;}
+  .meta{font-size:13px;color:var(--ink-3);margin:0 0 30px;padding-bottom:26px;border-bottom:1px solid var(--line);}
+  .meta b{color:var(--ink-2);font-weight:600;}
+
+  h2{font-size:clamp(21px,2.6vw,25px);line-height:1.22;margin:44px 0 12px;padding-top:6px;}
+  h3{font-size:17.5px;margin:28px 0 8px;}
+  p{margin:0 0 16px;color:var(--ink-2);}
+  p b, li b{color:var(--ink);font-weight:600;}
+  article ul,article ol{margin:0 0 18px;padding-left:22px;color:var(--ink-2);}
+  article li{margin:0 0 8px;}
+  strong{color:var(--ink);}
+
+  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 14px;font-weight:600;}
+
+  /* table of contents */
+  .toc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:0 0 34px;}
+  .toc .tt{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0 0 12px;}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px;}
+  .toc li{margin:0 0 7px;font-size:14px;color:var(--ink-2);}
+  .toc a{color:var(--ink-2);}
+  .toc a:hover{color:var(--accent);}
+
+  /* the three-signal summary */
+  .signals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 8px;}
+  .sig{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;}
+  .sig .n{width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .sig h3{font-size:15px;margin:0 0 6px;}
+  .sig p{font-size:13.5px;margin:0;color:var(--ink-2);}
+  .sig .u{display:block;margin-top:9px;font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+
+  /* code */
+  pre{background:#17191d;color:#e9e6df;border-radius:12px;padding:20px 20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;margin:0 0 20px;border:1px solid #23262b;}
+  pre .c{color:#8a9099;}
+  pre .k{color:#e58a6d;}
+  pre .s{color:#9fc08a;}
+  code{font-family:var(--mono);font-size:0.9em;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--ink);}
+  pre code{background:none;border:none;padding:0;color:inherit;font-size:inherit;}
+
+  /* callout */
+  .callout{background:var(--accent-wash);border:1px solid var(--accent-line);border-radius:12px;padding:16px 18px;margin:0 0 22px;font-size:14.5px;color:var(--ink-2);}
+  .callout b{color:var(--ink);}
+  .note-box{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 22px;font-size:14px;color:var(--ink-2);}
+
+  /* thresholds table */
+  .table-scroll{overflow-x:auto;margin:0 0 22px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);vertical-align:top;}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel-2);}
+  td:first-child,th:first-child{font-weight:600;color:var(--ink);}
+  tbody tr:last-child td{border-bottom:none;}
+  .tag-ok{color:#2f7d3c;font-weight:600;}
+  .tag-warn{color:#a8641c;font-weight:600;}
+  .tag-bad{color:var(--accent);font-weight:600;}
+  .mono{font-family:var(--mono);}
+
+  /* cta block */
+  .cta{background:var(--panel);border:1px solid var(--accent-line);border-radius:16px;padding:30px;margin:44px 0 12px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -26px rgba(229,82,45,0.24);}
+  .cta .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
+  .cta h2{margin:0 0 12px;padding-top:0;}
+  .cta p{font-size:15.5px;color:var(--ink-2);margin:0 0 20px;max-width:56ch;}
+  .cta .amt{color:var(--ink);font-weight:700;}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;padding:14px 24px;border-radius:10px;}
+  .btn:hover{background:#cf4826;text-decoration:none;}
+
+  /* faq */
+  .faq{margin-top:16px;}
+  details{border-bottom:1px solid var(--line);padding:18px 0;}
+  details:first-of-type{border-top:1px solid var(--line);}
+  summary{font-size:16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";}
+  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:40px 0 56px;background:var(--panel-2);margin-top:48px;}
+  footer .wrap{max-width:1000px;}
+  footer .f-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:22px;}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:60ch;line-height:1.5;}
+  footer .built b{color:var(--ink);font-weight:600;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.5;margin:0;}
+
+  @media (max-width:640px){
+    .signals{grid-template-columns:1fr;}
+    .toc ol{columns:1;}
+    article{padding:34px 0 16px;}
+  }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+      <span class="mk"><span></span><span></span></span>
+      BargeBench
+    </a>
+    <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+  </div>
+</header>
+
+<main>
+<article>
+  <div class="wrap">
+
+    <p class="crumb"><a href="https://bargebench.com/">BargeBench</a> / Guides / Barge-in testing</p>
+
+    <h1>How to Test Voice Agent Barge-In: Three Objective Signals from Recorded Calls</h1>
+
+    <p class="standfirst">Barge-in is the moment a caller starts talking while your agent is still speaking. A good agent stops and listens. A bad one talks over the caller. This is a guide to measuring that from call audio alone, with no integration, using three objective signals you can extract from a WAV and a transcript.</p>
+
+    <p class="meta">A method write-up from the team at <b>Attention Labs</b>. Applies to any stack that exports recordings, including Vapi, Retell, Bland, Pipecat, and self-hosted LiveKit.</p>
+
+    <div class="toc">
+      <p class="tt">On this page</p>
+      <ol>
+        <li><a href="#why">Why measure from audio</a></li>
+        <li><a href="#three">The three signals</a></li>
+        <li><a href="#need">What you need</a></li>
+        <li><a href="#extract">Extracting each signal</a></li>
+        <li><a href="#thresholds">Reading the numbers</a></li>
+        <li><a href="#pitfalls">Pitfalls that skew results</a></li>
+        <li><a href="#fix">How to fix a failing agent</a></li>
+        <li><a href="#scale">Scoring across a batch</a></li>
+        <li><a href="#report">Get it done for you</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ol>
+    </div>
+
+    <h2 id="why">Why measure barge-in from the audio</h2>
+    <p>Most teams evaluate interruption handling by ear. Someone plays a few clips, winces at the one where the agent kept reciting a menu over a frustrated caller, and calls it a known issue. That is not a measurement. It does not tell you how often it happens, how bad it is on average, or whether last week's prompt change helped.</p>
+    <p>The reason people fall back on eyeballing is that the "correct" signals seem to live inside the stack: when did the endpointer fire, when did the TTS get a stop command, when did the playout buffer flush. Those internals differ across Vapi, Retell, Bland, Pipecat, and self-hosted LiveKit, and half the time you cannot see them anyway. So the practical way to <b>test voice agent barge-in</b> is to ignore the internals and read what actually reached the caller: the recorded audio. The audio is the ground truth for what the caller experienced, and every stack can produce it.</p>
+    <p>Everything below reduces to three observable events on the recording: when the caller started speaking, when the agent's voice actually went quiet, and how much of the caller's turn the agent ran over. From those three you get objective numbers that compare cleanly across calls, across stacks, and across releases.</p>
+
+    <h2 id="three">The three signals</h2>
+    <p>These are the three fixed criteria we score, and the only three you need to characterize the barge-in failure mode. Keep them separate. An agent can pass one and fail another, and the mix tells you where the problem is.</p>
+
+    <div class="signals">
+      <div class="sig">
+        <div class="n">1</div>
+        <h3>Did it yield</h3>
+        <p>When the caller spoke over the agent, did the agent stop? A binary per interruption event.</p>
+        <span class="u">Pass / fail</span>
+      </div>
+      <div class="sig">
+        <div class="n">2</div>
+        <h3>Seconds to yield</h3>
+        <p>The gap from the caller's speech onset to the moment the agent's voice drops to silence.</p>
+        <span class="u">Latency, in seconds</span>
+      </div>
+      <div class="sig">
+        <div class="n">3</div>
+        <h3>Overlap seconds</h3>
+        <p>How long both voices ran at the same time after the caller began. The talk-over duration.</p>
+        <span class="u">Duration, in seconds</span>
+      </div>
+    </div>
+
+    <p>Signal 1 is the coarse pass/fail. Signal 2 is the one people mean when they say the agent feels laggy or interrupts back. Signal 3 is what makes callers give up, because a full second of two voices at once is unintelligible to a human. Together they are the metrics to track for voice agent interruptions, and each one falls straight out of the audio.</p>
+
+    <h2 id="need">What you need before you start</h2>
+    <ul>
+      <li><b>The call recordings.</b> WAV or anything you can decode to PCM. Ten to fifteen real calls that actually contain interruptions is enough to see the pattern.</li>
+      <li><b>Two-channel audio if you can get it.</b> The cleanest setup has the caller on one channel and the agent's text-to-speech on the other. Most platforms can export dual-channel or stereo recordings. This removes the hardest source of error, which is deciding who is talking. If you only have a mono mix, the method still works but needs an extra separation step, covered under pitfalls.</li>
+      <li><b>A transcript with timestamps</b> is helpful but optional. It lets you tell a real barge-in ("no, I said medium") from a backchannel ("uh huh") and it makes spot-checking fast. The energy math does not depend on it.</li>
+      <li><b>Python with <code>numpy</code> and <code>soundfile</code></b>, plus a voice activity detector. The examples below use a simple energy gate so they run with nothing extra, and note where a learned detector such as Silero VAD or webrtcvad is worth swapping in.</li>
+    </ul>
+
+    <h2 id="extract">Extracting each signal from a call</h2>
+    <p>The whole method is four moves: mark the caller speech onset, mark the point the agent's voice energy drops, subtract to get the gap, and count the frames where both voices are active. Here it is end to end on one two-channel recording.</p>
+
+    <h3>Step 1. Load the audio and compute short-time energy</h3>
+    <p>Split the stereo file into the caller channel and the agent channel, then compute root-mean-square energy in short frames. Twenty millisecond frames with a ten millisecond hop give you a reading every ten milliseconds, which is fine resolution for turn-taking.</p>
+<pre><code><span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">import</span> soundfile <span class="k">as</span> sf
+
+<span class="c"># Two-channel recording: caller on ch0, agent TTS on ch1.</span>
+<span class="c"># Confirm the channel order for your platform before trusting results.</span>
+audio, sr = sf.read(<span class="s">"call_0007.wav"</span>)   <span class="c"># shape (n_samples, 2)</span>
+caller = audio[:, <span class="s">0</span>]
+agent  = audio[:, <span class="s">1</span>]
+
+<span class="k">def</span> rms_db(x, sr, frame_ms=<span class="s">20</span>, hop_ms=<span class="s">10</span>):
+    frame = int(sr * frame_ms / <span class="s">1000</span>)
+    hop   = int(sr * hop_ms  / <span class="s">1000</span>)
+    n = <span class="s">1</span> + (len(x) - frame) // hop
+    t  = np.empty(n)
+    db = np.empty(n)
+    <span class="k">for</span> i <span class="k">in</span> range(n):
+        seg = x[i*hop : i*hop + frame]
+        rms = np.sqrt(np.mean(seg*seg) + <span class="s">1e-12</span>)
+        db[i] = <span class="s">20.0</span> * np.log10(rms + <span class="s">1e-12</span>)
+        t[i]  = (i*hop) / sr
+    <span class="k">return</span> t, db
+
+t, caller_db = rms_db(caller, sr)
+_, agent_db  = rms_db(agent, sr)
+hop = t[<span class="s">1</span>] - t[<span class="s">0</span>]           <span class="c"># 0.010 s per frame</span></code></pre>
+
+    <h3>Step 2. Turn energy into speech masks</h3>
+    <p>A frame counts as voiced when it sits well above that channel's own noise floor. Estimating the floor from a low percentile of the channel makes this robust to gain differences between the two legs of the call. This is the point where a learned VAD earns its keep on noisy calls, but the energy gate is transparent and good enough to build intuition.</p>
+<pre><code><span class="k">def</span> voiced(db, margin_db=<span class="s">12.0</span>):
+    floor = np.percentile(db, <span class="s">10</span>)      <span class="c"># robust per-channel noise floor</span>
+    <span class="k">return</span> db &gt; (floor + margin_db)
+
+caller_on = voiced(caller_db)
+agent_on  = voiced(agent_db)
+
+<span class="c"># On mono or noisy audio, replace the two lines above with a learned VAD,</span>
+<span class="c"># e.g. Silero VAD or webrtcvad, run per channel. The rest is unchanged.</span></code></pre>
+
+    <h3>Step 3. Mark the caller's barge-in onset</h3>
+    <p>A barge-in only counts when the caller starts talking <em>while the agent is still talking</em>. So the onset is the first caller frame that stays voiced for at least 150 milliseconds and lands during agent speech. The sustain requirement throws out lip smacks, keyboard clicks, and single-frame noise that would otherwise fire a false onset.</p>
+<pre><code>min_run = int(round(<span class="s">0.150</span> / hop))     <span class="c"># 150 ms of sustained caller speech</span>
+
+onset = <span class="k">None</span>
+<span class="k">for</span> i <span class="k">in</span> range(len(caller_on) - min_run):
+    <span class="k">if</span> agent_on[i] <span class="k">and</span> caller_on[i:i+min_run].all():
+        onset = i
+        <span class="k">break</span>
+
+<span class="k">if</span> onset <span class="k">is</span> <span class="k">None</span>:
+    <span class="c"># The caller never spoke over the agent in this call. Not a barge-in event.</span>
+    print(<span class="s">"no barge-in in this call"</span>)</code></pre>
+
+    <h3>Step 4. Mark where the agent's voice drops, then compute the signals</h3>
+    <p>After the onset, find the first moment the agent goes quiet and <em>stays</em> quiet for at least 200 milliseconds. The sustain window matters: without it, the natural micro-pause between two words would read as a yield. That agent-stop point is the observable proxy for "the agent stopped talking," and it is exactly what the caller heard.</p>
+    <p>From there the three signals are arithmetic. Seconds to yield is the gap between onset and agent-stop. The agent yielded if that gap lands inside a fixed window and the agent does not resume over the caller. Overlap seconds is the total time both masks are true between onset and the stop.</p>
+<pre><code>quiet_run = int(round(<span class="s">0.200</span> / hop))    <span class="c"># 200 ms of agent silence = a real stop</span>
+
+stop, run = <span class="k">None</span>, <span class="s">0</span>
+<span class="k">for</span> i <span class="k">in</span> range(onset, len(agent_on)):
+    run = run + <span class="s">1</span> <span class="k">if</span> <span class="k">not</span> agent_on[i] <span class="k">else</span> <span class="s">0</span>
+    <span class="k">if</span> run &gt;= quiet_run:
+        stop = i - quiet_run + <span class="s">1</span>       <span class="c"># first frame of the silence</span>
+        <span class="k">break</span>
+
+<span class="k">if</span> stop <span class="k">is</span> <span class="k">None</span>:
+    <span class="c"># Agent never went quiet after the caller barged in.</span>
+    yielded          = <span class="k">False</span>
+    seconds_to_yield = <span class="k">None</span>
+    overlap_seconds  = round(float(np.sum(agent_on[onset:] &amp; caller_on[onset:]) * hop), <span class="s">3</span>)
+<span class="k">else</span>:
+    seconds_to_yield = round(t[stop] - t[onset], <span class="s">3</span>)
+    yielded          = seconds_to_yield &lt;= <span class="s">3.0</span>      <span class="c"># yielded within a 3 s window</span>
+    overlap_seconds  = round(float(np.sum(agent_on[onset:stop] &amp; caller_on[onset:stop]) * hop), <span class="s">3</span>)
+
+print(<span class="s">"Signal 1  did it yield     :"</span>, yielded)
+print(<span class="s">"Signal 2  seconds to yield :"</span>, seconds_to_yield)
+print(<span class="s">"Signal 3  overlap seconds  :"</span>, overlap_seconds)</code></pre>
+
+    <div class="callout">
+      That is the entire measurement. It reads audio, not internals, which is why the same script scores a Vapi recording, a Retell recording, a Bland recording, a Pipecat recording, or a self-hosted LiveKit recording with no changes. If you want to <b>measure barge-in latency</b> for one agent against another, run it on both sets of recordings and compare the distributions.
+    </div>
+
+    <h3>If you only have a mono mix</h3>
+    <p>Single-channel recordings mix the caller and the agent into one waveform, so a naive energy gate cannot tell whose voice is whose, and the agent's own audio bleeding into the caller path can masquerade as a barge-in. Two options: request dual-channel exports from your platform, which most support, or run a diarization or source-separation pass first and treat its two output streams as the caller and agent channels. The four steps above are identical after that. Dual-channel is worth the config change, because it removes the largest error source in the whole pipeline.</p>
+
+    <h2 id="thresholds">Reading the numbers</h2>
+    <p>The measurement is objective. The thresholds are judgment, so treat the table below as sane engineering defaults, not laws. The anchor for "responsive" comes from conversation research: across languages, the gap between human turns clusters near 200 milliseconds. People notice when a turn transition drifts much past that, which is why an agent that takes more than a second to yield reads as talking over you even if it technically stopped.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Signal</th><th>Good</th><th>Watch</th><th>Failing</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Did it yield</td>
+            <td class="tag-ok">yields on essentially every real barge-in</td>
+            <td class="tag-warn">misses the occasional one</td>
+            <td class="tag-bad">rides through the caller's turn</td>
+          </tr>
+          <tr>
+            <td>Seconds to yield</td>
+            <td class="tag-ok mono">under ~0.5 s</td>
+            <td class="tag-warn mono">~0.5 to 1.0 s</td>
+            <td class="tag-bad mono">over ~1.0 s, or never</td>
+          </tr>
+          <tr>
+            <td>Overlap seconds</td>
+            <td class="tag-ok mono">under ~0.3 s</td>
+            <td class="tag-warn mono">~0.3 to 0.8 s</td>
+            <td class="tag-bad mono">over ~0.8 s</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Read the three together. A short seconds-to-yield with high overlap usually means the agent decided to stop quickly but its audio buffer kept playing out. A long seconds-to-yield with low overlap usually means the endpointer was slow to trust that the caller was really talking. The pattern points at the fix.</p>
+
+    <h2 id="pitfalls">Pitfalls that quietly skew the results</h2>
+    <ul>
+      <li><b>Backchannels are not barge-ins.</b> A caller saying "mm hm" or "yeah" to acknowledge is not asking the agent to stop, and a good agent keeps going. If you score those as failed yields you will punish correct behavior. This is where the timestamped transcript pays off: filter onsets whose caller speech is a short acknowledgment token before scoring.</li>
+      <li><b>Playout buffer tail.</b> Even after the logic decides to stop, already-buffered TTS keeps playing for a moment. That tail is real audio the caller heard, so it belongs in overlap seconds. Do not "correct" for it. It is part of the experience you are measuring.</li>
+      <li><b>Echo on mono recordings.</b> The agent's voice leaking into the caller leg can trip a caller-onset that never happened. Two-channel audio or an echo-cancelled caller channel removes this.</li>
+      <li><b>Endpointing versus interruption.</b> If the agent had already finished its sentence and paused naturally, the caller speaking is a normal turn, not a barge-in. The "agent was still talking at onset" condition in step 3 guards against counting these.</li>
+      <li><b>Client-side versus server-side recording.</b> Where the audio was captured changes the latency you see, because network jitter and buffering sit between the two. Keep the capture point consistent across every call in a batch so seconds-to-yield stays comparable.</li>
+      <li><b>Frame and sustain tuning.</b> The 150 ms onset and 200 ms silence windows are defaults. Very short, fast callers may need a shorter onset window. Noisy lines may need a learned VAD instead of the energy gate. Tune once against a handful of hand-labeled clips, then hold the settings fixed for the whole batch.</li>
+    </ul>
+
+    <h2 id="fix">How to fix an agent that fails</h2>
+    <p>Once the numbers point at a cause, the fixes are concrete. This is stack-level configuration, not a rewrite.</p>
+    <ul>
+      <li><b>Confirm interruption is actually enabled.</b> Most voice frameworks have a barge-in or interruptible flag on the agent or session. If it is off, the agent will finish its turn no matter what. This is the single most common cause of a zero-yield result.</li>
+      <li><b>Tune input VAD sensitivity and endpointing.</b> A long seconds-to-yield with low overlap usually means the input detector waits too long to accept caller speech. Lower the speech-start threshold or the required speech duration so the stop fires sooner.</li>
+      <li><b>Flush the TTS on interrupt.</b> High overlap with a short decision time means buffered audio is still draining. Send a stop or clear to the TTS and drop the queued audio the instant an interruption is detected, rather than letting the current utterance finish.</li>
+      <li><b>Prefer full-duplex handling.</b> An agent that cannot listen while it speaks physically cannot detect a barge-in until it pauses. If the pipeline is half-duplex, that is the ceiling on how fast it can yield.</li>
+      <li><b>Debounce backchannels deliberately.</b> If you want the agent to ignore short acknowledgments, do it on purpose with a minimum interruption duration, and set it knowing it also delays real barge-ins. Measure both effects with the same three signals.</li>
+    </ul>
+    <p>After any change, re-score the same recordings and the same batch. The point of an objective measurement is that "it feels better now" becomes "median seconds to yield dropped and total overlap fell."</p>
+
+    <h2 id="scale">Scoring across a batch to benchmark the agent</h2>
+    <p>One call is an anecdote. To <b>benchmark voice agent interruption handling</b>, run the per-call script over every recording, collect one row per barge-in event, and summarize the distribution rather than a single number.</p>
+<pre><code>events = [score_call(path) <span class="k">for</span> path <span class="k">in</span> recordings]      <span class="c"># each row: the 3 signals</span>
+barge_ins = [e <span class="k">for</span> e <span class="k">in</span> events <span class="k">if</span> e[<span class="s">"onset"</span>] <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>]
+
+yield_rate  = np.mean([e[<span class="s">"yielded"</span>] <span class="k">for</span> e <span class="k">in</span> barge_ins])
+median_ttl  = np.median([e[<span class="s">"seconds_to_yield"</span>] <span class="k">for</span> e <span class="k">in</span> barge_ins
+                         <span class="k">if</span> e[<span class="s">"seconds_to_yield"</span>] <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>])
+total_over  = np.sum([e[<span class="s">"overlap_seconds"</span>] <span class="k">for</span> e <span class="k">in</span> barge_ins])
+
+print(<span class="s">"yield rate         :"</span>, round(yield_rate, <span class="s">3</span>))
+print(<span class="s">"median s-to-yield  :"</span>, round(median_ttl, <span class="s">3</span>))
+print(<span class="s">"total overlap (s)  :"</span>, round(total_over, <span class="s">1</span>))</code></pre>
+    <p>That is a scorecard: a yield rate, a median seconds-to-yield, and total overlap seconds across the batch, plus the two or three worst calls to listen to. It is stable enough to gate a release and simple enough to explain to a customer. And because it is the same three signals every time, you can <b>score whether the agent yielded on recorded calls</b> from last month against this month and actually trust the delta.</p>
+
+    <div class="note-box">
+      A quick honesty check on your own labels: pull the five worst calls the script flags and listen to them. If they sound bad, your thresholds are aligned with human perception. If they sound fine, your onset or silence windows need a nudge. Calibrate against your ears once, then let the numbers do the work at scale.</div>
+
+    <div class="cta" id="report">
+      <p class="tag">Want this run for you</p>
+      <h2>The same three signals, scored by hand on your calls</h2>
+      <p>Everything above is the exact scoring we run. If you would rather not build and tune the pipeline, send us 10 to 15 of your own recorded calls and we score every barge-in event on these three signals, by hand, and return a per-call scorecard plus an aggregate reliability report in about a week. <span class="amt">$499, one time.</span> No integration, nothing connects to your stack, and it works with recordings from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit.</p>
+      <a class="btn" href="https://bargebench.com/#request">Request the report &rarr;</a>
+    </div>
+
+    <h2 id="faq">FAQ</h2>
+    <div class="faq">
+      <details open>
+        <summary>How do you test voice agent barge-in?</summary>
+        <p>You test it from the audio, not the internals. For each recording, mark when the caller starts speaking, mark when the agent's speech energy drops to silence, and measure three things: whether the agent yielded, how many seconds it took, and how many seconds it kept speaking over the caller. Because it reads audio, it works for any stack that exports recordings.</p>
+      </details>
+      <details>
+        <summary>How do you measure barge-in latency for a voice agent?</summary>
+        <p>Barge-in latency, the seconds to yield, is the gap between the caller's speech onset and the point where the agent's text-to-speech energy drops and stays low. Compute short-time RMS energy on the agent audio in 20 ms frames, find the caller onset with a voice activity detector, and subtract. Cross-linguistic conversation studies put the typical gap between human turns near 200 ms, so a responsive agent should yield well under a second.</p>
+      </details>
+      <details>
+        <summary>What metrics should you track for voice agent interruptions?</summary>
+        <p>Three objective signals cover the failure mode: did the agent yield when the caller spoke, seconds to yield, and overlap seconds. Aggregate them across calls into a yield rate, a median seconds-to-yield, and total overlap seconds to get a scorecard you can trust across releases.</p>
+      </details>
+      <details>
+        <summary>How do you benchmark voice agent interruption handling across a stack?</summary>
+        <p>Collect 10 to 15 representative recorded calls that contain real interruptions, score every barge-in event on the same three signals, and report the distribution rather than one number. Because the method reads audio, the same benchmark applies whether the calls came from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit.</p>
+      </details>
+      <details>
+        <summary>How do you score whether a voice agent yielded on recorded calls?</summary>
+        <p>For each interruption, the agent yielded if its speech energy drops to the channel noise floor within a fixed window after the caller onset and does not resume over the caller. If the agent audio keeps its energy through the caller's turn, it did not yield. Two-channel recordings make this reliable because the caller and agent sit on separate channels and cannot be confused.</p>
+      </details>
+      <details>
+        <summary>Does this require integrating with my voice agent?</summary>
+        <p>No. The method reads call audio and an optional transcript, so nothing connects to your system. It is a one-time measurement, not continuous monitoring, and it works with Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that can export recordings.</p>
+      </details>
+    </div>
+
+  </div>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+        <span class="mk"><span></span><span></span></span>
+        BargeBench
+      </a>
+      <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+    </div>
+    <p class="built">Built by <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
+    <p class="legal">BargeBench is a one-time barge-in reliability report. It scores your own recorded calls on three fixed criteria. It is not continuous monitoring, not simulated callers, and not an integration. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as sources of your own call recordings.</p>
+  </div>
+</footer>

@@ -1,0 +1,381 @@
+<!--
+  BargeBench guide: barge-in on telephony (Twilio, 8kHz).
+  Every claim here is standard, checkable voice-engineering fact or a reported failure mode.
+  No accuracy/performance percentages about our own detection, no fabricated logos,
+  testimonials, counts, or ratings, no "open source", no speaker-ID framing, no
+  uniqueness/only-we claims, no competitor names used as comparison. Twilio, Vapi, Retell,
+  Bland, Pipecat, and LiveKit appear only as the tools an engineer actually runs. No em or
+  en dashes anywhere.
+-->
+<meta charset="UTF-8">
+<title>Barge-In on Phone Calls: Why 8kHz Telephony Breaks It</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Why voice-agent barge-in that works in the browser breaks on Twilio calls: 8kHz turn detection, bot audio leaking into STT, mobile echo, and testing it.">
+<meta name="keywords" content="barge-in telephony, twilio barge-in, 8khz turn detection, voice agent echo, bot audio into stt, sip intro then silence, mobile echo voice agent, time to yield telephony">
+<link rel="canonical" href="https://bargebench.com/guides/barge-in-on-telephony-twilio-8khz/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#E5522D">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BargeBench">
+<meta property="og:title" content="Barge-In on Phone Calls: Why 8kHz Telephony Breaks It">
+<meta property="og:description" content="Telephony-specific reasons barge-in breaks on real phone calls: 8kHz turn detection, bot audio leaking into STT, mobile echo, half-duplex jitter, and how to measure it.">
+<meta property="og:url" content="https://bargebench.com/guides/barge-in-on-telephony-twilio-8khz/">
+<meta property="og:image" content="https://bargebench.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Barge-in reliability report scorecard for voice agents">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Barge-In on Phone Calls: Why 8kHz Telephony Breaks It">
+<meta name="twitter:description" content="Why barge-in that works in the browser falls apart on Twilio phone calls, and how to test it on the 8kHz audio your customers actually hear.">
+<meta name="twitter:image" content="https://bargebench.com/og.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E5522D'/%3E%3Crect x='10.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3Crect x='17.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Barge-In on Phone Calls: Why Twilio and 8kHz Telephony Break Interruption Handling",
+      "description": "Telephony-specific reasons barge-in that works in the browser falls apart on real phone calls, and how to measure barge-in on the 8kHz audio production traffic actually carries.",
+      "author": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "publisher": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://bargebench.com/guides/barge-in-on-telephony-twilio-8khz" },
+      "datePublished": "2026-07-02",
+      "dateModified": "2026-07-02",
+      "about": ["barge-in", "voice agents", "telephony", "Twilio", "8kHz audio", "turn detection", "acoustic echo"]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why is barge-in not working at an 8000 sample rate on telephony?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Phone calls run at an 8000 Hz sample rate over G.711, which represents audio only up to 4000 Hz and passes roughly 300 to 3400 Hz. Consonant energy that a voice activity detector keys on, like s, f, and sh sounds, lives above that band and is attenuated. A turn detector or VAD that assumes 16000 Hz wideband speech sees weaker onsets on narrowband telephony audio, so it detects the caller starting to speak late or not at all. Upsampling 8000 Hz to 16000 Hz does not restore the missing content, it only interpolates. The fix is to run a VAD configured for 8000 Hz natively and to test the trigger on real 8kHz recordings, not clean browser audio." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does the agent keep talking after the user interrupts on Twilio?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Two common causes. First, the orchestrator decided to yield but never flushed the audio already queued for playback. On Twilio Media Streams you must send a clear event to drop the buffered outbound audio, otherwise the caller keeps hearing previously sent text-to-speech for hundreds of milliseconds after the stop decision. Second, network jitter and buffering delay when the caller audio reaches the detector, so the yield fires late. Measure time to yield on the recorded audio to tell these apart." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does bot audio leak into the STT stream and cause self-interruptions?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In a browser demo the WebRTC audio pipeline runs acoustic echo cancellation by default, so the bot's own voice is removed from the microphone before it reaches speech-to-text. Raw telephony has no equivalent. On a SIP trunk or a Twilio media stream the bot's text-to-speech can return through acoustic echo on the caller's device or line echo on the network, land in the inbound leg, and get transcribed as if the caller spoke. The turn detector reads that as a barge-in and the agent stops or talks to itself. Run STT on the caller leg only, add echo cancellation on the inbound audio using the outbound audio as the reference, and gate the barge-in trigger against the bot's own output." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does a Twilio SIP call play the intro then go silent?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Intro plays then silence almost always means one-way audio: the outbound path works so you hear the greeting, but the inbound RTP never arrives because of SDP or NAT negotiation, a media IP mismatch, symmetric RTP issues, a codec mismatch, or a dropped media websocket after the greeting. If the agent never receives the caller's audio, barge-in cannot work at all, because there is no caller signal to detect. Confirm inbound audio is flowing before you debug the turn detector." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does mobile echo interrupt the voice agent?",
+          "acceptedAnswer": { "@type": "Answer", "text": "On a mobile call, especially on speakerphone, the bot's voice plays out of the handset speaker and is picked back up by the same microphone. Added VoIP latency and jitter buffering push the echo delay past the tail length a typical echo canceller handles, so residual echo survives and reaches speech-to-text. The detector treats that leaked bot speech as the caller barging in. Testing on real mobile recordings, not a wired headset in the office, is what surfaces this." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I test barge-in on real phone audio?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use dual-channel call recordings, for example Twilio recordings with dual channels, so the caller and the agent are on separate tracks. Run an 8000 Hz voice activity detector on each channel, find every point where the caller starts speaking while the agent is still talking, and score three fixed things: did the agent yield, how many seconds it took to yield, and whether it kept talking over the caller as an overlap duration. Measure on the same 8kHz codec-compressed audio your customers hear, because a browser test at 48000 Hz with echo cancellation tells you almost nothing about the phone path." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --ink:#16181b;
+    --ink-2:#565d66;
+    --ink-3:#8a9099;
+    --bg:#faf9f7;
+    --panel:#ffffff;
+    --panel-2:#faf9f6;
+    --line:#e8e6e0;
+    --line-2:#f0eee9;
+    --accent:#e5522d;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(229,82,45,0.10);
+    --accent-line:rgba(229,82,45,0.35);
+    --radius:12px;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.62;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{letter-spacing:-0.02em;color:var(--ink);}
+
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .wrap{max-width:960px;display:flex;align-items:center;justify-content:space-between;height:58px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  .wordmark:hover{text-decoration:none;}
+  .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
+  .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
+  .wordmark .mk span+span{margin-left:3px;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
+  .top-cta:hover{background:#cf4826;text-decoration:none;}
+
+  main{padding:14px 0 8px;}
+  .crumb{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-3);margin:26px 0 18px;}
+  .crumb a{color:var(--ink-3);}
+  h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;margin:0 0 18px;}
+  .standfirst{font-size:19px;color:var(--ink-2);line-height:1.55;margin:0 0 12px;}
+  .byline{font-size:13.5px;color:var(--ink-3);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line);}
+  .byline b{color:var(--ink-2);font-weight:600;}
+
+  h2{font-size:24px;line-height:1.22;margin:46px 0 12px;padding-top:8px;}
+  h3{font-size:17.5px;margin:30px 0 8px;}
+  p{margin:0 0 16px;color:#26292e;}
+  strong{color:var(--ink);font-weight:650;}
+  ul,ol{margin:0 0 18px;padding-left:22px;}
+  li{margin:0 0 9px;color:#26292e;}
+  .lead-in{font-weight:600;color:var(--ink);}
+
+  .tldr{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius);padding:20px 22px;margin:6px 0 34px;}
+  .tldr .k{font-family:var(--mono);font-size:11px;letter-spacing:0.07em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
+  .tldr ul{margin:0;padding-left:20px;}
+  .tldr li{font-size:15px;color:var(--ink-2);margin-bottom:7px;}
+  .tldr li b{color:var(--ink);}
+
+  .callout{background:var(--accent-wash);border:1px solid var(--accent-line);border-radius:var(--radius);padding:16px 20px;margin:22px 0;font-size:15px;color:#3a2a24;}
+  .callout b{color:var(--ink);}
+
+  .table-scroll{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:var(--radius);}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px;}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);vertical-align:top;}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel-2);}
+  td:first-child,th:first-child{color:var(--ink);font-weight:600;}
+  tbody tr:last-child td{border-bottom:none;}
+
+  code{font-family:var(--mono);font-size:13px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;color:#3a2a24;}
+  pre{margin:20px 0;background:#1c1e22;color:#e7e3da;border-radius:var(--radius);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;}
+  pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;}
+  .cmt{color:#8f97a3;}
+
+  .checklist{list-style:none;padding:0;margin:20px 0;}
+  .checklist li{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line-2);font-size:15px;color:var(--ink-2);}
+  .checklist li:last-child{border-bottom:none;}
+  .checklist li .n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:2px;min-width:20px;}
+  .checklist li b{color:var(--ink);}
+
+  .cta{background:var(--panel);border:1px solid var(--accent-line);border-radius:16px;padding:30px 28px;margin:46px 0 20px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -28px rgba(229,82,45,0.28);}
+  .cta .k{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
+  .cta h2{margin:0 0 12px;font-size:23px;padding-top:0;}
+  .cta p{font-size:15.5px;color:var(--ink-2);margin:0 0 20px;}
+  .cta .price{font-weight:700;color:var(--ink);}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;padding:13px 24px;border-radius:10px;}
+  .btn:hover{background:#cf4826;text-decoration:none;}
+
+  .faq{margin-top:14px;}
+  details{border-bottom:1px solid var(--line);padding:16px 0;}
+  details:first-of-type{border-top:1px solid var(--line);}
+  summary{font-size:16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";}
+  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;}
+
+  footer{border-top:1px solid var(--line);margin-top:56px;padding:38px 0 56px;background:var(--panel-2);}
+  footer .wrap{max-width:960px;}
+  footer .f-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:62ch;line-height:1.55;}
+  footer .built b{color:var(--ink);font-weight:600;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:82ch;line-height:1.55;margin:0;}
+
+  @media (max-width:640px){
+    h2{font-size:21px;}
+    .standfirst{font-size:17px;}
+    .cta{padding:24px 20px;}
+  }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+      <span class="mk"><span></span><span></span></span>
+      BargeBench
+    </a>
+    <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="crumb"><a href="https://bargebench.com/">BargeBench</a> / Guides / Barge-In on Telephony</div>
+
+    <h1>Barge-In on Phone Calls: Why Twilio and 8kHz Telephony Break Interruption Handling</h1>
+
+    <p class="standfirst">Your agent yields cleanly when you interrupt it in the browser demo. Then it ships to a phone number and the interruption handling falls apart: it keeps talking over people, or it stops itself for no reason. The reason is that phone audio is a different, harsher signal than the microphone in your laptop, and almost every barge-in bug on real traffic traces back to that gap.</p>
+    <p class="byline">A field guide from <b>Attention Labs</b>, a voice-AI research company. Written for engineers debugging barge-in on production phone calls.</p>
+
+    <div class="tldr">
+      <p class="k">The short version</p>
+      <ul>
+        <li>The browser demo lies because <b>WebRTC removes the bot's echo and runs at 48kHz</b>. The phone gives you neither.</li>
+        <li>Telephony is <b>8000 Hz narrowband</b>, which weakens the exact cues a turn detector uses to notice the caller.</li>
+        <li>The bot's own voice can <b>leak back into the STT stream</b> and trigger false self-interruptions.</li>
+        <li>The agent that <b>keeps talking after the interrupt</b> often decided to yield but never flushed the audio already queued for playback.</li>
+        <li>You can only trust a barge-in number if you <b>measure it on the 8kHz audio your customers actually hear</b>.</li>
+      </ul>
+    </div>
+
+    <h2>Why the browser demo passes and the phone call fails</h2>
+    <p>When you test barge-in with <code>getUserMedia</code> in a browser, the WebRTC audio pipeline quietly does two enormous favors for you. It enables acoustic echo cancellation by default, so the bot's own voice coming out of your speakers is removed from your microphone before it ever reaches speech-to-text. And it captures wideband audio, commonly 48000 Hz, so a voice activity detector sees crisp, full-spectrum speech.</p>
+    <p>A real phone call gives you neither. Over the public telephone network, audio is carried by G.711 at an <strong>8000 Hz sample rate</strong>, mono, with a passband of roughly 300 to 3400 Hz. On Twilio Media Streams the inbound frames arrive as 8kHz mu-law, base64 encoded, in 20 millisecond chunks. There is no echo canceller in that path unless you add one. So the clean signal your turn detector was tuned against does not exist in production. Every pitfall below is a consequence of that one fact.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Browser demo</th><th>Real phone call</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sample rate</td><td>48000 Hz wideband</td><td>8000 Hz narrowband (G.711)</td></tr>
+          <tr><td>Usable band</td><td>full speech spectrum</td><td>about 300 to 3400 Hz</td></tr>
+          <tr><td>Echo cancellation</td><td>on by default (WebRTC)</td><td>none unless you add it</td></tr>
+          <tr><td>Bot voice in mic</td><td>removed before STT</td><td>can leak into STT</td></tr>
+          <tr><td>Added latency</td><td>near zero, local</td><td>network round trip plus jitter buffer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Pitfall 1: 8kHz breaks turn detection</h2>
+    <p>Voice activity detectors and turn detectors decide when the caller has started speaking. That decision is the trigger for barge-in. Many of these models were trained or tuned on 16000 Hz wideband speech, and telephony gives them 8000 Hz.</p>
+    <p>The problem is not just fewer samples, it is which sounds survive. An 8000 Hz sample rate can only represent audio up to 4000 Hz (the Nyquist limit), and the telephony passband cuts off around 3400 Hz. A lot of the energy a detector keys on to catch the <em>onset</em> of speech, the sibilants and fricatives in sounds like s, f, and sh, lives above that line. On a phone those onsets are attenuated or gone, so the detector fires late, fires weakly, or misses the start of the caller entirely. If barge-in is not working at an 8000 sample rate on telephony, this is usually the first place to look.</p>
+    <p>Naively upsampling 8kHz to 16kHz before the detector does not save you. Interpolation invents samples, it does not recover the high-frequency content that G.711 already discarded. The detector still sees narrowband speech wearing a wideband costume.</p>
+    <div class="callout"><b>The fix:</b> run a VAD that supports 8000 Hz natively and configure it for 8kHz, rather than upsampling into a 16kHz-only model. Silero VAD, for example, exposes an 8000 Hz mode. Then tune your energy and probability thresholds against real telephony recordings, because the noise floor and dynamic range of companded mu-law audio are not the same as a laptop microphone.</div>
+
+    <h2>Pitfall 2: bot audio leaking into the STT stream</h2>
+    <p>This is the pitfall that produces the most confusing symptom: an agent that interrupts itself, stops mid-sentence, or reports a barge-in when nobody spoke. The cause is the bot's own voice getting into the speech-to-text input.</p>
+    <p>On a phone call the text-to-speech you send out can come back to you two ways. <strong>Acoustic echo</strong>: the caller is on speakerphone or a cheap earbud, the bot plays out of their speaker, and their microphone picks it back up. <strong>Line echo</strong>: impedance mismatch at the two-wire to four-wire hybrid conversion in the old copper network reflects part of the signal back down the line. Either way, the bot's voice lands in the inbound leg, speech-to-text transcribes it, and the turn detector reads it as the caller talking. The agent yields to itself. Search traffic for this is full of reports of voice agent echo and bot audio leaking into STT for exactly this reason.</p>
+    <p>Remember why the browser never showed you this: WebRTC was cancelling the echo for you. Raw SIP and raw media streams do not.</p>
+    <h3>How to stop it</h3>
+    <ul>
+      <li><b>Transcribe the caller leg only.</b> Never run STT on a mixed mono recording that already contains the outbound audio. Keep the legs separate end to end.</li>
+      <li><b>Add echo cancellation on the inbound audio</b> using the outbound TTS as the reference signal. An acoustic echo canceller (for example the WebRTC audio processing module or a speex-style canceller) subtracts a filtered copy of what you played from what you received.</li>
+      <li><b>Gate the barge-in trigger against your own output.</b> While TTS is actively playing, be skeptical of inbound energy that correlates with the outbound signal. It is far more likely to be your own voice than a real interruption.</li>
+    </ul>
+
+    <h2>Pitfall 3: mobile mic echo defeats the canceller</h2>
+    <p>Even with an echo canceller in place, mobile calls are the hardest case, and mobile echo interrupting the voice agent is a distinct failure from line echo. On speakerphone the loudspeaker and the microphone are inches apart, so the bot's voice is loud in the mic. Worse, an echo canceller can only remove echo whose delay falls inside its tail length. On a VoIP-to-mobile path the round trip plus the jitter buffer can push the echo delay past that tail, and whatever the canceller cannot model comes through as residual echo. That residue is enough for STT to latch onto and for the turn detector to call a barge-in.</p>
+    <p>This is why a barge-in test on a wired headset at your desk is not representative. The wired path has short, stable echo delay and no speakerphone coupling. Your customers on mobile speakerphone in a noisy car are the population that actually breaks. You have to test on their audio, not yours.</p>
+
+    <h2>Pitfall 4: half-duplex and jitter delay the yield</h2>
+    <p>Even when detection is correct, the phone path adds delay between the caller speaking and the agent going quiet. Two mechanisms stack up.</p>
+    <p><strong>Half-duplex behavior.</strong> Some carrier paths and echo suppressors attenuate the reverse direction while one party is talking. If your TTS is playing outbound, the caller's inbound barge-in speech can be ducked by the network at exactly the moment it matters, so it reaches your detector quieter and later than it was spoken.</p>
+    <p><strong>Network jitter.</strong> RTP packets arrive unevenly and get held in a jitter buffer before playout. That buffer is latency added in front of your VAD. The caller's first word is already tens of milliseconds old by the time your detector sees it.</p>
+    <p>Now the part that produces "the agent keeps talking after the user interrupts on Twilio." The yield loop is: caller speaks, audio crosses the network and jitter buffer, VAD fires, your orchestrator decides to stop, it stops generating new TTS. But the audio you already sent is <strong>still queued for playback on Twilio's side</strong>. If you only stop generating and do not flush that buffer, the caller keeps hearing the bot for the length of whatever was queued, which can be hundreds of milliseconds to a couple of seconds.</p>
+    <div class="callout"><b>The fix:</b> on Twilio Media Streams, send a <code>clear</code> event on the stream when you yield, which drops the buffered outbound audio immediately. Stopping your generator is not enough by itself. Use <code>mark</code> events to know when playback of a chunk has actually finished, and treat time to yield as an end to end number measured from the caller's speech onset to the agent's audio actually going silent, not from when your code decided to stop.</div>
+
+    <h2>Pitfall 5: the SIP call that plays the intro then goes silent</h2>
+    <p>A frequently reported and easily misdiagnosed symptom on Twilio and other SIP setups: the intro or greeting plays, and then the call goes silent. It looks like a barge-in or turn-detection bug. It usually is not.</p>
+    <p>Intro plays then silence almost always means <strong>one-way audio</strong>. The outbound path works, which is why you hear the greeting, but the inbound RTP never arrives. Common roots are SDP or NAT negotiation failures, a media IP mismatch, symmetric RTP not being honored, a codec mismatch, or the media websocket dropping right after the greeting. If the agent is not receiving the caller's audio, barge-in cannot possibly work, because there is literally no caller signal to detect.</p>
+    <div class="callout"><b>Diagnose before you tune:</b> confirm inbound audio is flowing at all. Log the count and timing of inbound media frames. If they stop after the intro, your problem is the media path, not the turn detector, and no threshold change will fix it.</div>
+
+    <h2>How to actually measure barge-in on telephony audio</h2>
+    <p>Here is the point the other five sections build toward. You cannot tune what you cannot measure, and you cannot trust a measurement taken on the wrong audio. A barge-in pass rate from a browser session at 48kHz with echo cancellation tells you almost nothing about your phone traffic. Measure on the 8kHz, codec-compressed audio your customers actually hear.</p>
+    <h3>Step 1: record the two legs separately</h3>
+    <p>Use dual-channel call recordings so the caller and the agent are on separate tracks. Twilio supports this directly by requesting dual-channel recordings, which put the inbound and outbound legs on the left and right channels of the file. A mono mixed recording is nearly useless for this: once both voices are summed into one track you cannot reliably say who was talking during an overlap.</p>
+    <h3>Step 2: run an 8kHz VAD on each channel</h3>
+    <p>Detect speech on the caller channel and the agent channel independently, at the file's native 8000 Hz. That gives you two timelines of speech regions. Barge-in events are the moments the caller's timeline starts a new region while the agent's timeline is still active.</p>
+    <h3>Step 3: score three fixed things per event</h3>
+    <p>For every barge-in event, answer exactly three questions, which are objective and readable straight off the two channels:</p>
+    <ol>
+      <li><b>Did the agent yield?</b> After the caller's onset, does the agent channel fall silent within a defined window?</li>
+      <li><b>How many seconds to yield?</b> The gap from the caller's speech onset to the agent channel actually going quiet.</li>
+      <li><b>Did it keep talking over the caller?</b> The overlap duration where both channels carry speech at the same time.</li>
+    </ol>
+
+    <pre><code><span class="cmt"># Dual-channel 8 kHz recording. ch0 = caller, ch1 = agent.</span>
+caller = vad(ch0, sample_rate=8000)   <span class="cmt"># list of (start, end) seconds</span>
+agent  = vad(ch1, sample_rate=8000)
+
+for onset in speech_onsets(caller):
+    <span class="cmt"># Only a barge-in if the agent was talking when the caller started.</span>
+    if agent_active_at(agent, onset):
+        yield_at  = first_agent_silence_after(agent, onset)
+        yielded   = yield_at is not None
+        seconds   = (yield_at - onset) if yielded else None   <span class="cmt"># time to yield</span>
+        talkover  = overlap_seconds(caller, agent, onset)     <span class="cmt"># kept talking?</span>
+        record(onset, yielded, seconds, talkover)</code></pre>
+
+    <p>Run that across a representative set of real calls and you get a per-call scorecard and an aggregate you can actually defend: the share of interruptions the agent honored, the median seconds to yield, and how often it talked over the caller. Those three numbers, measured on production-shaped audio, are what tell you whether barge-in works for your customers.</p>
+
+    <h2>A diagnostic checklist</h2>
+    <ul class="checklist">
+      <li><span class="n">01</span><span><b>Reproduce on a real phone number,</b> not the browser. If it only breaks on the phone, the cause is in this guide.</span></li>
+      <li><span class="n">02</span><span><b>Confirm inbound audio is flowing.</b> Count inbound media frames. Silence after the intro means a one-way media path, not a detector bug.</span></li>
+      <li><span class="n">03</span><span><b>Check for bot voice in the STT input.</b> If transcripts contain the agent's own lines, you have echo leaking into speech-to-text.</span></li>
+      <li><span class="n">04</span><span><b>Verify the VAD runs at 8000 Hz</b> natively, and that thresholds were tuned on telephony audio, not wideband.</span></li>
+      <li><span class="n">05</span><span><b>Confirm you flush queued playback on yield</b> (a <code>clear</code> event on Twilio), not just stop generating TTS.</span></li>
+      <li><span class="n">06</span><span><b>Measure time to yield end to end</b> from the caller's onset to real silence, on dual-channel recordings.</span></li>
+    </ul>
+
+    <div class="cta">
+      <p class="k">Want this done rigorously on your own calls</p>
+      <h2>Send us 10 to 15 real phone recordings and we score the barge-in</h2>
+      <p>We run this exact measurement on the audio your customers actually hear. Every barge-in event scored on the same three fixed criteria: did the agent yield, seconds to yield, and did it keep talking over the caller. You get a per-call scorecard and an aggregate reliability report in about a week. No integration, nothing connects to your stack, works with recordings from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit. <span class="price">$499, one time.</span></p>
+      <a class="btn" href="https://bargebench.com/#request">Request the report &rsaquo;</a>
+    </div>
+
+    <div class="faq">
+      <h2>Frequently asked</h2>
+      <details>
+        <summary>Why is barge-in not working at an 8000 sample rate on telephony?</summary>
+        <p>Phone calls run at 8000 Hz over G.711, which represents audio only up to 4000 Hz and passes roughly 300 to 3400 Hz. Consonant energy a VAD keys on, like s, f, and sh, lives above that band and is attenuated, so a detector tuned for 16000 Hz wideband speech sees weaker onsets and fires late or misses the caller. Upsampling to 16kHz does not recover the lost content. Run a VAD configured for 8000 Hz natively and tune it on real telephony recordings.</p>
+      </details>
+      <details>
+        <summary>Why does the agent keep talking after the user interrupts on Twilio?</summary>
+        <p>Usually the orchestrator decided to yield but never flushed the audio already queued for playback. On Twilio Media Streams you must send a <code>clear</code> event to drop buffered outbound audio, otherwise the caller keeps hearing earlier TTS for hundreds of milliseconds after the stop. Network jitter can also delay when the caller audio reaches the detector. Measuring time to yield on the recording separates the two.</p>
+      </details>
+      <details>
+        <summary>Why does bot audio leak into the STT stream and cause self-interruptions?</summary>
+        <p>Browsers run acoustic echo cancellation by default, so the bot's voice is removed from the mic before STT. Raw telephony has none, so the bot's output returns through acoustic echo on the caller's device or line echo on the network, lands in the inbound leg, and gets transcribed as if the caller spoke. Transcribe the caller leg only, add echo cancellation using the outbound audio as the reference, and gate the barge-in trigger against your own output.</p>
+      </details>
+      <details>
+        <summary>Why does a Twilio SIP call play the intro then go silent?</summary>
+        <p>Intro plays then silence almost always means one-way audio: the outbound path works so you hear the greeting, but inbound RTP never arrives because of SDP or NAT negotiation, a media IP mismatch, symmetric RTP issues, a codec mismatch, or a dropped media websocket. If the agent never receives the caller's audio, barge-in cannot work at all. Confirm inbound frames are flowing before touching the turn detector.</p>
+      </details>
+      <details>
+        <summary>Why does mobile echo interrupt the voice agent?</summary>
+        <p>On mobile speakerphone the loudspeaker and microphone are inches apart, so the bot's voice is loud in the mic. Added VoIP latency and jitter push the echo delay past the tail length an echo canceller can model, so residual echo survives and reaches STT, and the detector reads it as a barge-in. Testing on real mobile recordings, not a wired office headset, is what surfaces it.</p>
+      </details>
+      <details>
+        <summary>How do I test barge-in on real phone audio?</summary>
+        <p>Use dual-channel recordings so caller and agent are on separate tracks, for example Twilio dual-channel recordings. Run an 8000 Hz VAD on each channel, find every point where the caller starts speaking while the agent is still talking, and score three fixed things: did the agent yield, how many seconds it took, and whether it kept talking over the caller. Measure on the same 8kHz audio your customers hear, not a browser capture with echo cancellation. That is exactly the report we produce if you would rather send us the calls.</p>
+      </details>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+        <span class="mk"><span></span><span></span></span>
+        BargeBench
+      </a>
+      <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+    </div>
+    <p class="built">Built by <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
+    <p class="legal">BargeBench is a one-time barge-in reliability report. It scores your own recorded calls on three fixed criteria. It is not continuous monitoring, not simulated callers, and not an integration. Twilio, Vapi, Retell, Bland, Pipecat, and LiveKit are named only as the tools you run and the sources of your own call recordings.</p>
+  </div>
+</footer>

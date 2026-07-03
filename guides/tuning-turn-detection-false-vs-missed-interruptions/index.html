@@ -1,0 +1,519 @@
+<!--
+  BargeBench guide: tuning turn detection and VAD for barge-in.
+  Every claim here is a plainly true, checkable statement about how these
+  parameters behave. No accuracy or performance percentages about our own
+  detection, no fabricated benchmarks, logos, testimonials, or counts, no
+  "open source" claim about our own model, no speaker-ID framing, no
+  uniqueness claims, and no competitor comparisons. Silero VAD, Smart Turn,
+  and the OpenAI Realtime turn-detection modes are named only as the levers
+  an engineer actually tunes. Vapi, Retell, Bland, Pipecat, and LiveKit are
+  named only as the buyer's own recording sources and where these knobs live.
+  Numbers shown in tables are illustrative examples, labelled as such.
+-->
+<meta charset="UTF-8">
+<title>Turn Detection and VAD Tuning: False vs Missed Barge-In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Tune VAD, endpointing, and turn detection so your voice agent stops cutting users off on pauses and filler, yet still yields to real interruptions.">
+<meta name="keywords" content="voice agent turn detection, VAD threshold tuning, barge-in detection, false interruption, missed interruption, endpointing, end of utterance, silero vad, smart turn v3, openai realtime semantic_vad server_vad, min interruption words, filler words interruption">
+<link rel="canonical" href="https://bargebench.com/guides/tuning-turn-detection-false-vs-missed-interruptions/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#E5522D">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BargeBench">
+<meta property="og:title" content="Turn Detection and VAD Tuning: False vs Missed Barge-In">
+<meta property="og:description" content="Tune VAD, endpointing, and turn detection so your voice agent stops cutting users off on pauses and filler, yet still yields to real interruptions.">
+<meta property="og:url" content="https://bargebench.com/guides/tuning-turn-detection-false-vs-missed-interruptions/">
+<meta property="og:image" content="https://bargebench.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Barge-in reliability scoring for voice agents">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Turn Detection and VAD Tuning: False vs Missed Barge-In">
+<meta name="twitter:description" content="Tune VAD, endpointing, and turn detection so your voice agent stops cutting users off on pauses and filler, yet still yields to real interruptions.">
+<meta name="twitter:image" content="https://bargebench.com/og.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E5522D'/%3E%3Crect x='10.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3Crect x='17.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Tuning Turn Detection and VAD: False Interruptions vs Missed Interruptions",
+      "description": "A practical guide to the two-sided barge-in failure mode: how VAD thresholds, minimum interruption duration and words, endpointing and end-of-utterance timeouts, and semantic turn detectors trade false barge-in against missed barge-in, and how to measure both directions from recorded calls.",
+      "author": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "publisher": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "mainEntityOfPage": "https://bargebench.com/guides/tuning-turn-detection-false-vs-missed-interruptions",
+      "image": "https://bargebench.com/og.png",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why is my voice agent's turn detection too sensitive and interrupting the user?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sensitivity is set too high, so the agent treats the user's own pauses, filler words, backchannels, breaths, and background noise as a turn and yields to them. This is a false barge-in. The levers that reduce it are raising the VAD speech threshold, raising the minimum interruption duration so short noises are ignored, requiring a minimum number of transcribed words before an interruption counts, and adding a semantic turn detector. Each of these lowers false interruptions but can add latency or increase missed interruptions, so you move along a trade-off rather than fixing both at once." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my voice assistant start speaking before the user finishes?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The endpointing or end-of-utterance timeout is too short, so a mid-sentence pause is scored as the end of the user's turn and the agent jumps in. Raise the minimum endpointing delay or the required silence duration, and consider a semantic end-of-utterance model that holds the turn through natural pauses and filler instead of ending it on the first gap. The cost of holding longer is a slower response, so tune it against your measured false end-of-turn rate." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I make interruption detection ignore filler words?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Require a minimum number of transcribed words before an interruption is allowed, which is the min interruption words control in some agent frameworks, or classify backchannels and filler such as um, uh, yeah, and mhm as non-turn-taking. The trade-off is that waiting for words to be transcribed adds latency to real interruptions, and a high word threshold can miss short but genuine interruptions like stop or no." }
+        },
+        {
+          "@type": "Question",
+          "name": "Silero VAD is not detecting an interruption. What is wrong?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A voice activity detector reports whether speech is present, not whether the user intends to take the turn, so you still need interruption logic on top of it. If Silero VAD is not firing on a real interruption, check that audio is 16 kHz mono with the expected window size, lower the speech probability threshold, and shorten the minimum silence and minimum speech durations so brief interruptions are not filtered out. If it fires too often instead, raise the threshold and the minimum speech duration." }
+        },
+        {
+          "@type": "Question",
+          "name": "What are Smart Turn v3, endpointing, and end-of-utterance latency?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Endpointing is deciding when the user has finished a turn. End-of-utterance models such as Smart Turn v3 predict from the audio whether an utterance is complete or the speaker is only pausing, so endpointing can wait through pauses and filler instead of cutting the user off. Smart Turn v3 is multilingual and runs quickly on CPU, so it adds little inference latency while reducing premature endpointing, which is a common source of the agent talking before the user is done." }
+        },
+        {
+          "@type": "Question",
+          "name": "OpenAI Realtime semantic_vad vs server_vad, which is better for interruptions?",
+          "acceptedAnswer": { "@type": "Answer", "text": "server_vad ends the turn on silence and exposes a threshold, prefix padding, and silence duration, so it can end a turn during a natural pause and let the agent speak too early. semantic_vad uses a model to predict turn boundaries from content, so it is less likely to treat a mid-thought pause as the end of a turn, which reduces false interruptions. Its eagerness setting trades responsiveness against how long it waits before deciding the user is done." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --ink:#16181b;
+    --ink-2:#565d66;
+    --ink-3:#8a9099;
+    --bg:#faf9f7;
+    --panel:#ffffff;
+    --panel-2:#faf9f6;
+    --line:#e8e6e0;
+    --line-2:#f0eee9;
+    --accent:#e5522d;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(229,82,45,0.10);
+    --accent-line:rgba(229,82,45,0.35);
+    --radius:12px;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.62;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{letter-spacing:-0.02em;}
+
+  /* header */
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .bar{max-width:1000px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  .wordmark:hover{text-decoration:none;}
+  .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
+  .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
+  .wordmark .mk span+span{margin-left:3px;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
+  .top-cta:hover{background:#cf4826;text-decoration:none;}
+
+  /* article shell */
+  article{padding:44px 0 24px;}
+  .crumb{font-size:13px;color:var(--ink-3);margin:0 0 22px;font-family:var(--mono);letter-spacing:0.02em;}
+  .crumb a{color:var(--ink-3);}
+  .crumb a:hover{color:var(--accent);}
+  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 14px;font-weight:600;}
+  h1{font-size:clamp(28px,4.4vw,42px);line-height:1.1;margin:0 0 18px;}
+  .standfirst{font-size:19px;color:var(--ink-2);line-height:1.5;margin:0 0 12px;}
+  .meta{font-size:13.5px;color:var(--ink-3);margin:18px 0 0;padding:16px 0 0;border-top:1px solid var(--line);}
+  .meta b{color:var(--ink-2);font-weight:600;}
+
+  /* prose */
+  .prose{padding-top:8px;}
+  .prose h2{font-size:clamp(22px,2.6vw,27px);line-height:1.2;margin:48px 0 10px;padding-top:14px;}
+  .prose h3{font-size:18.5px;line-height:1.25;margin:30px 0 8px;color:var(--ink);}
+  .prose p{margin:0 0 16px;color:var(--ink);max-width:68ch;}
+  .prose p.sub,.prose .lede{color:var(--ink-2);}
+  .prose strong{font-weight:650;color:var(--ink);}
+  .prose ul,.prose ol{margin:0 0 18px;padding-left:22px;color:var(--ink);max-width:66ch;}
+  .prose li{margin:0 0 8px;}
+  .prose li::marker{color:var(--accent);}
+  code{font-family:var(--mono);font-size:0.87em;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#b23c1c;}
+
+  /* section eyebrow small */
+  .kick{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:600;margin:0 0 4px;}
+
+  /* diagram card */
+  .fig{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px 16px;margin:22px 0 24px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 12px 30px -20px rgba(20,22,25,0.16);}
+  .fig svg{width:100%;height:auto;display:block;}
+  .fig figcaption{margin:14px 2px 0;font-size:13px;color:var(--ink-3);}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;font-size:12.5px;color:var(--ink-2);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  /* callout */
+  .callout{background:var(--accent-wash);border:1px solid var(--accent-line);border-radius:var(--radius);padding:18px 20px;margin:22px 0;font-size:15px;color:var(--ink);}
+  .callout .lab{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;display:block;margin-bottom:6px;}
+  .callout p{margin:0;max-width:none;}
+  .note-box{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--ink-3);border-radius:8px;padding:14px 18px;margin:20px 0;font-size:14.5px;color:var(--ink-2);}
+  .note-box b{color:var(--ink);}
+
+  /* tables */
+  .table-scroll{overflow-x:auto;margin:20px 0 24px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);}
+  table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:640px;}
+  table.tbl th,table.tbl td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);vertical-align:top;}
+  table.tbl thead th{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel-2);position:sticky;top:0;}
+  table.tbl td:first-child,table.tbl th:first-child{font-weight:600;color:var(--ink);}
+  table.tbl tbody tr:last-child td{border-bottom:none;}
+  table.tbl .mono{font-family:var(--mono);color:var(--ink-2);font-size:13px;}
+  .pill-more{color:var(--accent);font-weight:600;}
+  .pill-less{color:var(--ink-2);font-weight:600;}
+  .cap{font-size:12.5px;color:var(--ink-3);margin:-12px 0 26px;font-family:var(--mono);}
+
+  /* code block */
+  pre{background:#1a1c1f;color:#e9e7e2;border-radius:var(--radius);padding:18px 20px;overflow-x:auto;margin:18px 0 8px;font-family:var(--mono);font-size:13px;line-height:1.6;}
+  pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;}
+  pre .c{color:#8a9099;}
+  pre .k{color:#e5915f;}
+  pre .s{color:#9ec98a;}
+  .code-cap{font-size:12.5px;color:var(--ink-3);margin:2px 2px 26px;}
+
+  /* step list */
+  ol.recipe{list-style:none;counter-reset:step;padding:0;margin:20px 0 24px;max-width:none;}
+  ol.recipe li{counter-increment:step;position:relative;padding:0 0 18px 46px;color:var(--ink);}
+  ol.recipe li::before{content:counter(step);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  ol.recipe li b{color:var(--ink);}
+  ol.recipe li p{margin:4px 0 0;color:var(--ink-2);font-size:15px;}
+
+  /* CTA block */
+  .cta{background:var(--panel);border:1px solid var(--accent-line);border-radius:16px;padding:30px 30px 32px;margin:48px 0 10px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -26px rgba(229,82,45,0.26);}
+  .cta .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 8px;}
+  .cta h2{margin:0 0 10px;font-size:24px;padding:0;}
+  .cta p{color:var(--ink-2);max-width:60ch;margin:0 0 20px;font-size:15.5px;}
+  .cta .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px;padding:13px 24px;border-radius:10px;}
+  .cta .btn:hover{background:#cf4826;text-decoration:none;}
+  .cta .fine{margin:14px 0 0;font-size:13px;color:var(--ink-3);}
+
+  /* faq */
+  .faq{margin-top:12px;}
+  details{border-bottom:1px solid var(--line);padding:18px 0;}
+  details:first-of-type{border-top:1px solid var(--line);}
+  summary{font-size:16.5px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";}
+  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;max-width:68ch;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:40px 0 56px;background:var(--panel-2);margin-top:40px;}
+  footer .fw{max-width:1000px;margin:0 auto;padding:0 24px;}
+  footer .f-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:22px;}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:64ch;line-height:1.5;}
+  footer .built b{color:var(--ink);font-weight:600;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:82ch;line-height:1.5;margin:0;}
+
+  @media (max-width:640px){
+    article{padding:32px 0 16px;}
+    .prose h2{margin-top:38px;}
+    .cta{padding:24px 22px 26px;}
+  }
+</style>
+
+<header class="top">
+  <div class="bar">
+    <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+      <span class="mk"><span></span><span></span></span>
+      BargeBench
+    </a>
+    <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+  </div>
+</header>
+
+<article>
+  <div class="wrap">
+    <p class="crumb"><a href="https://bargebench.com/">BargeBench</a> / Guides / Tuning turn detection and VAD</p>
+    <p class="eyebrow">Voice agent engineering guide</p>
+    <h1>Tuning Turn Detection and VAD: False Interruptions vs Missed Interruptions</h1>
+    <p class="standfirst">Almost every voice agent team hits the same two-sided wall. Crank the sensitivity and the agent barges in on the user's own pauses and filler words. Back it off and the agent talks over real interruptions. This guide walks through every lever that moves that line, which direction each one pushes, and how to measure both kinds of error from your own recorded calls so tuning is data-driven instead of guesswork.</p>
+    <p class="meta"><b>Written by the team at Attention Labs</b>, a voice-AI research company. This is the tuning method behind our barge-in reliability report.</p>
+  </div>
+
+  <div class="wrap prose">
+
+    <h2>The one axis behind both failures</h2>
+    <p>Barge-in is the moment a user starts speaking while the agent is still talking. Getting it right means the agent yields to the user quickly when they genuinely take the turn, and keeps talking when the user is only pausing, thinking, breathing, or dropping in a filler word. Those two goals pull in opposite directions, and that tension is the whole problem.</p>
+    <p>It helps to name the two errors precisely, because you tune against them by name:</p>
+    <ul>
+      <li><strong>False barge-in (a false interruption).</strong> The agent yields when it should not have. The user paused mid-sentence, said <code>um</code>, dropped a backchannel like <code>mhm</code> or <code>yeah</code>, took a breath, or a TV was playing in the background, and the agent stopped talking or cut itself off. To the user, the agent seems twitchy and keeps abandoning its own sentences.</li>
+      <li><strong>Missed barge-in (a missed interruption, also called talk-over).</strong> The agent fails to yield when it should have. The user clearly started a new turn, and the agent kept talking over them for a second or more. To the user, the agent seems deaf and rude.</li>
+    </ul>
+    <p>If you have tuned detectors before, this is precision and recall. Every knob in the stack sits somewhere on a single sensitivity axis. Push toward more sensitive and you cut missed barge-ins while adding false barge-ins. Push toward less sensitive and you cut false barge-ins while adding missed barge-ins and slowing the agent down. You cannot drive both errors to zero by turning one knob. You either pick a point on the curve that fits your product, or you move to a smarter detector that shifts the whole curve.</p>
+
+    <div class="fig">
+      <figure style="margin:0;">
+        <svg viewBox="0 0 820 250" role="img" aria-label="Two dual-track timelines. On the left, an over-sensitive agent stops on the user's brief pause, a false barge-in. On the right, an under-sensitive agent keeps talking over a real interruption, a missed barge-in.">
+          <!-- LEFT: false barge-in -->
+          <text x="0" y="24" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="600" fill="#16181b">Too sensitive: false barge-in</text>
+          <text x="0" y="66" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#8a9099">User</text>
+          <text x="0" y="118" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#8a9099">Agent</text>
+          <line x1="48" y1="72" x2="380" y2="72" stroke="#efede7"/>
+          <line x1="48" y1="124" x2="380" y2="124" stroke="#efede7"/>
+          <!-- user: speaks, tiny pause, speaks again (one continuous turn) -->
+          <rect x="54" y="52" width="96" height="16" rx="5" fill="#16181b"/>
+          <rect x="176" y="52" width="150" height="16" rx="5" fill="#16181b"/>
+          <text x="150" y="46" font-family="-apple-system, Segoe UI, sans-serif" font-size="10" fill="#8a9099">pause / filler</text>
+          <!-- agent: was silent, jumps in during the pause, then has to stop -->
+          <rect x="150" y="104" width="26" height="16" rx="5" fill="#e5522d"/>
+          <text x="120" y="150" font-family="-apple-system, Segoe UI, sans-serif" font-size="10.5" fill="#e5522d">agent yields to a pause it should have ignored</text>
+          <!-- RIGHT: missed barge-in -->
+          <text x="440" y="24" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="600" fill="#16181b">Too insensitive: missed barge-in</text>
+          <text x="440" y="66" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#8a9099">User</text>
+          <text x="440" y="118" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#8a9099">Agent</text>
+          <line x1="492" y1="72" x2="812" y2="72" stroke="#efede7"/>
+          <line x1="492" y1="124" x2="812" y2="124" stroke="#efede7"/>
+          <!-- user: real interruption starting mid-agent -->
+          <rect x="628" y="52" width="180" height="16" rx="5" fill="#16181b"/>
+          <text x="628" y="46" font-family="-apple-system, Segoe UI, sans-serif" font-size="10" fill="#e5522d">real interruption</text>
+          <!-- agent: keeps going, overlap = talk-over -->
+          <rect x="498" y="104" width="130" height="16" rx="5" fill="#c9c6bf"/>
+          <rect x="628" y="104" width="150" height="16" rx="5" fill="#e5522d"/>
+          <rect x="628" y="44" width="150" height="82" fill="rgba(229,82,45,0.09)"/>
+          <text x="628" y="150" font-family="-apple-system, Segoe UI, sans-serif" font-size="10.5" fill="#e5522d">agent keeps talking over the user = talk-over</text>
+        </svg>
+        <div class="legend">
+          <span><i class="swatch" style="background:#16181b"></i> user speech</span>
+          <span><i class="swatch" style="background:#c9c6bf"></i> agent speech</span>
+          <span><i class="swatch" style="background:#e5522d"></i> the error</span>
+        </div>
+        <figcaption>The same knob causes both pictures. Turn it one way to kill the left failure and you grow the right one.</figcaption>
+      </figure>
+    </div>
+
+    <h2>The levers, and which way each one pushes</h2>
+    <p>Here are the controls that actually move barge-in behavior in a modern voice stack, whether you run Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit. The parameter names differ between stacks, but the levers are the same underneath. The table shows what happens when you turn each one up.</p>
+
+    <div class="table-scroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Lever</th>
+            <th>What it controls</th>
+            <th>Turn it up and you get</th>
+            <th>Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>VAD speech threshold</td>
+            <td>The speech-probability cutoff a voice activity detector uses to call a frame speech vs non-speech.</td>
+            <td><span class="pill-less">Fewer false barge-ins.</span> Soft noise and quiet backchannels stop counting as speech.</td>
+            <td>More missed barge-ins on soft-spoken users, and more talk-over.</td>
+          </tr>
+          <tr>
+            <td>Minimum interruption duration</td>
+            <td>How long detected user speech must last before it counts as an interruption.</td>
+            <td><span class="pill-less">Fewer false barge-ins.</span> Coughs, clicks, and single syllables are ignored.</td>
+            <td>Adds that much latency to every real interruption, and can drop very short ones.</td>
+          </tr>
+          <tr>
+            <td>Minimum interruption words</td>
+            <td>How many transcribed words are required before an interruption is allowed to stop the agent.</td>
+            <td><span class="pill-less">Fewer false barge-ins.</span> Filler and one-word backchannels no longer trigger a yield.</td>
+            <td>Waits for the transcriber, so it adds latency, and can miss short real interruptions like <code>stop</code>.</td>
+          </tr>
+          <tr>
+            <td>Endpointing / EOU silence timeout</td>
+            <td>How long a silence must last before the user is judged to have finished their turn.</td>
+            <td><span class="pill-less">Fewer premature turn-ends.</span> The agent stops jumping in on mid-sentence pauses.</td>
+            <td>Slower responses at the end of every genuine turn.</td>
+          </tr>
+          <tr>
+            <td>Semantic turn detector</td>
+            <td>A model that predicts, from words or prosody, whether the user is actually done vs only pausing.</td>
+            <td><span class="pill-more">Shifts the whole curve.</span> Fewer false barge-ins without paying as much missed barge-in.</td>
+            <td>Adds model inference to the loop, and it can be wrong on unusual phrasing.</td>
+          </tr>
+          <tr>
+            <td>Allow-interruptions flag</td>
+            <td>Whether user speech is allowed to stop the agent at all during its turn.</td>
+            <td><span class="pill-more">Guarantees no talk-over on the segments where it is on.</span></td>
+            <td>If it is off when you did not mean it to be, the agent can never yield. A frequent silent culprit.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cap">Directions are the reliable part. Exact defaults depend on your stack and version, so confirm them in your own config.</p>
+
+    <h3>VAD threshold and the raw detector</h3>
+    <p>A voice activity detector answers one narrow question: is there speech in this frame. Silero VAD, which many stacks use, returns a speech probability between 0 and 1 for each short window and compares it to a threshold. Lower the threshold and quieter or noisier audio starts counting as speech, which catches soft interruptions but also fires on background talk and breaths. Raise it and you get the opposite.</p>
+    <p>The important mental model: <strong>a VAD reports speech presence, not turn intent.</strong> It does not know whether the user is interrupting, agreeing, or thinking aloud. That is why a VAD alone is a bad barge-in detector, and why the other levers exist on top of it. If <code>silero vad</code> is <em>not</em> detecting an interruption, the usual causes are a threshold set too high, a minimum-silence or minimum-speech window that filters the interruption out, or an audio format mismatch. Silero expects 16 kHz mono in a fixed window size (512 samples at 16 kHz), and feeding it the wrong rate quietly degrades the probabilities.</p>
+
+    <pre><code><span class="c"># Silero VAD, illustrative defaults. Lower threshold and the</span>
+<span class="c"># shorter windows = more sensitive = fewer missed, more false.</span>
+get_speech_timestamps(
+    audio, model,
+    threshold=<span class="k">0.5</span>,               <span class="c"># speech-probability cutoff</span>
+    min_speech_duration_ms=<span class="k">250</span>,  <span class="c"># ignore blips shorter than this</span>
+    min_silence_duration_ms=<span class="k">100</span>, <span class="c"># silence before ending a segment</span>
+    speech_pad_ms=<span class="k">30</span>,
+)</code></pre>
+    <p class="code-cap">Parameter names from Silero VAD. Values shown are its documented defaults, not a recommendation. Confirm against your version.</p>
+
+    <h3>Minimum interruption duration and minimum interruption words</h3>
+    <p>These are the two cheapest, highest-leverage knobs for the "turn detection too sensitive, keeps interrupting the user" problem. A minimum interruption <em>duration</em> says the user must keep speaking for, say, a few hundred milliseconds before the agent yields, which throws away coughs, clicks, and stray syllables. A minimum interruption <em>words</em> count says the transcriber must produce at least N words before the agent yields, which is how you get interruption detection to ignore filler words and one-word backchannels.</p>
+    <p>The trade is direct and worth stating plainly. Both add latency to real interruptions, because the agent now waits to be sure. A duration gate adds a fixed delay. A words gate adds however long transcription takes to emit those words, and if you set it to two or three words you will miss short but genuine interruptions like <code>stop</code>, <code>no</code>, or <code>wait</code>. Many teams land on a small duration gate plus a words gate of zero or one, then let a semantic detector handle the harder filler cases.</p>
+
+    <h3>Endpointing and end-of-utterance timeouts</h3>
+    <p>Endpointing is the other side of the same coin, and it is usually the real reason a "voice assistant starts speaking before the user finishes." Endpointing decides when the user's turn is over. If it is silence-based and the timeout is short, a normal mid-sentence pause (for example "I want to book a flight to, uh, Denver") gets scored as end-of-turn, the agent takes the floor, and now you have both a false end-of-turn and, a beat later, the agent talking over the user as they finish. Lengthen the minimum silence or the minimum endpointing delay and the agent stops cutting people off, at the cost of a slower reply after every genuine turn. Frameworks such as LiveKit Agents expose this directly as a minimum and maximum endpointing delay so you can bound both the responsiveness and the worst-case wait.</p>
+
+    <h3>Semantic turn detection: Smart Turn v3 and realtime semantic VAD</h3>
+    <p>Everything above trades one error for the other along a fixed curve. Semantic turn detection is how you move the curve itself. Instead of asking only "is there silence," a semantic model asks "does this sound or read like a finished thought." Because it uses content and prosody rather than a raw gap, it can hold the turn through a pause or a filler word without you having to lengthen a blunt silence timer that also slows down real turn-ends.</p>
+    <p>Two concrete forms you are likely to reach for:</p>
+    <ul>
+      <li><strong>Audio end-of-utterance models such as Smart Turn v3.</strong> These classify from the audio whether an utterance is complete or the speaker is merely pausing, and feed that into endpointing. Smart Turn v3 is multilingual and small enough to run quickly on CPU, so the end-of-utterance and EOU latency it adds is modest while it meaningfully cuts premature endpointing. It is available to run in Pipecat pipelines and elsewhere.</li>
+      <li><strong>Realtime semantic VAD.</strong> The OpenAI Realtime API lets you choose the turn-detection mode. <code>server_vad</code> ends the turn on silence and exposes <code>threshold</code>, <code>prefix_padding_ms</code>, and <code>silence_duration_ms</code>. <code>semantic_vad</code> instead uses a model to judge whether the user is done, so a natural pause is less likely to be read as end-of-turn, which reduces false interruptions. Its <code>eagerness</code> setting (low, medium, high, or auto) trades how quickly it commits against how long it waits to be sure.</li>
+    </ul>
+
+    <pre><code><span class="c">// OpenAI Realtime: silence-based turn taking</span>
+<span class="s">"turn_detection"</span>: {
+  <span class="s">"type"</span>: <span class="s">"server_vad"</span>,
+  <span class="s">"threshold"</span>: <span class="k">0.5</span>,
+  <span class="s">"prefix_padding_ms"</span>: <span class="k">300</span>,
+  <span class="s">"silence_duration_ms"</span>: <span class="k">200</span>
+}
+
+<span class="c">// OpenAI Realtime: model-judged turn taking,</span>
+<span class="c">// less likely to end a turn on a natural pause</span>
+<span class="s">"turn_detection"</span>: {
+  <span class="s">"type"</span>: <span class="s">"semantic_vad"</span>,
+  <span class="s">"eagerness"</span>: <span class="s">"auto"</span>
+}</code></pre>
+    <p class="code-cap">Field names from the OpenAI Realtime turn-detection settings. Shown to illustrate the two modes, not tuned values.</p>
+
+    <div class="callout">
+      <span class="lab">The key idea</span>
+      <p>A blunt threshold moves you along the false-vs-missed curve. A semantic turn detector moves the curve. Reach for the blunt knobs first because they are cheap and instant, and add a semantic detector when you cannot find any single threshold that gives you an acceptable rate of both errors at once.</p>
+    </div>
+
+    <h2>How to measure both directions from recorded calls</h2>
+    <p>Here is the part most teams skip, and it is the part that turns tuning from guesswork into engineering. You cannot improve what you only feel. You have to count both errors, on the same recordings, before and after every change. Tuning by listening to a demo call or two is how you ship an agent that felt fine in the office and talks over customers in production.</p>
+    <p>The measurement is a small labeling and counting job. Do it on real recorded calls, not scripted ones, because real calls carry the accents, phone-line codec artifacts, background noise, and hesitation patterns that actually trip the detector.</p>
+
+    <ol class="recipe">
+      <li><b>Get clean audio, ideally dual-channel.</b><p>If your stack can record the user and the agent on separate channels, overlap becomes trivial to see: any span where both channels are hot is a talk-over candidate. If you only have a single mixed channel, segment it into who-is-speaking-when before you label. This is turn segmentation for scoring, not identifying any individual.</p></li>
+      <li><b>Mark every candidate interruption.</b><p>Find every point where the user starts speaking while the agent is talking. Each one is a candidate. This is the denominator for both error rates.</p></li>
+      <li><b>Label the user's intent at each candidate.</b><p>For each candidate, decide: was this a real turn-take, or was it a backchannel, filler, or noise. This is the human judgment the detector is trying to approximate, so it has to come from a person for the ground truth.</p></li>
+      <li><b>Score the agent's response.</b><p>For real turn-takes: did the agent yield, and how many seconds did it take to go silent after the user's onset. For backchannels and filler: did the agent wrongly stop or hesitate. Now every candidate lands in one of the boxes below.</p></li>
+      <li><b>Roll it up into two rates and one distribution.</b><p>Missed barge-in rate = real turn-takes the agent talked over, divided by all real turn-takes. False barge-in rate = non-turns the agent yielded to, divided by all non-turns (or per minute of agent speech). Time to yield = the distribution of seconds-to-silence on the real ones. Report the median and the tail, because the tail is what users remember.</p></li>
+    </ol>
+
+    <div class="table-scroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Agent yielded</th>
+            <th>Agent kept talking</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User really took the turn</td>
+            <td>Correct yield. Score its time to yield.</td>
+            <td><span class="pill-more">Missed barge-in (talk-over).</span></td>
+          </tr>
+          <tr>
+            <td>User only paused / filler / noise</td>
+            <td><span class="pill-more">False barge-in.</span></td>
+            <td>Correct hold. The agent kept its turn.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cap">The confusion matrix you are scoring toward. Both off-diagonal cells matter, and one knob trades one for the other.</p>
+
+    <p>Two things make this rigorous rather than anecdotal. First, if your stack lets you run the VAD or turn detector offline, replay the exact same audio through it at several threshold settings and count the boxes at each one. That gives you the real curve for your calls, not a vendor's benchmark. Second, always report both rates together. A single number like "yields 95 percent of the time" hides which error you are making, and the two are traded against each other. A team can cut talk-over to near zero and not notice they doubled their false barge-ins, because they were only watching one column.</p>
+
+    <div class="note-box"><b>Watch for the silent culprits.</b> Before you tune thresholds, rule out the configuration bugs that masquerade as tuning problems: interruptions disabled on a segment where you wanted them, the agent's own audio bleeding into the input and self-triggering (an echo-cancellation or duplex issue), a sample-rate mismatch feeding the VAD garbage, and transcriber latency that makes a words-based interruption gate feel like a missed barge-in. These produce the same symptoms as bad thresholds and no threshold will fix them.</div>
+
+    <h2>A tuning loop that converges</h2>
+    <p>Putting it together, the loop that reliably gets a team to a good operating point:</p>
+    <ol class="recipe">
+      <li><b>Instrument first.</b><p>Log every VAD trigger, interruption event, and turn-end with timestamps, so a recording can be scored without re-listening to all of it.</p></li>
+      <li><b>Measure the baseline both ways.</b><p>Run the scoring above on a real batch and write down your current false barge-in rate, missed barge-in rate, and time-to-yield distribution.</p></li>
+      <li><b>Move the cheapest knob toward your dominant error.</b><p>If false barge-in dominates, raise the minimum interruption duration first, then consider a words gate or a semantic detector. If missed barge-in dominates, lower the VAD threshold or the duration gate, and confirm interruptions are even enabled.</p></li>
+      <li><b>Re-measure on the same batch.</b><p>Confirm the error you targeted went down and watch how far the other one went up. Keep the change only if the trade is worth it for your product.</p></li>
+      <li><b>Add a semantic detector when the blunt knobs run out.</b><p>If no single threshold gives you an acceptable rate of both, that is the signal to move the curve with semantic turn detection rather than keep trading one error for the other.</p></li>
+    </ol>
+    <p>Whether a snappier median time to yield is worth a few more false barge-ins is a product call, not a universal answer. A high-stakes support line and a casual assistant will pick different points on the curve. The engineering job is to make the trade visible and measured so the product call is an informed one.</p>
+
+    <div class="cta">
+      <p class="tag">Want this run rigorously on your own calls</p>
+      <h2>We will tell you which way your thresholds are erring.</h2>
+      <p>Doing the measurement above well takes clean labeling and a consistent rubric. If you would rather see the numbers than build the harness, send us 10 to 15 of your own recorded calls. We score every barge-in event on three fixed, objective criteria (did the agent yield, seconds to yield, did it keep talking over the caller) and return a per-call scorecard plus an aggregate read in about a week. You will see plainly whether your current thresholds are erring toward false barge-in or toward talk-over, and by how much. It works with recordings from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit, with no integration.</p>
+      <a class="btn" href="https://bargebench.com/#request">Request the report, $499 one time <span aria-hidden="true">&rsaquo;</span></a>
+      <p class="fine">One-time report. No onboarding, nothing connects to your system. You send recordings, we return numbers.</p>
+    </div>
+
+    <h2 style="padding-top:20px;">Frequently asked</h2>
+    <div class="faq">
+      <details>
+        <summary>Why is my voice agent's turn detection too sensitive and interrupting the user?</summary>
+        <p>Sensitivity is set too high, so the agent treats the user's own pauses, filler, backchannels, breaths, and background noise as a turn and yields to them. That is a false barge-in. Reduce it by raising the VAD speech threshold, raising the minimum interruption duration so short noises are ignored, requiring a minimum number of transcribed words before an interruption counts, or adding a semantic turn detector. Each lowers false interruptions but can add latency or increase missed interruptions, so you are choosing a point on a trade-off, not eliminating both.</p>
+      </details>
+      <details>
+        <summary>Why does my voice assistant start speaking before the user finishes?</summary>
+        <p>The endpointing or end-of-utterance timeout is too short, so a mid-sentence pause is scored as the end of the turn and the agent jumps in. Raise the minimum endpointing delay or the required silence duration, and consider a semantic end-of-utterance model that holds the turn through pauses and filler rather than ending it on the first gap. Holding longer costs response speed, so tune it against your measured rate of premature turn-ends.</p>
+      </details>
+      <details>
+        <summary>How do I make interruption detection ignore filler words?</summary>
+        <p>Require a minimum number of transcribed words before an interruption is allowed, which some agent frameworks expose as a minimum interruption words setting, or classify backchannels and filler such as um, uh, yeah, and mhm as non-turn-taking. The trade-off is that waiting for words adds latency to real interruptions, and a high word threshold can miss short but genuine interruptions like stop or no.</p>
+      </details>
+      <details>
+        <summary>Silero VAD is not detecting an interruption. What is wrong?</summary>
+        <p>A voice activity detector reports whether speech is present, not whether the user means to take the turn, so you still need interruption logic on top of it. If Silero VAD is not firing on a real interruption, check that audio is 16 kHz mono with the expected window size, lower the speech-probability threshold, and shorten the minimum silence and minimum speech durations so brief interruptions are not filtered out. If it fires too often instead, raise the threshold and the minimum speech duration.</p>
+      </details>
+      <details>
+        <summary>What are Smart Turn v3, endpointing, and end-of-utterance latency?</summary>
+        <p>Endpointing is deciding when the user has finished a turn. End-of-utterance models such as Smart Turn v3 predict from the audio whether an utterance is complete or the speaker is only pausing, so endpointing can wait through pauses and filler instead of cutting the user off. Smart Turn v3 is multilingual and runs quickly on CPU, so it adds little inference latency while reducing premature endpointing, a common source of the agent speaking before the user is done.</p>
+      </details>
+      <details>
+        <summary>OpenAI Realtime semantic_vad vs server_vad, which is better for interruptions?</summary>
+        <p>server_vad ends the turn on silence and exposes threshold, prefix_padding_ms, and silence_duration_ms, so it can end a turn during a natural pause and let the agent speak too early. semantic_vad uses a model to predict turn boundaries from content, so it is less likely to treat a mid-thought pause as end-of-turn, which reduces false interruptions. Its eagerness setting trades responsiveness against how long it waits before deciding the user is done. Which is better depends on whether your calls suffer more from talk-over or from the agent cutting users off.</p>
+      </details>
+    </div>
+
+  </div>
+</article>
+
+<footer>
+  <div class="fw">
+    <div class="f-top">
+      <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+        <span class="mk"><span></span><span></span></span>
+        BargeBench
+      </a>
+      <a class="top-cta" href="https://bargebench.com/#request">Request the report</a>
+    </div>
+    <p class="built">Written by the team at <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures.</p>
+    <p class="legal">This guide describes third-party tools and parameters as tuning levers. Silero VAD, Smart Turn, and the OpenAI Realtime turn-detection modes are named as techniques an engineer configures. Vapi, Retell, Bland, Pipecat, and LiveKit are named as sources of your own call recordings. Parameter values in the examples are illustrative and should be confirmed against your own stack and version. BargeBench is a one-time barge-in reliability report that scores your own recorded calls on three fixed criteria.</p>
+  </div>
+</footer>

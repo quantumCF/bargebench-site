@@ -1,0 +1,608 @@
+<!--
+  BargeBench guide: why a voice agent keeps talking over the caller, and how to
+  debug it across a cascaded Pipecat or LiveKit pipeline. Every technical claim
+  here is either a documented framework behavior you can verify in the version
+  you run, or a measurement you can reproduce from your own call recording.
+  Framework defaults drift between releases, so the page tells you to check the
+  version you have. No accuracy percentages about our own detection, no
+  fabricated logos or counts, no "open source" claim about our model, no
+  speaker-identity framing, no uniqueness claims, no competitor comparisons.
+  Pipecat and LiveKit are named only because they are the stack being debugged.
+-->
+<meta charset="UTF-8">
+<title>Fix a Voice Agent Talking Over the Caller (Pipecat/LiveKit)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A symptom to root cause map for barge-in failures in Pipecat and LiveKit voice agents: why the bot keeps talking and how to confirm it from a recording.">
+<meta name="keywords" content="pipecat agent talks over user when interrupted, livekit agent won't stop talking when interrupted, voice agent doesn't stop speaking, StartInterruptionFrame not stopping tts, min_interruption_duration vs min_interruption_words, cancel bot speech faster, barge-in debugging, voice agent interruption handling, turn taking, VAD, TTS cancellation">
+<link rel="canonical" href="https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#E5522D">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="BargeBench">
+<meta property="og:title" content="Why Your Voice Agent Keeps Talking Over the Caller (Pipecat and LiveKit Debugging Guide)">
+<meta property="og:description" content="A symptom to root cause map across the STT, VAD or turn, LLM, and TTS pipeline: why the agent keeps talking through an interruption, and how to confirm each cause from the call recording.">
+<meta property="og:url" content="https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted/">
+<meta property="og:image" content="https://bargebench.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Barge-in reliability report scorecard for voice agents">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why Your Voice Agent Keeps Talking Over the Caller">
+<meta name="twitter:description" content="A symptom to root cause map for barge-in failures in Pipecat and LiveKit voice agents, plus how to confirm each cause from the call recording.">
+<meta name="twitter:image" content="https://bargebench.com/og.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E5522D'/%3E%3Crect x='10.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3Crect x='17.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Why Your Voice Agent Keeps Talking Over the Caller (Pipecat and LiveKit Debugging Guide)",
+      "description": "A symptom to root cause map across the cascaded STT, VAD or turn, LLM, and TTS pipeline, with a way to confirm each cause from the call recording.",
+      "author": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "publisher": { "@type": "Organization", "name": "Attention Labs", "url": "https://attentionlabs.ai" },
+      "mainEntityOfPage": "https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted",
+      "about": "Barge-in and interruption handling in cascaded voice agent pipelines",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "BargeBench", "item": "https://bargebench.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://bargebench.com/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Voice agent won't stop talking when interrupted", "item": "https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does my Pipecat agent talk over the user when interrupted?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The usual causes are that allow_interruptions is off on the pipeline params, that a words based interruption strategy is holding the interruption until the STT has emitted enough words, or that the StartInterruptionFrame is reaching the TTS service but the output transport is still draining audio it already buffered. Confirm by lining up the caller speech onset in the recording against when the agent audio actually falls silent, and against your frame logs." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why won't my LiveKit agent stop talking when interrupted?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Check allow_interruptions on the AgentSession first. If it is on, the two knobs that most often keep the agent talking are min_interruption_duration, which sets how long detected speech must last before it counts, and min_interruption_words, which if set above zero makes the agent wait for the STT to transcribe that many words before it will stop. A short leftover of audio after the stop is expected because audio already published to the room finishes playing out." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between min_interruption_duration and min_interruption_words?",
+          "acceptedAnswer": { "@type": "Answer", "text": "min_interruption_duration is measured by the VAD in seconds of continuous speech, so it fires quickly and independently of the words spoken. min_interruption_words is measured by the STT in transcribed words, so it only fires after recognition catches up, which adds the STT latency on top. If you set min_interruption_words above zero, the duration threshold alone will not interrupt, which is why the duration setting can look like it is being ignored." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does StartInterruptionFrame fire but the TTS keeps playing?",
+          "acceptedAnswer": { "@type": "Answer", "text": "StartInterruptionFrame is a system frame that has to reach every stage that holds audio, not just the TTS service. If it stops the TTS but the caller still hears the bot, the audio is usually already downstream in the output transport buffer or in the telephony gateway, or a custom processor in the pipeline did not pass the system frame through. Verify allow_interruptions is on, that your processors forward system frames, and that the output transport handles the interruption by clearing its buffer." }
+        },
+        {
+          "@type": "Question",
+          "name": "Interrupts are slower than I want. How do I cancel bot speech faster?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Time to yield is detection latency plus cancellation latency. Lower detection latency by reducing the VAD start window and, on LiveKit, by keeping min_interruption_words at zero so you are not waiting on the STT. Lower cancellation latency by sending smaller TTS audio chunks so less is buffered ahead, and by making sure the interruption clears the output transport buffer rather than only stopping new synthesis. Measure both halves from a recording before and after each change." }
+        },
+        {
+          "@type": "Question",
+          "name": "The agent goes silent but still reports that it is speaking. Why?",
+          "acceptedAnswer": { "@type": "Answer", "text": "That is a state desync. The speech handle that represents the current turn finished or was cancelled, but the session state event that flips the agent from speaking to listening did not fire or fired late. Downstream logic that gates on the speaking state then stalls the next turn. Confirm it from the recording plus the logs: agent audio energy is at the noise floor while the state event stays on speaking." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --ink:#16181b;
+    --ink-2:#565d66;
+    --ink-3:#8a9099;
+    --bg:#faf9f7;
+    --panel:#ffffff;
+    --panel-2:#faf9f6;
+    --line:#e8e6e0;
+    --line-2:#f0eee9;
+    --accent:#e5522d;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(229,82,45,0.10);
+    --accent-line:rgba(229,82,45,0.35);
+    --code-bg:#1c1f24;
+    --code-ink:#e7e4dc;
+    --radius:12px;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  h1,h2,h3{letter-spacing:-0.02em;}
+
+  /* header */
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .bar{max-width:820px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  .wordmark:hover{text-decoration:none;}
+  .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
+  .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
+  .wordmark .mk span+span{margin-left:3px;}
+  .top-cta{font-size:14px;font-weight:550;color:var(--accent-ink);background:var(--accent);padding:9px 16px;border-radius:8px;white-space:nowrap;}
+  .top-cta:hover{background:#cf4826;text-decoration:none;}
+
+  /* article shell */
+  article{padding:44px 0 24px;}
+  .crumbs{font-family:var(--mono);font-size:12px;letter-spacing:0.02em;color:var(--ink-3);margin:0 0 22px;}
+  .crumbs a{color:var(--ink-3);}
+  .crumbs a:hover{color:var(--accent);}
+  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 14px;font-weight:600;}
+  h1{font-size:clamp(28px,4.4vw,40px);line-height:1.12;margin:0 0 20px;}
+  .standfirst{font-size:19px;color:var(--ink-2);line-height:1.5;margin:0 0 18px;}
+  .standfirst b{color:var(--ink);font-weight:600;}
+  .byline{font-size:13.5px;color:var(--ink-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin:26px 0 0;}
+  .byline b{color:var(--ink-2);font-weight:600;}
+
+  /* prose */
+  .prose{padding:8px 0 0;}
+  .prose h2{font-size:clamp(21px,2.6vw,26px);line-height:1.2;margin:52px 0 14px;padding-top:8px;}
+  .prose h3{font-size:17.5px;margin:34px 0 8px;color:var(--ink);}
+  .prose p{margin:0 0 16px;color:var(--ink);font-size:16.5px;}
+  .prose p.muted{color:var(--ink-2);font-size:15.5px;}
+  .prose ul,.prose ol{margin:0 0 16px;padding-left:22px;color:var(--ink);font-size:16.5px;}
+  .prose li{margin:0 0 8px;}
+  .prose strong{font-weight:650;}
+  .prose code{font-family:var(--mono);font-size:13.5px;background:var(--accent-wash);color:#b5401f;padding:1.5px 6px;border-radius:5px;white-space:nowrap;}
+
+  /* figure card */
+  figure{margin:26px 0;}
+  .fig{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 12px 30px -22px rgba(20,22,25,0.18);}
+  .fig svg{width:100%;height:auto;display:block;}
+  figcaption{font-size:13px;color:var(--ink-3);margin-top:12px;font-family:var(--mono);}
+
+  /* code block */
+  pre{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:18px 18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;margin:20px 0;-webkit-overflow-scrolling:touch;}
+  pre code{font-family:var(--mono);background:none;color:inherit;padding:0;white-space:pre;font-size:13px;}
+  pre .c{color:#8f9aa6;}
+  pre .k{color:#e58a6d;}
+  pre .s{color:#b7d18b;}
+
+  /* callout */
+  .callout{border:1px solid var(--accent-line);background:var(--accent-wash);border-radius:12px;padding:16px 18px;margin:20px 0;font-size:15.5px;color:var(--ink);}
+  .callout b{color:var(--ink);font-weight:650;}
+  .callout .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;display:block;margin-bottom:6px;}
+
+  /* symptom map table */
+  .table-scroll{overflow-x:auto;margin:22px 0;-webkit-overflow-scrolling:touch;}
+  table.map{width:100%;border-collapse:collapse;font-size:14px;min-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  table.map th,table.map td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line-2);vertical-align:top;}
+  table.map thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--panel-2);}
+  table.map td:first-child{font-weight:600;color:var(--ink);}
+  table.map .layer{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap;}
+  table.map tbody tr:last-child td{border-bottom:none;}
+  table.map tbody tr:hover{background:var(--panel-2);}
+  table.map a{font-weight:600;}
+
+  /* symptom blocks */
+  .sym{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:22px 22px 6px;margin:20px 0;}
+  .sym > .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 4px;}
+  .sym h3{margin:0 0 10px;font-size:18px;}
+  .sym .layerline{font-size:13.5px;color:var(--ink-2);margin:0 0 14px;font-family:var(--mono);}
+  .sym .layerline b{color:var(--ink);}
+  .sym .confirm{border-left:3px solid var(--accent-line);padding:2px 0 2px 14px;margin:16px 0;}
+  .sym .confirm .h{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);font-weight:600;display:block;margin-bottom:4px;}
+  .sym .confirm p{font-size:15px;color:var(--ink-2);margin:0 0 12px;}
+
+  /* two column knob sheet */
+  .cheat{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0;}
+  .cheat .col{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:20px;}
+  .cheat .col h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:9px;}
+  .cheat .col h3 .cd{width:9px;height:9px;border-radius:2px;background:var(--accent);}
+  .cheat .col ul{list-style:none;margin:0;padding:0;}
+  .cheat .col li{padding:9px 0;border-bottom:1px solid var(--line-2);font-size:14px;color:var(--ink-2);}
+  .cheat .col li:last-child{border-bottom:none;}
+  .cheat .col li code{font-family:var(--mono);font-size:12.5px;color:#b5401f;background:var(--accent-wash);padding:1px 5px;border-radius:4px;white-space:normal;}
+  .cheat .col li b{color:var(--ink);}
+
+  /* CTA */
+  .cta{border:1px solid var(--accent-line);border-radius:16px;background:var(--panel);padding:30px 28px;margin:48px 0 24px;box-shadow:0 1px 2px rgba(20,22,25,0.03),0 18px 44px -28px rgba(229,82,45,0.28);}
+  .cta .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px;}
+  .cta h2{font-size:22px;margin:0 0 10px;padding:0;}
+  .cta p{color:var(--ink-2);font-size:15.5px;margin:0 0 18px;max-width:60ch;}
+  .cta p b{color:var(--ink);font-weight:600;}
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15.5px;padding:13px 22px;border-radius:10px;}
+  .btn:hover{background:#cf4826;text-decoration:none;}
+
+  /* faq */
+  .faq{margin:20px 0 0;}
+  details{border-bottom:1px solid var(--line);padding:16px 0;}
+  details:first-of-type{border-top:1px solid var(--line);}
+  summary{font-size:16px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--ink);}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700;font-size:19px;flex-shrink:0;}
+  details[open] summary::after{content:"\2212";}
+  details p{margin:12px 0 0;color:var(--ink-2);font-size:15px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:38px 0 54px;background:var(--panel-2);margin-top:40px;}
+  footer .built{font-size:14px;color:var(--ink-2);max-width:64ch;line-height:1.5;margin:0 0 14px;}
+  footer .built b{color:var(--ink);font-weight:600;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.5;margin:0;}
+  footer a{font-weight:600;}
+
+  @media (max-width:640px){
+    article{padding:30px 0 8px;}
+    .cheat{grid-template-columns:1fr;}
+    .prose p,.prose ul,.prose ol{font-size:16px;}
+  }
+</style>
+
+<header class="top">
+  <div class="bar">
+    <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+      <span class="mk"><span></span><span></span></span>
+      BargeBench
+    </a>
+    <a class="top-cta" href="https://bargebench.com/#request">Get the report</a>
+  </div>
+</header>
+
+<article>
+  <div class="wrap">
+    <p class="crumbs"><a href="https://bargebench.com/">BargeBench</a> / guides / voice agent won't stop talking when interrupted</p>
+    <p class="eyebrow">Engineering guide</p>
+    <h1>Why Your Voice Agent Keeps Talking Over the Caller (Pipecat and LiveKit Debugging Guide)</h1>
+    <p class="standfirst">Barge-in looks like one bug, but it is really a timing problem spread across four stages of a cascaded pipeline. This is a symptom to root cause map: for each way a <b>voice agent doesn't stop speaking when the caller talks over it</b>, the layer to check and how to confirm it from the call recording.</p>
+    <p class="byline">Written by the engineering team at <b>Attention Labs</b>, a voice-AI research company. We build multi-talker turn-taking systems, and we test barge-in for a living.</p>
+  </div>
+
+  <div class="wrap prose">
+
+    <p>You ship a voice agent. In the demo it feels sharp. Then real callers start interrupting it, and it plows straight through them, finishing a sentence nobody is listening to anymore. The caller talks louder, the agent keeps going, and the call falls apart.</p>
+
+    <p>The frustrating part is that "the agent won't stop talking" is not a single failure. In a cascaded stack, the moment a caller barges in has to travel through voice activity detection, a turn or interruption decision, and then all the way back down to whatever is still holding audio: the TTS service and the output transport. A stall or a dropped signal at any one of those stages produces the same audible symptom. So the fix depends entirely on <em>which</em> stage is stalling, and you cannot tell which one by listening alone.</p>
+
+    <p>This guide walks the pipeline, shows you how to instrument it so you stop guessing, then maps seven specific symptoms (including the ones people report most: <code>StartInterruptionFrame</code> firing but TTS continuing, and <code>min_interruption_duration</code> looking like it is ignored) onto the exact layer that causes each one.</p>
+
+    <h2>The pipeline where barge-in actually happens</h2>
+
+    <p>A cascaded voice agent is a loop. Caller audio comes in, gets turned into text, a turn decision decides whether the caller is really taking the floor, the LLM produces a reply, TTS turns that reply into audio, and the output transport streams it back. Barge-in is what happens when new caller audio arrives <em>while the bottom half of that loop is still emitting the previous reply</em>.</p>
+
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 860 250" role="img" aria-label="A cascaded voice pipeline: caller audio flows through VAD and STT, a turn and interruption decision, the LLM, TTS, and the output transport back to the caller. A red interruption signal path runs backward from the turn decision to the TTS and the output transport.">
+          <defs>
+            <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a9099"/></marker>
+            <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e5522d"/></marker>
+          </defs>
+          <!-- forward boxes -->
+          <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">
+            <rect x="10" y="70" width="120" height="52" rx="9" fill="#ffffff" stroke="#e8e6e0"/>
+            <text x="70" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#16181b">VAD + STT</text>
+            <text x="70" y="108" text-anchor="middle" font-size="10.5" fill="#8a9099">hears the caller</text>
+
+            <rect x="180" y="70" width="132" height="52" rx="9" fill="#fff" stroke="#e5522d"/>
+            <text x="246" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#16181b">Turn / interrupt</text>
+            <text x="246" y="108" text-anchor="middle" font-size="10.5" fill="#8a9099">decides to yield</text>
+
+            <rect x="362" y="70" width="110" height="52" rx="9" fill="#fff" stroke="#e8e6e0"/>
+            <text x="417" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#16181b">LLM</text>
+            <text x="417" y="108" text-anchor="middle" font-size="10.5" fill="#8a9099">writes reply</text>
+
+            <rect x="522" y="70" width="110" height="52" rx="9" fill="#fff" stroke="#e8e6e0"/>
+            <text x="577" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#16181b">TTS</text>
+            <text x="577" y="108" text-anchor="middle" font-size="10.5" fill="#8a9099">makes audio</text>
+
+            <rect x="682" y="70" width="150" height="52" rx="9" fill="#fff" stroke="#e8e6e0"/>
+            <text x="757" y="92" text-anchor="middle" font-size="12.5" font-weight="600" fill="#16181b">Output transport</text>
+            <text x="757" y="108" text-anchor="middle" font-size="10.5" fill="#8a9099">streams to caller</text>
+          </g>
+          <!-- forward arrows -->
+          <g stroke="#8a9099" stroke-width="1.6" fill="none">
+            <line x1="130" y1="96" x2="176" y2="96" marker-end="url(#ah)"/>
+            <line x1="312" y1="96" x2="358" y2="96" marker-end="url(#ah)"/>
+            <line x1="472" y1="96" x2="518" y2="96" marker-end="url(#ah)"/>
+            <line x1="632" y1="96" x2="678" y2="96" marker-end="url(#ah)"/>
+          </g>
+          <!-- interruption return path -->
+          <g stroke="#e5522d" stroke-width="1.6" fill="none" stroke-dasharray="5 4">
+            <path d="M246 122 L246 180 L757 180 L757 128" marker-end="url(#ar)"/>
+            <path d="M577 180 L577 128" marker-end="url(#ar)"/>
+          </g>
+          <text x="250" y="200" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#e5522d">interruption signal must reach every stage still holding audio</text>
+          <text x="10" y="30" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#565d66">caller audio in</text>
+          <text x="832" y="30" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#565d66">caller audio out</text>
+        </svg>
+      </div>
+      <figcaption>Barge-in success depends on the red path, not the black one. Detection is fast; stopping the audio already in flight is the hard part.</figcaption>
+    </figure>
+
+    <p>Two clocks decide whether barge-in feels good, and it helps to separate them because they are fixed in different places:</p>
+    <ul>
+      <li><strong>Detection latency:</strong> caller starts talking, and how long until your stack <em>decides</em> that is an interruption. This lives in the VAD window and the turn or interruption logic.</li>
+      <li><strong>Cancellation latency:</strong> the decision is made, and how long until the last caller-audible sample of the bot actually stops. This lives in the TTS buffer and the output transport, plus any telephony gateway between you and the caller.</li>
+    </ul>
+    <p>"Time to yield" is the sum of both. When people say <em>interrupts are slower, how do I cancel bot speech faster</em>, they usually tune one clock and ignore the other. You have to measure both.</p>
+
+    <h2>Instrument it before you guess</h2>
+
+    <p>Every root cause below is confirmed the same way: line up three timelines and see where they disagree. Caller speech onset, the agent's actual audio envelope, and your framework's interruption events. If you only ever listen to the mixed call, you will keep tuning the wrong clock.</p>
+
+    <h3>1. Get a recording you can measure</h3>
+    <p>Pull a <strong>stereo or dual-channel recording</strong> if you possibly can, with the caller on one channel and the agent on the other. A mixed mono file still shows you that talk-over happened, but it makes "when did the agent go quiet" much harder to measure because both voices sit in the same waveform. Most stacks can hand you separate tracks: telephony providers expose dual-channel recording, and the agent frameworks can record the input and output legs.</p>
+
+    <h3>2. Measure time to yield from the envelope</h3>
+    <p>You do not need anything fancy to get a first number. Compute a short-window energy envelope on each channel, find where the caller channel comes alive while the agent channel is still hot, and then find where the agent channel drops and stays down. The gap is your time to yield for that event.</p>
+
+    <pre><code><span class="c"># first-pass time-to-yield from a stereo call recording</span>
+<span class="c"># channel 0 = caller, channel 1 = agent (swap if yours is reversed)</span>
+<span class="k">import</span> numpy <span class="k">as</span> np, soundfile <span class="k">as</span> sf
+
+audio, sr = sf.read(<span class="s">"call_01.wav"</span>)      <span class="c"># shape (n, 2)</span>
+caller, agent = audio[:, 0], audio[:, 1]
+
+<span class="k">def</span> envelope(x, sr, win_ms=20):
+    w = int(sr * win_ms / 1000)
+    frames = len(x) // w
+    e = np.array([np.sqrt(np.mean(x[i*w:(i+1)*w]**2)) <span class="k">for</span> i <span class="k">in</span> range(frames)])
+    t = np.arange(frames) * win_ms / 1000.0
+    <span class="k">return</span> t, e
+
+tc, ec = envelope(caller, sr)
+ta, ea = envelope(agent, sr)
+
+thr = 0.02                             <span class="c"># tune to your noise floor</span>
+caller_on = ec > thr
+agent_on  = ea > thr
+
+<span class="k">for</span> i <span class="k">in</span> range(1, len(tc)):
+    <span class="k">if</span> caller_on[i] <span class="k">and</span> agent_on[i]:       <span class="c"># overlap starts: caller cut in</span>
+        onset = tc[i]
+        j = i
+        <span class="k">while</span> j < len(ea) <span class="k">and</span> ea[j] > thr:  <span class="c"># wait for agent to fall silent</span>
+            j += 1
+        yield_t = ta[j] <span class="k">if</span> j < len(ta) <span class="k">else</span> ta[-1]
+        print(<span class="s">f"caller in {onset:.2f}s, agent silent {yield_t:.2f}s, "</span>
+              <span class="s">f"time to yield {yield_t-onset:.2f}s"</span>)
+        <span class="k">break</span></code></pre>
+
+    <p class="muted">This is a starting point, not a scorer. A fixed energy threshold trips on breaths and line noise, so for anything you report on, run a real VAD (for example Silero or WebRTC VAD) per channel and hold the "silent" decision across a few frames so a pause inside a word does not read as a yield. But even the crude version tells you the one thing you need next: is the delay before the agent stops, or after the decision to stop.</p>
+
+    <h3>3. Turn on the framework's interruption logs</h3>
+    <p>Both stacks emit events at exactly the moments you care about. Log them with timestamps and overlay them on the audio.</p>
+    <ul>
+      <li><strong>Pipecat</strong> emits frames as the turn changes: <code>UserStartedSpeakingFrame</code> when the VAD calls a turn start, <code>StartInterruptionFrame</code> when it decides to interrupt, and <code>BotStoppedSpeakingFrame</code> when the bot audio is done. The distance from <code>UserStartedSpeakingFrame</code> to <code>StartInterruptionFrame</code> is detection latency; from there to the audio actually stopping is cancellation latency.</li>
+      <li><strong>LiveKit</strong> exposes the agent state and the current speech handle. Watch when <code>agent_state</code> moves off <code>speaking</code> and when the speech handle for the turn is interrupted, and compare those to the recording.</li>
+    </ul>
+    <div class="callout"><span class="lbl">The tell</span>If the interruption <b>event</b> fires right on time but the <b>audio</b> keeps going, you have a cancellation problem, so look at TTS and the transport. If the audio stops promptly once the event fires but the event fires late, you have a detection problem, so look at the VAD window and the turn logic. That single split points you at the right half of the map below.</div>
+
+    <h2>Symptom to root cause map</h2>
+    <p>Find your symptom, jump to the layer, confirm it against the recording. The detail for each row is below the table.</p>
+
+    <div class="table-scroll">
+      <table class="map">
+        <thead>
+          <tr><th>Symptom</th><th>Layer to check</th><th>Root cause</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#s1">Agent keeps talking for seconds after the caller cuts in</a></td>
+            <td class="layer">VAD / turn + toggle</td>
+            <td>Interruptions off, or a words gate is waiting on the STT</td>
+          </tr>
+          <tr>
+            <td><a href="#s2"><code>min_interruption_duration</code> looks ignored</a></td>
+            <td class="layer">Turn logic + STT</td>
+            <td><code>min_interruption_words</code> is above zero, so duration alone will not fire</td>
+          </tr>
+          <tr>
+            <td><a href="#s3">A syllable of the bot leaks out after it stops</a></td>
+            <td class="layer">TTS chunk + transport buffer</td>
+            <td>Audio was already synthesized and buffered downstream</td>
+          </tr>
+          <tr>
+            <td><a href="#s4"><code>StartInterruptionFrame</code> fires but TTS keeps going</a></td>
+            <td class="layer">Output transport / processors</td>
+            <td>The system frame did not reach or was not handled where the audio sits</td>
+          </tr>
+          <tr>
+            <td><a href="#s5">Interruptible TTS guard passes, audio still plays</a></td>
+            <td class="layer">TTS vs transport order</td>
+            <td>Guard checked after the audio was already handed downstream</td>
+          </tr>
+          <tr>
+            <td><a href="#s6">Bot repeats the same sentence after yielding</a></td>
+            <td class="layer">Context aggregation</td>
+            <td>Truncated turn not committed, or committed twice, out of order</td>
+          </tr>
+          <tr>
+            <td><a href="#s7">Agent is silent but status still says speaking</a></td>
+            <td class="layer">Session state events</td>
+            <td>Speech handle done, but the state event never flipped</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sym" id="s1">
+      <p class="tag">Symptom 1</p>
+      <h3>The agent keeps talking for whole seconds after the caller cuts in</h3>
+      <p class="layerline">Layer: <b>the interruption toggle, then the turn / words gate</b></p>
+      <p>Start at the cheapest cause. If <code>allow_interruptions</code> is off, nothing downstream can save you, because the pipeline never even tries to yield. In Pipecat that flag lives on the pipeline params; in LiveKit it lives on the <code>AgentSession</code> and can also be set per turn. Confirm it is on first.</p>
+      <p>If interruptions are on and the agent still runs for seconds, the common cause is a <em>words gate</em>. LiveKit's <code>min_interruption_words</code> and Pipecat's words-based interruption strategy both hold the interruption until the STT has transcribed enough words. That is a deliberate feature so a "mhm" or a cough does not stop the bot, but it means your time to yield now includes the STT's recognition latency, which on a streaming STT can easily be a second or more after the caller started.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the recording</span>
+        <p>Overlay the caller onset and the interruption event. If the event fires only when the STT emits its first words (not when the VAD first hears speech), a words gate is your delay, and this is the same root cause as symptom 2.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s2">
+      <p class="tag">Symptom 2</p>
+      <h3><code>min_interruption_duration</code> vs <code>min_interruption_words</code>: the duration looks like it is being ignored</h3>
+      <p class="layerline">Layer: <b>the turn decision, gated on the STT</b></p>
+      <p>This one confuses people because both knobs sound like they gate the same thing, but they are measured by different components on different clocks.</p>
+      <ul>
+        <li><code>min_interruption_duration</code> is measured by the <strong>VAD</strong>, in seconds of continuous speech. It is fast and does not care what the caller said.</li>
+        <li><code>min_interruption_words</code> is measured by the <strong>STT</strong>, in transcribed words. It cannot be satisfied until recognition catches up, so it always lands later than the VAD.</li>
+      </ul>
+      <p>If you set <code>min_interruption_words</code> above zero, the words condition is the binding one. Your carefully lowered <code>min_interruption_duration</code> is doing exactly what it says, but the agent still will not stop until the word count is met, so from the outside the duration knob looks ignored. It is not ignored, it is just no longer the gate.</p>
+      <div class="callout"><span class="lbl">Fix</span>Decide what the words gate is buying you. If you need fast barge-in and can tolerate the odd backchannel stopping the bot, set <b><code>min_interruption_words</code> to 0</b> and control sensitivity with the VAD and <code>min_interruption_duration</code> instead. If you keep a words gate, accept that your floor for time to yield is roughly the STT's first-token latency, and measure it so the number is not a surprise.</div>
+      <div class="confirm">
+        <span class="h">Confirm from the recording</span>
+        <p>Mark the VAD-based speech onset and the STT's first partial transcript on the timeline. If the yield lands with the transcript and not with the onset, the words gate is in control.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s3">
+      <p class="tag">Symptom 3</p>
+      <h3>A short burst of phonemes leaks out after the bot is told to stop</h3>
+      <p class="layerline">Layer: <b>the TTS chunk size and the buffers downstream of it</b></p>
+      <p>The decision to interrupt is correct and on time, but the caller still hears a fraction of a second of the bot, sometimes a whole syllable, before it goes quiet. This is not a logic bug. It is audio that was already produced and already in flight when the stop happened: a TTS chunk that was synthesized ahead, samples sitting in the output transport buffer, and on phone calls the jitter buffer and the telephony gateway between you and the caller. You cannot recall audio that has already left the building.</p>
+      <p>What you can do is keep less of it in flight. Smaller TTS audio chunks mean less is buffered ahead of the play head, so an interruption discards less pending audio. Make sure the interruption actually <em>flushes</em> the output transport buffer rather than only telling TTS to stop generating new audio, because the already-buffered samples are the ones the caller hears. The tail will never be exactly zero over a phone network, but it should be a small, bounded, consistent number rather than a noticeable chunk of a word.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the recording</span>
+        <p>Measure the agent-channel energy from the interruption event to true silence. A tail under roughly a couple hundred milliseconds is normal buffering. A tail that carries a recognizable syllable or word means audio is being buffered too far ahead, or the transport buffer is not being cleared on interruption.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s4">
+      <p class="tag">Symptom 4</p>
+      <h3>Pipecat's <code>StartInterruptionFrame</code> fires but the TTS does not stop</h3>
+      <p class="layerline">Layer: <b>the output transport and any custom processors in the path</b></p>
+      <p><code>StartInterruptionFrame</code> is a system frame. It is meant to travel out of band so it can jump ahead of queued work and reach every stage quickly. But "reach every stage" is the operative phrase: stopping barge-in means the interruption has to land at every processor that is still holding audio, which is the TTS service <em>and</em> the output transport, not just one of them. If the TTS stops producing new audio but the caller still hears the bot, the audio is downstream in the transport, and the transport has to handle the interruption by clearing what it has buffered.</p>
+      <p>Two things break this in practice. First, a custom processor you inserted into the pipeline that does not pass system frames through, so the interruption dies partway down the chain and never reaches the transport. Second, <code>allow_interruptions</code> being off, in which case the frame you expected may not be generated at all. Read the interruption handling for the exact version you run rather than trusting a blog post, because these internals move between releases.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the recording and logs</span>
+        <p>Log the frame at the point it is emitted and again at the output transport. If it is emitted but never logged at the transport, a processor in between is swallowing it. If it reaches the transport and audio still plays, the transport is not flushing its buffer on interruption.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s5">
+      <p class="tag">Symptom 5</p>
+      <h3>The interruptible TTS guard passes, but audio still plays</h3>
+      <p class="layerline">Layer: <b>where the guard sits relative to the buffered audio</b></p>
+      <p>Some TTS integrations wrap generation in an interruptible service that checks an interruption flag before it pushes each audio chunk onward. The idea is right: once an interruption is in progress, stop pushing. The failure is one of placement. If the guard is checked in the TTS stage but the chunks it already pushed are now sitting in the output transport, the guard "passing" only stops <em>future</em> chunks. The ones already downstream are past the guard and still play. A guard on new synthesis does nothing about buffered playback.</p>
+      <p>The lesson is the same as symptom 4 from a different angle: the stop has to be enforced at the place that is actually emitting sound. A check at the top of the TTS service is necessary but not sufficient. The output transport is the last stage that touches audio, so the interruption has to clear its buffer too, or a guard further up will keep passing while the caller keeps hearing the bot.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the recording</span>
+        <p>If new TTS output stops immediately on interruption but a steady tail keeps playing, the guard is working and the buffered audio is the culprit. Trace the interruption into the transport and confirm the buffer is flushed.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s6">
+      <p class="tag">Symptom 6</p>
+      <h3>After it yields, the bot repeats the sentence it was cut off on</h3>
+      <p class="layerline">Layer: <b>context aggregation and frame ordering</b></p>
+      <p>When an interruption lands, the agent's half-spoken reply has to be truncated to what the caller actually heard and written back into the conversation context, so the LLM knows it only got partway through. If that truncation races with the frames that add the user's new turn, or the partial assistant turn is committed twice, or the interruption is processed out of order relative to the context aggregator, the model's next turn can restate the sentence it was interrupted on. From the caller's side the agent yields politely and then says the same thing again, which is arguably worse than not yielding.</p>
+      <p>This is a state and ordering bug, not an audio bug, so the recording alone will not fully explain it. You need the transcript and the context. Look at what actually got written into the assistant message after the interruption, and whether the user turn landed before or after it.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the transcript</span>
+        <p>Line up the interruption event with the stored conversation turns. If the truncated assistant turn is missing, duplicated, or ordered after the user turn that interrupted it, the context aggregation around interruptions is the cause, not the TTS.</p>
+      </div>
+    </div>
+
+    <div class="sym" id="s7">
+      <p class="tag">Symptom 7</p>
+      <h3>The agent goes silent, but its status still says it is speaking</h3>
+      <p class="layerline">Layer: <b>the session state events</b></p>
+      <p>Here the audio side actually worked. The bot stopped, the caller is talking, and yet the agent's reported state is still <code>speaking</code>. The speech handle for that turn finished or was cancelled, but the event that flips the session from speaking to listening did not fire, or fired late. That matters because downstream logic often gates on the state: analytics, your own barge-in counters, or the trigger for the next turn. If the state is stuck on speaking, the next turn can stall even though the audio is long gone, and the call feels dead.</p>
+      <p>Treat the state machine as a first-class thing to test, not a display detail. The audio stopping and the state flipping are two separate events, and they can disagree.</p>
+      <div class="confirm">
+        <span class="h">Confirm from the recording and logs</span>
+        <p>Put the agent-channel energy next to the state events. If the energy is at the noise floor while the state event stays on speaking, you have a desync between the speech handle finishing and the state transition firing.</p>
+      </div>
+    </div>
+
+    <h2>The knobs, side by side</h2>
+    <p>Once you know which clock is slow, these are the levers. Names and defaults drift between releases, so treat this as a map of what to look for and confirm the exact values against the version you have installed.</p>
+
+    <div class="cheat">
+      <div class="col">
+        <h3><span class="cd"></span>Pipecat</h3>
+        <ul>
+          <li><code>allow_interruptions</code> on the pipeline params. If this is off, barge-in cannot happen. Check it first.</li>
+          <li>VAD window on the analyzer, for example <code>start_secs</code> (how long speech must persist to count as a turn start) and <code>stop_secs</code> (silence before the turn is over). Shorter <code>start_secs</code> lowers detection latency but trips on shorter noises.</li>
+          <li>Words-based interruption strategy (a minimum-words rule). Powerful for ignoring backchannels, but it puts the STT on the critical path. Drop it if you need the fastest yield.</li>
+          <li><code>StartInterruptionFrame</code> handling. Confirm the output transport clears its buffer and that any custom processor forwards system frames.</li>
+          <li>TTS chunk size. Smaller chunks buffer less ahead, so an interruption discards a shorter tail.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3><span class="cd"></span>LiveKit</h3>
+        <ul>
+          <li><code>allow_interruptions</code> on the <code>AgentSession</code>, also settable per turn. Off means the agent will finish no matter what.</li>
+          <li><code>min_interruption_duration</code>: seconds of detected speech before it counts as an interruption. VAD-timed, so it is your fast lever.</li>
+          <li><code>min_interruption_words</code>: words the STT must transcribe first. Above zero it becomes the binding gate and adds STT latency. Set to 0 for the fastest yield.</li>
+          <li><code>min_endpointing_delay</code> and <code>max_endpointing_delay</code>: how long to wait before deciding the caller is done. These shape turn-end, and interact with how eagerly the agent takes and gives the floor.</li>
+          <li>Turn detection model vs plain VAD. A turn model reduces false interruptions but is another stage in the detection clock.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>A test you can run this afternoon</h2>
+    <p>Guessing is expensive; a repeatable measurement is cheap. Here is a small protocol that turns "it feels like it interrupts badly" into numbers you can move.</p>
+    <ol>
+      <li><strong>Record with barge-in on purpose.</strong> Run a handful of calls where you interrupt the agent at known points: early in a long sentence, mid-word, and right as it starts a new sentence. Keep the recordings dual-channel.</li>
+      <li><strong>Score three fixed things per interruption.</strong> Did the agent yield at all, how many seconds it took to yield, and did it keep talking over the caller after the cut-in. Those three are objective and they map straight onto the two clocks above.</li>
+      <li><strong>Set pass thresholds up front.</strong> For example: yields on every event, time to yield under a target you pick for your use case, and no sustained talk-over past the buffered tail. Write the thresholds down before you look at the results so you are not grading on a curve.</li>
+      <li><strong>Change one knob, re-measure.</strong> Move <code>min_interruption_words</code>, or the VAD window, or the TTS chunk size, one at a time, and watch the two clocks separately. If a change helps detection but hurts cancellation, you will only see it because you split the number.</li>
+    </ol>
+    <p>The trap is that a handful of hand-run calls is not your real traffic. Real callers interrupt in messier ways than you do on purpose, so a stack that passes your five scripted barge-ins can still fail on the long tail. The honest version of this test runs across a real batch of your own recorded calls and scores every barge-in event the same way, so the number reflects production, not a demo.</p>
+
+    <div class="cta">
+      <p class="lbl">Once you have fixed it, verify it</p>
+      <h2>Prove the fix across a real batch of your calls</h2>
+      <p>When you think barge-in is handled, confirm it on production traffic instead of a scripted demo. Send us <b>10 to 15 of your own recorded calls</b> and we score every barge-in event on the same three fixed criteria this guide uses: did the agent yield, seconds to yield, and did it keep talking over the caller. You get a per-call scorecard and an aggregate reliability read in about a week. <b>$499, one time, no integration</b>, and it works with your own recordings from Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit.</p>
+      <a class="btn" href="https://bargebench.com/#request">Get the barge-in report &rsaquo;</a>
+    </div>
+
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details>
+        <summary>Why does my Pipecat agent talk over the user when interrupted?</summary>
+        <p>Check three things in order. Is <code>allow_interruptions</code> on. Is a words-based interruption strategy holding the interruption until the STT emits enough words. And is <code>StartInterruptionFrame</code> reaching the output transport so buffered audio gets cleared, not just the TTS service. Confirm by overlaying the caller onset, the interruption event, and the agent audio envelope from a recording.</p>
+      </details>
+      <details>
+        <summary>Why won't my LiveKit agent stop talking when interrupted?</summary>
+        <p>Confirm <code>allow_interruptions</code> on the <code>AgentSession</code> first. Then look at <code>min_interruption_duration</code>, which sets how long detected speech must last, and <code>min_interruption_words</code>, which if above zero makes the agent wait for the STT to transcribe that many words before it yields. A short tail of audio after the stop is expected because audio already published to the room finishes playing out.</p>
+      </details>
+      <details>
+        <summary>What is the difference between min_interruption_duration and min_interruption_words?</summary>
+        <p><code>min_interruption_duration</code> is measured by the VAD in seconds and fires fast. <code>min_interruption_words</code> is measured by the STT in transcribed words and only fires once recognition catches up, adding STT latency. If you set the words value above zero, it becomes the binding gate, which is why the duration setting can look ignored. Set words to 0 when you want the fastest yield.</p>
+      </details>
+      <details>
+        <summary>Why does StartInterruptionFrame fire but the TTS keeps playing?</summary>
+        <p>Because the frame has to reach every stage still holding audio, not only the TTS. If it stops synthesis but the caller still hears the bot, the audio is already in the output transport buffer or the telephony gateway, or a custom processor did not forward the system frame. Confirm the transport clears its buffer on interruption and that your processors pass system frames through.</p>
+      </details>
+      <details>
+        <summary>Interrupts are slower than I want. How do I cancel bot speech faster?</summary>
+        <p>Split time to yield into detection and cancellation. Lower detection by shortening the VAD start window and keeping <code>min_interruption_words</code> at 0 so you are not waiting on the STT. Lower cancellation by using smaller TTS chunks so less audio is buffered ahead, and by flushing the output transport buffer on interruption rather than only stopping new synthesis. Measure both halves before and after each change.</p>
+      </details>
+      <details>
+        <summary>The agent goes silent but still reports that it is speaking. Why?</summary>
+        <p>That is a state desync. The speech handle for the turn finished or was cancelled, but the state event that flips the agent from speaking to listening did not fire or fired late, so downstream logic that gates on the speaking state stalls the next turn. Confirm it by putting the agent-channel energy next to the state events: energy at the noise floor while the state stays on speaking is the tell.</p>
+      </details>
+    </div>
+
+  </div>
+</article>
+
+<footer>
+  <div class="wrap">
+    <p class="built">Written by the engineering team at <b>Attention Labs</b>, a voice-AI research company. CES 2026 Picks. Backed by a16z, Techstars, and Motivate Ventures. We built <a href="https://bargebench.com/">BargeBench</a> to score how voice agents handle barge-in on real recorded calls.</p>
+    <p class="legal">This guide describes documented behaviors of the frameworks it names and measurements you can reproduce from your own recordings. Framework parameter names and defaults change between releases, so verify against the version you run. Pipecat, LiveKit, Vapi, Retell, and Bland are named only as the stacks being debugged or as sources of your own call recordings.</p>
+  </div>
+</footer>
