@@ -9,8 +9,9 @@
   sources of the buyer's own call recordings.
   Per standing policy (2026-07-03): this page carries no company identity, backer names, or press mentions until
   BargeBench has results worth citing on its own. Copy uses neutral first person ("we" / "our team") instead. The only
-  company-linked detail retained is the working reply address (david@attentionlabs.ai) and the card-statement line
-  disclosing the billing entity, both kept because they are functional, not promotional.
+  company-linked detail retained is the card-statement line disclosing the billing entity, kept because it is
+  functional, not promotional. The reply address is now contact@bargebench.com (Microsoft 365 mailbox, live
+  2026-07-03), fully isolated from any Attention Labs address.
 -->
 <meta charset="UTF-8">
 <title>BargeBench | Barge-In Reliability Testing for Voice Agents</title>
@@ -91,7 +92,7 @@
         {
           "@type": "Question",
           "name": "What counts as a good score?",
-          "acceptedAnswer": { "@type": "Answer", "text": "A yield under about one second reads as clean, because that is roughly where a pause stops feeling like natural turn-taking and starts sounding like the agent ignoring the caller. Anything longer, or the agent finishing its sentence over the caller, is flagged." }
+          "acceptedAnswer": { "@type": "Answer", "text": "A yield under about one second reads as clean. A cross-language study of natural human conversation (Stivers et al., PNAS 2009) found the typical gap between speakers is a few hundred milliseconds, so much longer than that starts reading as the agent ignoring the caller. Anything past about a second, or the agent finishing its sentence over the caller, is flagged." }
         },
         {
           "@type": "Question",
@@ -106,17 +107,12 @@
         {
           "@type": "Question",
           "name": "How is this different from a continuous testing platform?",
-          "acceptedAnswer": { "@type": "Answer", "text": "It is narrower and one-time. A continuous testing platform runs simulated calls and watches your agent over time. This is a focused human read of one failure mode on your own real calls, made to run before or alongside that kind of setup, not to replace it." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Different job, not a cheaper version of the same one. A continuous testing platform watches every call on an ongoing basis and costs an ongoing seat. This is one independent read on your own real calls, no integration and no subscription, so you can answer one question fast before deciding whether continuous monitoring is worth standing up." }
         },
         {
           "@type": "Question",
           "name": "Can I re-run the report after I ship a fix?",
           "acceptedAnswer": { "@type": "Answer", "text": "Yes. One re-scored and re-attested check of up to 5 calls within 60 days is included with the report. After that, a fresh batch is scored as a new report." }
-        },
-        {
-          "@type": "Question",
-          "name": "Do I need to integrate anything?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No. There is no onboarding and nothing connects to your system. You send recorded calls and we return a report." }
         },
         {
           "@type": "Question",
@@ -131,27 +127,7 @@
         {
           "@type": "Question",
           "name": "Can I just feed the recordings into a general purpose AI model and ask it to score them?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Not with numbers you can trust today. General purpose audio models report event times at roughly whole second resolution, and barge-in is judged in fractions of a second. Every number in a BargeBench report traces to a specific point in the audio with published marking criteria, so any event can be replayed and verified." }
-        },
-        {
-          "@type": "Question",
-          "name": "Which voice stacks does this work with?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that produces call recordings." }
-        },
-        {
-          "@type": "Question",
-          "name": "What do I get?",
-          "acceptedAnswer": { "@type": "Answer", "text": "A per-call scorecard and an aggregate reliability report, returned in about a week." }
-        },
-        {
-          "@type": "Question",
-          "name": "Is this continuous monitoring?",
-          "acceptedAnswer": { "@type": "Answer", "text": "No. It is a one-time report focused on the barge-in failure mode." }
-        },
-        {
-          "@type": "Question",
-          "name": "How much does it cost?",
-          "acceptedAnswer": { "@type": "Answer", "text": "$499, one time." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Not with numbers you can trust today, and it may carry more risk than it looks like. General purpose AI models read timing at roughly whole second resolution and a confident answer with no audit trail is the one failure mode you cannot check. Uploading real call recordings to a consumer AI product with no enterprise no-retention agreement can also be a bigger data exposure than sending the same files to us under a signed NDA. Every number in a BargeBench report traces to a specific point in the audio with published marking criteria, so any event can be replayed and verified." }
         }
       ]
     }
@@ -335,11 +311,6 @@
   .chip.any{color:var(--ink-2);border-style:dashed;}
 
   /* self test */
-  .selftest{display:grid;grid-template-columns:1fr 0.9fr;gap:var(--s5);align-items:center;}
-  .selftest .st-copy p{color:var(--ink-2);font-size:16.5px;max-width:48ch;margin:0 0 var(--s2);}
-  .selftest .st-copy p:last-child{margin-bottom:0;}
-  .selftest .st-copy .big{color:var(--ink);font-size:19px;}
-  .selftest .st-copy b{color:var(--ink);font-weight:700;}
   .mini{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s3);}
   .mini .mt-row{font-family:var(--mono);font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s2);display:flex;align-items:center;justify-content:space-between;}
   .mini .mt-row b{color:var(--accent);}
@@ -381,9 +352,6 @@
   .next-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--s2);}
   .next-steps li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--ink-2);line-height:1.5;}
   .next-steps .ns-n{width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-  .request-recap{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .request-recap .rr-amt{font-size:24px;font-weight:700;letter-spacing:-0.025em;color:var(--ink);}
-  .request-recap .rr-label{font-size:14px;color:var(--ink-2);}
   .form-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s4);max-width:520px;}
   #lead-form .field{margin-bottom:var(--s2);display:flex;flex-direction:column;gap:6px;}
   #lead-form label{font-size:13.5px;font-weight:700;color:var(--ink);}
@@ -488,7 +456,6 @@
 
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;gap:var(--s4);}
-    .selftest{grid-template-columns:1fr;gap:var(--s3);}
     .price-wrap{grid-template-columns:1fr;gap:var(--s3);}
     .request-wrap{grid-template-columns:1fr;gap:var(--s3);}
     .request-aside{padding-top:0;}
@@ -691,7 +658,7 @@
         <div class="fs-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></div>
         <div class="fs-node accent"><span class="fs-k">Fixed rule</span><span class="fs-t">The same one-second line is applied to every event.</span></div>
       </div>
-      <p class="method-note">Because the rule is fixed and the timing comes from the recording, every call is scored the same way against the same line, including the one we ran on <b>our own system</b>, which is why we can publish our own failing score below. The same small team scores every report, and every real call is held to the same one-second line so your scores stay comparable from batch to batch.</p>
+      <p class="method-note">Because the rule is fixed and the timing comes from the recording, every call is scored the same way against the same line, including our own. The same small team scores every report, and every real call is held to the same one-second line so your scores stay comparable from batch to batch.</p>
     </div>
   </section>
 
@@ -856,59 +823,22 @@
       <div class="data-grid">
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></div>
-          <div><h3>Deleted within 14 days</h3><p>We delete your recordings and all working files within 14 days of delivering your report.</p></div>
+          <div><h3>Deleted within 14 days</h3><p>Recordings and working files, gone within 14 days of delivery.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></div>
-          <div><h3>Never leaves our machines</h3><p>Scoring runs locally on our own hardware in the United States. Your audio is never sent to third party AI services and never used to train any model.</p></div>
+          <div><h3>Never leaves our machines</h3><p>Scored locally on our own hardware in the US. Never sent to a third-party AI service, never used to train a model.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg></div>
-          <div><h3>DPA or NDA before anything moves</h3><p>Ask and we sign before you send a single file. If your calls include healthcare information, redact PHI (names, numbers, account details) before sending. Scoring only needs the timing of speech, not the content.</p></div>
+          <div><h3>DPA or NDA before anything moves</h3><p>Ask and we sign before you send a single file.</p></div>
         </div>
         <div class="data-item">
           <div class="di"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565d66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12h3"/><path d="M14 12h2"/></svg></div>
-          <div><h3>Redacted audio is fine</h3><p>Scoring is about the timing of speech, not the words, so you can bleep names and numbers first.</p></div>
+          <div><h3>Redacted audio is fine</h3><p>Scoring is about timing, not words. Bleep names, numbers, or PHI first if you need to.</p></div>
         </div>
       </div>
-      <p class="note mt">The person who scores your calls signs the report and answers your questions directly at david@attentionlabs.ai.</p>
-    </div>
-  </section>
-
-  <!-- 7. HONEST SELF-TEST (Trust, part 2, fused with recordings above) -->
-  <section id="selftest" class="fused">
-    <div class="wrap">
-      <p class="eyebrow mid">Honest self-test</p>
-      <h2 style="font-size:24px;">We ran it on our own system first, and published the failing score.</h2>
-      <div class="selftest">
-        <div class="st-copy">
-          <p class="big">We ran BargeBench on our own multi-agent voice system before offering it to anyone. It talked over the caller in <b>3 of 5</b> barge-in events, with a median of <b>about 7 seconds</b> to respond.</p>
-          <p>We publish our own score, so you can trust the method. A reliability test is only worth buying if it is honest about the tester too.</p>
-        </div>
-        <div class="mini">
-          <div class="mt-row"><span>Our own system</span><b>failing</b></div>
-          <div class="row"><span class="lab">Barge-in events</span><span class="val">5</span></div>
-          <div class="row"><span class="lab">Talked over the caller</span><span class="val bad">3 of 5</span></div>
-          <div class="row"><span class="lab">Median time to respond</span><span class="val bad">~7s</span></div>
-          <div class="row"><span class="lab">Event outcomes</span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
-        </div>
-      </div>
-      <div class="table-scroll mt">
-        <table class="sc">
-          <thead>
-            <tr><th>Event</th><th>Overlap</th><th>Yielded in overlap</th><th>Time to next real turn</th><th>Talk-over</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>1</td><td class="num">1.59s</td><td>yes</td><td class="num">6.6s</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
-            <tr><td>2</td><td class="num">1.32s</td><td>yes</td><td class="num">none in window</td><td><span class="flag ok"><span class="d"></span>no</span></td></tr>
-            <tr><td>3</td><td class="num">1.47s</td><td>yes</td><td class="num">7.1s</td><td><span class="flag ok"><span class="d"></span>no</span></td></tr>
-            <tr><td>4</td><td class="num">5.34s</td><td>no</td><td class="num">11.0s</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
-            <tr><td>5</td><td class="num">1.68s</td><td>yes</td><td class="num">none in window</td><td><span class="flag bad"><span class="d"></span>yes</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="swipe-hint">Swipe the table sideways for all five columns</p>
-      <p class="note mt">Five events across two recorded sessions with a scripted interruption line: a self-test, not a benchmark. Two events had no further agent turn inside the recording window, so their response times are excluded rather than counted as zero. The median above is taken over the three measured events.</p>
+      <p class="note mt">The person who scores your calls signs the report and answers your questions directly at contact@bargebench.com.</p>
     </div>
   </section>
 
@@ -1007,7 +937,7 @@
         </details>
         <details>
           <summary>Can I just feed the recordings into a general purpose AI model and ask it to score them?</summary>
-          <p>Not with numbers you can trust today. General purpose audio models currently report event times at roughly whole second resolution, and barge-in behavior is judged in fractions of a second. Overlapping speech on mixed channel, telephone bandwidth audio is also the hardest case for automated listening, and the failure mode is the bad kind: a model states a confident time you cannot check against anything. Our scoring is the opposite by design. Every number in your report traces to a specific point in the audio, with the marking criteria published, so you can replay any event and verify it yourself.</p>
+          <p>Not with numbers you can trust today, and it may carry more risk than it looks like. General purpose AI models read timing at roughly whole second resolution, transcripts collapse overlapping speech into one stream, and a confident answer with no audit trail is the one failure mode you cannot check. Uploading real call recordings to a consumer AI product with no enterprise no-retention agreement can also be a bigger data exposure than sending the same files to us under a signed NDA. Our scoring is the opposite by design: every number traces to a specific point in the audio, with the marking criteria published, so you can replay and verify any event yourself.</p>
         </details>
         <details>
           <summary>What happens to the recordings I send?</summary>
@@ -1019,7 +949,7 @@
         </details>
         <details>
           <summary>What counts as a good score?</summary>
-          <p>A yield under about one second reads as clean, because that is roughly where a pause stops feeling like natural turn-taking and starts sounding like the agent ignoring the caller. Anything longer, or the agent finishing its sentence over the caller, is flagged.</p>
+          <p>A yield under about one second reads as clean. A cross-language study of natural human conversation found the typical gap between speakers is a few hundred milliseconds, so much longer than that starts reading as the agent ignoring the caller (<a href="https://www.pnas.org/doi/10.1073/pnas.0903616106" target="_blank" rel="noopener">Stivers et al., PNAS 2009</a>). Anything past about a second, or the agent finishing its sentence over the caller, is flagged.</p>
         </details>
         <details>
           <summary>Will 10 to 15 calls surface enough barge-in events?</summary>
@@ -1031,31 +961,11 @@
         </details>
         <details>
           <summary>How is this different from a continuous testing platform?</summary>
-          <p>It is narrower and one-time. A continuous testing platform runs simulated calls and watches your agent over time. This is a focused human read of one failure mode on your own real calls, made to run before or alongside that kind of setup, not to replace it.</p>
+          <p>Different job, not a cheaper version of the same one. A continuous testing platform watches every call on an ongoing basis and costs an ongoing seat. This is one independent read on your own real calls, no integration and no subscription, so you can answer one question fast before deciding whether continuous monitoring is worth standing up.</p>
         </details>
         <details>
           <summary>Can I re-run the report after I ship a fix?</summary>
           <p>Yes. One re-scored and re-attested check of up to 5 calls within 60 days is included with your report. After that, a fresh batch is scored as a new report.</p>
-        </details>
-        <details>
-          <summary>Do I need to integrate anything?</summary>
-          <p>No. There is no onboarding and nothing connects to your system. You send recorded calls and we return a report.</p>
-        </details>
-        <details>
-          <summary>Which voice stacks does this work with?</summary>
-          <p>Vapi, Retell, Bland, Pipecat, self-hosted LiveKit, or any stack that produces call recordings.</p>
-        </details>
-        <details>
-          <summary>What do I get?</summary>
-          <p>A per-call scorecard and an aggregate reliability report, returned in about a week.</p>
-        </details>
-        <details>
-          <summary>Is this continuous monitoring?</summary>
-          <p>No. It is a one-time report focused on the barge-in failure mode.</p>
-        </details>
-        <details>
-          <summary>How much does it cost?</summary>
-          <p>$499, one time.</p>
         </details>
       </div>
     </div>
@@ -1113,10 +1023,6 @@
           <li><span class="ns-n">2</span><span>We reply within one business day with upload instructions and a payment link.</span></li>
           <li><span class="ns-n">3</span><span>Send your recordings. The report comes back in about a week.</span></li>
         </ol>
-        <div class="request-recap">
-          <span class="rr-amt">$499</span>
-          <span class="rr-label">Flat, one time. No seats, no subscription.</span>
-        </div>
       </aside>
       </div>
     </div>
@@ -1162,7 +1068,7 @@
   document.querySelectorAll(".diagram-scroll").forEach(function(d){
     if (d.scrollWidth > d.clientWidth) d.scrollLeft = Math.max(0, d.scrollWidth * 0.62 - d.clientWidth / 2);
   });
-  var ENDPOINT = "https://formsubmit.co/ajax/david+bargebench@attentionlabs.ai";
+  var ENDPOINT = "https://formsubmit.co/ajax/contact@bargebench.com";
   var form = document.getElementById("lead-form");
   if (!form) return;
   var statusEl = document.getElementById("lead-status");
@@ -1207,7 +1113,7 @@
       if (data && (data.success === "true" || data.success === true)) {
         form.reset();
         statusEl.className = "fineprint ok";
-        statusEl.textContent = "Thanks. Check your inbox for a confirmation. We reply from david@attentionlabs.ai within one business day with a payment link and upload instructions.";
+        statusEl.textContent = "Thanks. Check your inbox for a confirmation. We reply from contact@bargebench.com within one business day with a payment link and upload instructions.";
         submitBtn.textContent = "Request sent";
         submitBtn.disabled = true;
       } else {
