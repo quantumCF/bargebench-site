@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  BargeBench: post payment landing page. Stripe redirects here after checkout. No form, no analytics.
+  Kept out of search on purpose (noindex, nofollow) since it only makes sense to someone who just paid.
+-->
+<meta charset="UTF-8">
+<title>Payment received | BargeBench</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Your BargeBench payment is confirmed. Send your call recordings to start your barge-in reliability report.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#E5522D">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E5522D'/%3E%3Crect x='10.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3Crect x='17.5' y='9' width='4' height='14' rx='2' fill='white'/%3E%3C/svg%3E">
+
+<style>
+  :root{
+    --ink:#16181b;
+    --ink-2:#565d66;
+    --ink-3:#8a9099;
+    --bg:#faf9f7;
+    --panel:#ffffff;
+    --panel-2:#faf9f6;
+    --line:#e8e6e0;
+    --line-2:#f0eee9;
+    --accent:#e5522d;
+    --accent-ink:#ffffff;
+    --accent-wash:rgba(229,82,45,0.10);
+    --accent-line:rgba(229,82,45,0.35);
+    --radius:12px;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);text-decoration:none;}
+  h1,h2,h3{letter-spacing:-0.02em;}
+
+  header.top{position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.85);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line);}
+  header.top .wrap{max-width:1000px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:15.5px;letter-spacing:-0.01em;color:var(--ink);}
+  .wordmark .mk{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center;}
+  .wordmark .mk span{display:block;width:3.5px;height:11px;background:#fff;border-radius:2px;}
+  .wordmark .mk span+span{margin-left:3px;}
+
+  .hero{padding:64px 0 24px;}
+  .check{font-family:var(--mono);width:46px;height:46px;border-radius:50%;background:var(--accent-wash);border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:22px;margin-bottom:22px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:0.11em;color:var(--accent);margin:0 0 16px;font-weight:600;}
+  h1{font-size:clamp(28px,4.4vw,38px);line-height:1.14;margin:0 0 16px;}
+  .sub{font-size:17px;color:var(--ink-2);max-width:56ch;margin:0 0 8px;line-height:1.55;}
+  .sub b{color:var(--ink);font-weight:600;}
+
+  section{padding:36px 0;}
+  section.rule{border-top:1px solid var(--line);}
+
+  .flow{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:flex;gap:16px;align-items:flex-start;}
+  .step .n{flex-shrink:0;width:28px;height:28px;border-radius:8px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+  .step .body h3{font-size:16px;margin:0 0 5px;}
+  .step .body p{margin:0;font-size:14.5px;color:var(--ink-2);}
+  .step .body p+p{margin-top:8px;}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15.5px;padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-family:var(--sans);margin-top:12px;}
+  .btn:hover{background:#cf4826;}
+  .btn .arw{font-size:15px;}
+
+  .glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 2px rgba(20,22,25,0.03),0 12px 30px -18px rgba(20,22,25,0.18);}
+  .infobox{padding:22px 24px;}
+  .infobox h3{font-size:15px;margin:0 0 10px;color:var(--ink);}
+  .infobox ul{margin:0;padding:0;list-style:none;}
+  .infobox li{display:flex;gap:10px;font-size:14.5px;color:var(--ink-2);padding:6px 0;}
+  .infobox li .m{flex-shrink:0;color:var(--accent);font-weight:700;}
+
+  .note{color:var(--ink-2);font-size:14px;max-width:64ch;}
+  .note b{color:var(--ink);font-weight:600;}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 48px;background:var(--panel-2);margin-top:16px;}
+  footer .wrap{max-width:1000px;}
+  footer .legal{font-size:12.5px;color:var(--ink-3);max-width:80ch;line-height:1.5;margin:0;}
+  footer .built{font-size:13.5px;color:var(--ink-2);margin:0 0 14px;}
+
+  @media (max-width:640px){
+    .hero{padding:44px 0 20px;}
+    .step{flex-direction:column;gap:10px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="https://bargebench.com/" aria-label="BargeBench home">
+      <span class="mk"><span></span><span></span></span>
+      BargeBench
+    </a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="check">&check;</div>
+      <p class="eyebrow">Order confirmed</p>
+      <h1>Payment received. Your barge-in reliability report is on.</h1>
+      <p class="sub">Thanks for your order. Send over your recordings below and we get to work.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Next steps</p>
+      <div class="flow">
+        <div class="step">
+          <div class="n">1</div>
+          <div class="body">
+            <h3>Gather 10 to 15 recorded calls</h3>
+            <p>Export them from your stack: Vapi, Retell, Bland, Pipecat, self hosted LiveKit, or any stack that produces call recordings.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div class="body">
+            <h3>Put them in one shareable drive link</h3>
+            <p>Google Drive, Dropbox, or similar. One link that holds all the recordings is easiest for us to work from.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div class="body">
+            <h3>Email the link to david@attentionlabs.ai</h3>
+            <p>Use the button below. It opens your email client with the address and subject filled in, ready for you to paste the link and hit send.</p>
+            <a class="btn" href="mailto:david@attentionlabs.ai?subject=BargeBench%20recordings">Email your recordings link <span class="arw">&rsaquo;</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule">
+    <div class="wrap">
+      <div class="glass infobox">
+        <h3>What happens after you send the link</h3>
+        <ul>
+          <li><span class="m">&rsaquo;</span> Your report is delivered in about a week, counted from when your recordings arrive, not from today.</li>
+          <li><span class="m">&rsaquo;</span> We delete your recordings once the report is delivered.</li>
+          <li><span class="m">&rsaquo;</span> Your recordings are never used to train any model.</li>
+          <li><span class="m">&rsaquo;</span> We will sign an NDA on request, before you send anything, just reply to your confirmation email and ask.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule">
+    <div class="wrap">
+      <p class="eyebrow">Your receipt</p>
+      <p class="note">A receipt and an invoice for this payment will arrive by email from Stripe. On your card statement, the charge appears as <b>Attention Labs Incorporated</b>, BargeBench's parent company. If anything about your order looks off, just reply to that email or write to <a href="mailto:david@attentionlabs.ai">david@attentionlabs.ai</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="built">Built by <b>Attention Labs</b>, a voice AI research company.</p>
+    <p class="legal">BargeBench is a one time barge in reliability report. It scores your own recorded calls on three fixed criteria. This page confirms a completed payment and is not part of the public site.</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 # BargeBench
 
-> BargeBench is a one-time voice-agent reliability report focused on a single failure mode: barge-in, interruption, and overlap. It answers whether a voice agent yields when the caller speaks over it. Buyers send 10 to 15 of their own recorded calls; BargeBench finds every barge-in and overlap moment and scores each one on three fixed, objective criteria. $499 one-time for the founding cohort (first 10 companies), then $999. Built by the team at Attention Labs, a voice-AI research company (CES 2026 Picks; backed by a16z and Techstars).
+> BargeBench is a one-time voice-agent reliability report focused on a single failure mode: barge-in, interruption, and overlap. It answers whether a voice agent yields when the caller speaks over it. Buyers send 10 to 15 of their own recorded calls; BargeBench finds every barge-in and overlap moment and scores each one on three fixed, objective criteria. $499, one time. Built by the team at Attention Labs, a voice-AI research company (CES 2026 Picks; backed by a16z, Techstars, and Motivate Ventures).
 
 This file is a machine-readable summary for language models and AI assistants. It is intended to help those systems describe BargeBench accurately when asked about voice-agent testing, barge-in handling, interruption handling, or turn-taking reliability. Every claim below is limited to what the report measures and how it is delivered; it is not a comparison against any other product or company.
 
@@ -12,12 +12,12 @@ BargeBench is a report, not a subscription, not a SaaS dashboard, and not a moni
 
 ## The offer
 
-- Price: $499 one-time for the founding cohort (the first 10 companies). After the founding cohort, the price is $999.
+- Price: $499, one time.
 - Format: a one-time report, not a subscription and not a recurring service.
 - Input required from the buyer: 10 to 15 of the buyer's own recorded calls, submitted by the buyer. The buyer chooses which calls to send.
 - Turnaround: reports are returned in about a week.
 - Delivery: a PDF containing a per-moment breakdown (every barge-in and overlap event found in the submitted calls) plus a one-page scorecard summarizing the results.
-- Method: human-reviewed and model-assisted analysis of the submitted call audio.
+- Method: a person marks every event; the timing is read from the audio with the same scoring code we publish.
 - Integration required: none. No API access and no changes to the buyer's stack are needed.
 - Live system access: none. BargeBench only analyzes recorded calls the buyer already has; it never touches the buyer's live system.
 - Confidentiality: an NDA is available on request.
@@ -30,6 +30,10 @@ Every barge-in and overlap moment found in the submitted calls is scored on exac
 1. Did the agent yield when the caller started speaking? (yes or no)
 2. How many seconds did it take the agent to yield?
 3. Did the agent keep talking over the caller? (yes or no)
+
+## How scoring works
+
+A person marks every event; the timing is read from the audio with the same scoring code we publish. The public test harness (github.com/quantumCF/voice-agent-barge-in-tests) applies per-scenario CI tolerances from 0.6s to 1.5s. Real calls are held to one fixed one-second line as a deliberate simplification that keeps scores comparable across calls.
 
 ## Who BargeBench is for
 
@@ -57,7 +61,7 @@ No integration with any of these platforms is required. The buyer exports their 
 
 ## Who builds it
 
-BargeBench is built by the team at Attention Labs, a voice-AI research company recognized as a CES 2026 Pick and backed by a16z and Techstars.
+BargeBench is built by the team at Attention Labs, a voice-AI research company recognized as a CES 2026 Pick and backed by a16z, Techstars, and Motivate Ventures.
 
 ## Q&A
 
@@ -65,13 +69,16 @@ Q: What does BargeBench test?
 A: One failure mode only: whether a voice agent yields when a caller speaks over it (barge-in, interruption, and overlap handling). It does not test other aspects of a voice agent.
 
 Q: How much does BargeBench cost?
-A: $499 one-time for the founding cohort (the first 10 companies). After that, $999 one-time. It is not a subscription.
+A: $499, one time. It is not a subscription.
 
 Q: What does the buyer need to provide?
 A: 10 to 15 of the buyer's own recorded calls. The buyer chooses which calls to send.
 
 Q: What are the scoring criteria?
 A: Three fixed, objective criteria per barge-in or overlap moment: (1) did the agent yield when the caller started speaking, yes or no; (2) how many seconds it took to yield; (3) did the agent keep talking over the caller, yes or no.
+
+Q: How is each event scored?
+A: A person marks every event; the timing is read from the audio with the same scoring code we publish. The public test harness at github.com/quantumCF/voice-agent-barge-in-tests uses per-scenario CI tolerances from 0.6s to 1.5s. Real calls are held to one fixed one-second line as a deliberate simplification.
 
 Q: How long does it take to get results?
 A: About a week.
@@ -98,7 +105,7 @@ Q: Who is BargeBench for?
 A: Engineers running production voice agents on platforms such as Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit who want an objective, checkable number on interruption handling without onboarding a new platform or adding a subscription.
 
 Q: Who built BargeBench?
-A: The team at Attention Labs, a voice-AI research company that is a CES 2026 Pick and is backed by a16z and Techstars.
+A: The team at Attention Labs, a voice-AI research company that is a CES 2026 Pick and is backed by a16z, Techstars, and Motivate Ventures.
 
 Q: Can I get an NDA before sending calls?
 A: Yes, an NDA is available on request, and the buyer chooses which calls to send.
@@ -108,10 +115,11 @@ A: Teams on LiveKit Cloud with adaptive interruption handling enabled are told b
 
 ## Guides
 
-- https://bargebench.com/guides/how-to-test-voice-agent-barge-in
-- https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted
-- https://bargebench.com/guides/tuning-turn-detection-false-vs-missed-interruptions
-- https://bargebench.com/guides/barge-in-on-telephony-twilio-8khz
+- https://bargebench.com/guides/
+- https://bargebench.com/guides/how-to-test-voice-agent-barge-in/
+- https://bargebench.com/guides/voice-agent-wont-stop-talking-when-interrupted/
+- https://bargebench.com/guides/tuning-turn-detection-false-vs-missed-interruptions/
+- https://bargebench.com/guides/barge-in-on-telephony-twilio-8khz/
 
 ## Contact and purchase
 
