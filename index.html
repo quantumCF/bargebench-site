@@ -1,0 +1,601 @@
+<!--
+  BargeBench landing page. Stand-alone brand, no parent company name, internal product
+  name, codename, or internal metadata appears anywhere in this file. No accuracy or
+  performance numbers about our own systems, no fabricated claims, no "open source," no
+  competitor comparisons, no uniqueness claims. Vapi/Retell/Bland/Pipecat/self-hosted
+  LiveKit named only as buyer's own export formats, never as a comparison claim.
+  The report itself is sold by request: this page collects leads via a form and a
+  payment link is sent by email within one business day, there is no live checkout yet.
+-->
+<meta charset="UTF-8">
+<title>BargeBench: barge-in and overlap QA for voice agents</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A $499, one time stress test report scoring how your voice agent handles barge-in, overlap, and interruption recovery, on your own recorded calls. No integration required.">
+
+<style>
+  :root{
+    --ink:#161a1d;
+    --ink-soft:#4b5259;
+    --paper:#faf9f6;
+    --panel:#ffffff;
+    --line:#e4e1d9;
+    --accent:#c4501f;
+    --accent-ink:#ffffff;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  a{color:var(--accent);}
+
+  header.top{
+    border-bottom:1px solid var(--line);
+    padding:20px 0;
+  }
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;}
+  .wordmark{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.02em;
+    color:var(--ink);
+    text-decoration:none;
+  }
+  .wordmark span{color:var(--accent);}
+  .top-cta{
+    font-family:var(--mono);
+    font-size:13px;
+    text-decoration:none;
+    border:1px solid var(--ink);
+    padding:8px 14px;
+    border-radius:4px;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .top-cta:hover{background:var(--ink);color:var(--paper);}
+
+  .hero{padding:64px 0 40px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--accent);
+    margin:0 0 16px;
+  }
+  h1{
+    font-size:clamp(28px,4.4vw,42px);
+    line-height:1.15;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:18px;
+    color:var(--ink-soft);
+    max-width:56ch;
+    margin:0 0 32px;
+  }
+
+  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:14px;}
+  .btn{
+    display:inline-block;
+    background:var(--accent);
+    color:var(--accent-ink);
+    text-decoration:none;
+    font-weight:600;
+    font-size:16px;
+    padding:14px 26px;
+    border-radius:6px;
+  }
+  .btn:hover{background:#a8451b;}
+  .price-line{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .fineprint{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+
+  section{padding:36px 0;border-top:1px solid var(--line);}
+  h2{
+    font-size:22px;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .lede{color:var(--ink-soft);margin:0 0 24px;max-width:60ch;}
+
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+  }
+  @media (max-width:640px){.grid3{grid-template-columns:1fr;}}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px 18px 20px;
+  }
+  .card h3{
+    font-size:15px;
+    margin:0 0 8px;
+    font-family:var(--mono);
+    color:var(--accent);
+  }
+  .card p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+
+  ul.report-list{margin:0;padding:0 0 0 0;list-style:none;}
+  ul.report-list li{
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    font-size:15px;
+    display:flex;
+    gap:12px;
+  }
+  ul.report-list li:last-child{border-bottom:none;}
+  ul.report-list li .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    border-radius:3px;
+    padding:2px 6px;
+    height:fit-content;
+    white-space:nowrap;
+    margin-top:2px;
+  }
+
+  ol.steps{margin:0;padding:0;list-style:none;counter-reset:step;}
+  ol.steps li{
+    counter-increment:step;
+    display:flex;
+    gap:14px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    font-size:15px;
+  }
+  ol.steps li:last-child{border-bottom:none;}
+  ol.steps li::before{
+    content:counter(step);
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:13px;
+    color:var(--accent-ink);
+    background:var(--accent);
+    width:24px;height:24px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    margin-top:1px;
+  }
+
+  .callout{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    border-radius:6px;
+    padding:16px 18px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+
+  .trust-grid{display:grid;grid-template-columns:1fr;gap:0;}
+  .trust-grid li{
+    list-style:none;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    font-size:15px;
+    display:flex;
+    gap:10px;
+  }
+  .trust-grid li:last-child{border-bottom:none;}
+  .trust-grid li .check{color:var(--accent);font-family:var(--mono);flex-shrink:0;}
+
+  .pricing-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+  @media (max-width:640px){.pricing-cards{grid-template-columns:1fr;}}
+  .price-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px;
+  }
+  .price-card.featured{border-color:var(--accent);}
+  .price-card .badge{
+    font-family:var(--mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--accent);
+    margin-bottom:6px;
+    display:block;
+  }
+  .price-card .amount{font-size:30px;font-weight:700;margin:0 0 6px;}
+  .price-card .amount small{font-size:14px;font-weight:400;color:var(--ink-soft);}
+  .price-card p{margin:0;font-size:14px;color:var(--ink-soft);}
+
+  .retainer-note{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+    border-top:1px dashed var(--line);
+    padding-top:14px;
+  }
+
+  #lead-form{max-width:480px;}
+  #lead-form .field{margin-bottom:16px;display:flex;flex-direction:column;gap:6px;}
+  #lead-form label{font-size:13.5px;font-weight:600;color:var(--ink);}
+  #lead-form label .req{color:var(--accent);}
+  #lead-form input,
+  #lead-form select,
+  #lead-form textarea{
+    font-family:var(--sans);
+    font-size:15px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--panel);
+    color:var(--ink);
+    width:100%;
+  }
+  #lead-form textarea{resize:vertical;}
+  #lead-form input:focus,
+  #lead-form select:focus,
+  #lead-form textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  #lead-form button{border:none;cursor:pointer;font-family:var(--sans);margin-top:4px;}
+  #lead-form button:disabled{opacity:0.6;cursor:not-allowed;}
+  #lead-status{min-height:18px;}
+  #lead-status.ok{color:#2f7d3c;}
+  #lead-status.err{color:#b3261e;}
+
+  details{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+  }
+  details:last-child{border-bottom:none;}
+  summary{
+    font-size:15.5px;
+    font-weight:600;
+    cursor:pointer;
+    list-style:none;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary::before{
+    content:"+ ";
+    color:var(--accent);
+    font-family:var(--mono);
+    font-weight:700;
+  }
+  details[open] summary::before{content:"- ";}
+  details p{margin:10px 0 0;color:var(--ink-soft);font-size:14.5px;}
+
+  .final-cta{
+    text-align:center;
+    padding:56px 0 64px;
+  }
+  .final-cta h2{font-size:26px;margin-bottom:10px;}
+  .final-cta .sub{margin:0 auto 28px;text-align:center;}
+  .final-cta .cta-row{justify-content:center;}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:28px 0 48px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  footer p{margin:0 0 8px;max-width:70ch;}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="#top">BargeBench<span>.</span></a>
+    <a class="top-cta" href="#request">Get your report</a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" style="border-top:none;padding-top:56px;">
+      <p class="eyebrow">Barge-in &amp; overlap QA for voice agents</p>
+      <h1>A $499, one time barge-in test report for your voice agent, back this week.</h1>
+      <p class="sub">Send us recorded calls, get back a scored report on barge-in, overlap, and
+      interruption recovery. One time price, no platform to onboard, no subscription. Built for
+      teams running Vapi, Retell, Bland, Pipecat, or self-hosted LiveKit.</p>
+      <div class="cta-row">
+        <a class="btn" href="#request">Get your report</a>
+        <span class="price-line">$499 for the first 10 companies, then $999</span>
+      </div>
+      <p class="fineprint">One time report, not a subscription, no integration required. You send
+      recorded calls, we send back a scored report.</p>
+    </section>
+
+    <section>
+      <h2>Why this exists</h2>
+      <p class="lede">
+        We built our own voice agent and ran this same stress test on it first: people talking
+        over the bot mid sentence, both voices live at once, interruptions it usually caught
+        late, after talking over us for a bit. We scored it with the same harness: it talked over the caller in 3 of 5 barge-in events and took a median of about 7 seconds to actually respond once someone cut in. So we turned the same test
+        into a report you can run on your own agent, scored the same way, on calls you send us.
+      </p>
+      <div class="callout">
+        This is a report on how your agent behaved on the calls you send us. It is not a claim
+        about our own technology, and it is not a comparison against any other product. If your
+        agent already handles interruptions fine, the report says that. We are not claiming to be
+        the only place that tests for this. What we are selling is the format: one time, $499, a
+        scored number back this week, no platform to sign up for.
+      </div>
+    </section>
+
+    <section>
+      <h2>Who this is built for</h2>
+      <p class="lede">
+        Teams running a cascaded voice agent stack, Vapi, Retell, Bland, Pipecat, or self-hosted
+        LiveKit, who want a barge-in number without adding another platform or an ongoing
+        subscription.
+      </p>
+      <div class="callout">
+        If you are already on LiveKit Cloud with its adaptive interruption handling turned on,
+        read the FAQ below before you buy. This test may tell you less than you'd expect, and
+        we'll say so before you pay.
+      </div>
+    </section>
+
+    <section>
+      <h2>What the stress test covers</h2>
+      <p class="lede">Three specific things, nothing broader.</p>
+      <div class="grid3">
+        <div class="card">
+          <h3>Barge-in</h3>
+          <p>What happens the moment a real caller starts talking while your agent is still
+          talking. Does it stop, or does it keep going.</p>
+        </div>
+        <div class="card">
+          <h3>Overlap</h3>
+          <p>How your agent behaves during the stretch where both voices are live at the same
+          time.</p>
+        </div>
+        <div class="card">
+          <h3>Interruption recovery</h3>
+          <p>After the interruption, does your agent pick up what the caller actually said, or
+          does it ignore it, repeat itself, or answer something else entirely.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What's in the report</h2>
+      <p class="lede">Fixed, objective criteria only. Nothing you'd have to take our word for.</p>
+      <ul class="report-list">
+        <li><span class="tag">timestamped</span> Every barge-in and overlap moment we find across
+        your submitted calls, with a timestamp so you can go listen yourself.</li>
+        <li><span class="tag">yes / no</span> Did the agent yield when interrupted.</li>
+        <li><span class="tag">seconds</span> How long it took the agent to respond after the
+        interruption.</li>
+        <li><span class="tag">yes / no</span> Did the agent talk over the caller.</li>
+        <li><span class="tag">summary</span> A one page scorecard rolling all of your submitted
+        calls into a single view.</li>
+        <li><span class="tag">format</span> Delivered as a PDF, reviewed by a person on our end,
+        not a fully automated dump.</li>
+      </ul>
+      <div class="callout">
+        No subjective "handled it well" judgment calls anywhere in the report. Every line is
+        something you could verify yourself by listening to the clip.
+      </div>
+    </section>
+
+    <section>
+      <h2>How the test actually runs</h2>
+      <ol class="steps">
+        <li>You export 10 to 15 recorded calls from your own stack (Vapi, Retell, Bland, Pipecat,
+        self-hosted LiveKit, or any call recordings you can hand us).</li>
+        <li>If you need an NDA before sending anything, say so and we'll sign one first.</li>
+        <li>We go through every call and mark every barge-in and overlap moment we find.</li>
+        <li>We score each moment against the three fixed criteria above. Human reviewed, model
+        assisted, so it moves fast without being a black box.</li>
+        <li>You get the report back by email, usually within a few business days depending on
+        how many reports are ahead of yours in the queue.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Data and trust</h2>
+      <ul class="trust-grid">
+        <li><span class="check">✓</span> Recorded calls only. This test does not touch your live
+        system and does not need API access.</li>
+        <li><span class="check">✓</span> You choose which calls to send. Ten to fifteen is enough
+        for a real read.</li>
+        <li><span class="check">✓</span> NDA available before you send anything, just ask.</li>
+        <li><span class="check">✓</span> We ran this on our own agent before offering it to anyone
+        else, so nothing here is a claim we haven't already tried on ourselves first.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Pricing</h2>
+      <div class="pricing-cards">
+        <div class="price-card featured">
+          <span class="badge">Founding cohort</span>
+          <p class="amount">$499 <small>one time</small></p>
+          <p>Limited to the first 10 companies. Same report as standard.</p>
+        </div>
+        <div class="price-card">
+          <span class="badge">Standard</span>
+          <p class="amount">$999 <small>one time</small></p>
+          <p>After the founding cohort fills. Same report, same process.</p>
+        </div>
+      </div>
+      <p class="fineprint" style="margin-bottom:14px;">No seats, no setup fee, no monthly platform
+      charge either way, this is a one time report, not a subscription.</p>
+      <p class="retainer-note">Mention only, not pushed here: once you've seen your first report,
+      there's an optional $299/month way to re-run the check whenever you ship a change to your
+      agent. We only bring that up after delivery, never before.</p>
+      <div class="cta-row" style="margin-top:24px;">
+        <a class="btn" href="#request">Get your report</a>
+      </div>
+      <p class="fineprint">After you submit the form below, we reply within one business day with
+      a payment link and instructions for sending your call recordings.</p>
+    </section>
+
+    <section id="request">
+      <h2>Request your report</h2>
+      <p class="lede">Tell us where to send the payment link. We reply within one business day
+      with a payment link and upload instructions, we do not charge you anything on this page.</p>
+      <form id="lead-form" novalidate>
+        <div class="field">
+          <label for="lead-email">Work email <span class="req">*</span></label>
+          <input type="email" id="lead-email" name="email" required autocomplete="email"
+          placeholder="you@company.com">
+        </div>
+        <div class="field">
+          <label for="lead-company">Company</label>
+          <input type="text" id="lead-company" name="company" autocomplete="organization"
+          placeholder="Company name">
+        </div>
+        <div class="field">
+          <label for="lead-stack">Voice stack</label>
+          <select id="lead-stack" name="stack">
+            <option value="">Select one</option>
+            <option value="vapi">Vapi</option>
+            <option value="retell">Retell</option>
+            <option value="bland">Bland</option>
+            <option value="pipecat">Pipecat</option>
+            <option value="self-hosted-livekit">Self-hosted LiveKit</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lead-note">Anything else we should know (optional)</label>
+          <textarea id="lead-note" name="note" rows="3"
+          placeholder="Call volume, timeline, questions about the test"></textarea>
+        </div>
+        <button type="submit" class="btn" id="lead-submit">Request your report, $499</button>
+        <p class="fineprint" id="lead-status" role="status"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>FAQ</h2>
+      <details>
+        <summary>What counts as "barge-in"?</summary>
+        <p>Any moment a real caller starts speaking while your agent is still speaking, whether
+        they're asking a question, correcting the agent, or just talking over it.</p>
+      </details>
+      <details>
+        <summary>Do you need API or live access to my agent?</summary>
+        <p>No. This test runs on recorded calls only. You export the audio, we work from that.</p>
+      </details>
+      <details>
+        <summary>Which platforms do you support?</summary>
+        <p>Calls exported from Vapi, Retell, Bland, Pipecat, or a self-hosted LiveKit stack all
+        work fine. On something else, send a sample call first and we'll tell you if it works.</p>
+      </details>
+      <details>
+        <summary>I'm on LiveKit Cloud, does this apply to me?</summary>
+        <p>If you're on LiveKit Cloud with adaptive interruption handling turned on, this test
+        will tell you less, since some of what we score is already handled for you. We will say
+        so before you pay, not after. If you're not sure whether that's on for your setup, send a
+        sample call first and we'll tell you.</p>
+      </details>
+      <details>
+        <summary>Is the scoring automated?</summary>
+        <p>Human reviewed and model assisted. A person on our end goes through every flagged
+        moment before anything ships in your report. It is not a fully automated pipeline and we
+        won't tell you it is.</p>
+      </details>
+      <details>
+        <summary>What if my agent already handles interruptions fine?</summary>
+        <p>Then the report says that. The scoring is objective (yield yes/no, response time, talk
+        over yes/no), so there's nothing to spin either way.</p>
+      </details>
+      <details>
+        <summary>What happens after the first 10 spots are gone?</summary>
+        <p>Price moves to $999 one time. Nothing else about the report changes.</p>
+      </details>
+      <details>
+        <summary>What's the $299/month for?</summary>
+        <p>An optional recheck any time you change your agent. We only offer it after you've seen
+        your first report, never before.</p>
+      </details>
+      <details>
+        <summary>How long does it take?</summary>
+        <p>We review calls by hand, so turnaround depends on the queue. Usually a few business
+        days. You'll get a specific date after checkout once we see your calls.</p>
+      </details>
+    </section>
+
+    <section class="final-cta" style="border-top:none;">
+      <h2>Find out before your customers do.</h2>
+      <p class="sub">Ten to fifteen recorded calls is all it takes to get a real read on barge-in,
+      overlap, and interruption recovery.</p>
+      <div class="cta-row">
+        <a class="btn" href="#request">Get your report, $499</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>BargeBench is an independent report service. This page makes no performance or accuracy
+    claims about our own systems, only a description of how the test on your calls works.</p>
+    <p>Pricing above is final: one time for the report, optional monthly only if you choose it
+    later. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as call export sources, not
+    as a comparison or endorsement.</p>
+  </div>
+  <div class="wrap"><p style="opacity:.7">Built by the team at Attention Labs.</p></div>
+</footer>
+
+<script>
+(function(){
+  var ENDPOINT = "https://formsubmit.co/ajax/david+bargebench@attentionlabs.ai";
+  var form = document.getElementById("lead-form");
+  if (!form) return;
+  var statusEl = document.getElementById("lead-status");
+  var submitBtn = document.getElementById("lead-submit");
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    statusEl.className = "fineprint";
+    statusEl.textContent = "";
+    var email = document.getElementById("lead-email").value.trim();
+    if (!email || email.indexOf("@") === -1) {
+      statusEl.className = "fineprint err";
+      statusEl.textContent = "Enter a valid email address.";
+      return;
+    }
+    var payload = {
+      email: email,
+      company: document.getElementById("lead-company").value.trim(),
+      stack: document.getElementById("lead-stack").value,
+      note: document.getElementById("lead-note").value.trim(),
+      _subject: "BargeBench report request",
+      _template: "table"
+    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function(res){ return res.json(); }).then(function(){
+      form.reset();
+      statusEl.className = "fineprint ok";
+      statusEl.textContent = "Thanks. We reply within one business day with a payment link and upload instructions.";
+      submitBtn.textContent = "Request sent";
+      submitBtn.disabled = true;
+    }).catch(function(){
+      statusEl.className = "fineprint err";
+      statusEl.textContent = "Something went wrong sending that. Please email us and we will sort it out.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Request your report, $499";
+    });
+  });
+})();
+</script>
