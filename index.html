@@ -583,12 +583,19 @@
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify(payload)
-    }).then(function(res){ return res.json(); }).then(function(){
-      form.reset();
-      statusEl.className = "fineprint ok";
-      statusEl.textContent = "Thanks. We reply within one business day with a payment link and upload instructions.";
-      submitBtn.textContent = "Request sent";
-      submitBtn.disabled = true;
+    }).then(function(res){ return res.json(); }).then(function(data){
+      if (data && (data.success === "true" || data.success === true)) {
+        form.reset();
+        statusEl.className = "fineprint ok";
+        statusEl.textContent = "Thanks. We reply within one business day with a payment link and upload instructions.";
+        submitBtn.textContent = "Request sent";
+        submitBtn.disabled = true;
+      } else {
+        statusEl.className = "fineprint err";
+        statusEl.textContent = "That did not go through. Please try again in a moment.";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Request your report, $499";
+      }
     }).catch(function(){
       statusEl.className = "fineprint err";
       statusEl.textContent = "Something went wrong sending that. Please email us and we will sort it out.";
