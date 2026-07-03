@@ -1,8 +1,8 @@
-<!-- BargeBench: visual-led rebuild (index-visual.html). Pain-led spine, visual-anchored sections, single calm checkout. -->
+<!-- BargeBench: visual-led rebuild v5. Wedge positioning layer on the lean v4. Big theme-aware SVG scenes, scroll-reveal motion. -->
 <title>BargeBench: does your agent shut up when interrupted?</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Send up to 15 of your own recorded calls. Every interruption gets scored on three things: did it yield, how fast, did it talk over. $499 flat, human reviewed, about a week.">
+<meta name="description" content="Send up to 15 of your own recorded calls. Every interruption scored on three fixed things: did it yield, how fast, did it talk over. $499 flat, human reviewed, about a week.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -30,6 +30,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Out of scope. This report scores the agent talking over the caller during barge-in, not the opposite failure mode."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if you find nothing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board."
       }
     },
     {
@@ -168,7 +176,7 @@
   }
 
   /* ---------- generic section rhythm ---------- */
-  section.sec{padding:clamp(64px,10vh,120px) 0;}
+  section.sec{padding:clamp(58px,8.5vh,104px) 0;}
   .sec2{
     display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,64px);align-items:center;
   }
@@ -184,56 +192,58 @@
 
   .sec-label{
     font-family:var(--mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
-    color:var(--ink-dim);margin:0 0 18px;
+    color:var(--ink-dim);margin:0 0 16px;
   }
-  .sec-label::before{content:"$ ";color:var(--red);}
   .sec-title{
     font-family:var(--mono);font-weight:800;font-size:clamp(21px,3vw,30px);
-    line-height:1.14;margin:0 0 22px;max-width:22ch;
+    line-height:1.14;margin:0 0 18px;max-width:22ch;
   }
-  .sec-body{font-size:clamp(15px,1.4vw,17px);color:var(--ink-dim);max-width:54ch;margin:0 0 18px;}
+  .sec-body{font-size:clamp(15px,1.4vw,17px);color:var(--ink-dim);max-width:52ch;margin:0 0 16px;}
   .sec-body b{color:var(--ink);font-weight:600;}
   .sec-body:last-child{margin-bottom:0;}
   .sec-body a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;}
   .cite-line{
     font-size:12.5px;color:var(--ink-dim);margin:16px 0 0;line-height:1.45;
-    border-top:1px dashed var(--line-soft);padding-top:12px;max-width:54ch;
+    border-top:1px dashed var(--line-soft);padding-top:12px;max-width:52ch;
   }
   .cite-line a{color:var(--ink-dim);text-decoration:underline;text-underline-offset:2px;}
 
   /* ---------- hero ---------- */
-  .hero{padding:clamp(52px,8vh,96px) 0 clamp(48px,7vh,84px);}
+  .hero{padding:clamp(46px,6.5vh,80px) 0 clamp(42px,5.5vh,68px);}
   .kicker{
     font-family:var(--mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
     color:var(--ink-dim);margin:0 0 18px;
   }
-  .kicker::before{content:"$ ";color:var(--red);}
   h1{
     font-family:var(--mono);font-weight:800;
-    font-size:clamp(28px, 4.6vw, 48px);
-    line-height:1.08;letter-spacing:-0.01em;margin:0 0 22px;max-width:20ch;
+    font-size:clamp(27px, 4.2vw, 44px);
+    line-height:1.1;letter-spacing:-0.01em;margin:0 0 20px;max-width:20ch;
   }
-  h1 .strike{
-    text-decoration: line-through;text-decoration-color: var(--red);text-decoration-thickness: 2px;
-    color: var(--ink-dim);font-weight:700;
-  }
-  .hero-sub{font-size:clamp(16px,2vw,19px);color:var(--ink-dim);max-width:52ch;margin:0 0 28px;}
+  .hero-sub{font-size:clamp(16px,1.9vw,19px);color:var(--ink-dim);max-width:52ch;margin:0 0 14px;}
   .hero-sub b{color:var(--ink);font-weight:600;}
+  .hero-verify{
+    font-family:var(--mono);font-size:13px;color:var(--teal);margin:0 0 24px;line-height:1.5;max-width:52ch;
+  }
   .hero-cta{
     font-family:var(--mono);font-size:15px;color:var(--ink);
     text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--teal);
     text-decoration-thickness:2px;display:inline-block;
   }
   .hero-cta:hover{color:var(--teal);}
-  .hero-grid{display:grid;grid-template-columns:1.02fr 0.98fr;gap:clamp(36px,5vw,56px);align-items:center;}
+  .hero-price{
+    font-family:var(--mono);font-size:14px;color:var(--ink-dim);margin:14px 0 0;line-height:1.55;
+    padding-top:14px;border-top:1px dashed var(--line-soft);max-width:46ch;
+  }
+  .hero-price b{color:var(--ink);font-weight:700;}
+  .hero-grid{display:grid;grid-template-columns:0.94fr 1.06fr;gap:clamp(36px,5vw,56px);align-items:center;}
   @media (max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:36px;}
+    .hero-grid{grid-template-columns:1fr;gap:34px;}
     .hero-grid .hero-visual{order:1;}
     .hero-grid .hero-copy{order:2;}
   }
   .chip-strip{
     display:flex;flex-wrap:wrap;gap:10px;
-    margin-top:36px;padding-top:26px;border-top:1px dashed var(--line-soft);
+    margin-top:34px;padding-top:24px;border-top:1px dashed var(--line-soft);
   }
   .chip{
     font-family:var(--mono);font-size:12px;letter-spacing:0.01em;
@@ -254,60 +264,40 @@
   svg.viz{width:100%;height:auto;display:block;}
   .viz-cap{font-size:13px;color:var(--ink-dim);margin:14px 0 0;line-height:1.45;}
 
-  /* ---------- S2 failure glyphs ---------- */
-  .glyph-3{display:grid;grid-template-columns:1fr;gap:14px;}
+  /* ---------- S2 failure glyphs (4, 2x2) ---------- */
+  .glyph-3{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .glyph-card{
     border:1px solid var(--line);background:var(--panel);
-    display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:center;padding:14px 16px;
+    display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:14px 16px;
   }
-  .glyph-card svg{width:100%;height:auto;display:block;}
-  .glyph-cap{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink);line-height:1.4;}
+  .glyph-card svg{width:100%;max-width:130px;height:auto;display:block;}
+  .glyph-cap{font-family:var(--mono);font-size:12px;letter-spacing:0.02em;color:var(--ink);line-height:1.4;}
   .glyph-cap span{display:block;color:var(--ink-dim);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
   @media (max-width:420px){
-    .glyph-card{grid-template-columns:88px 1fr;gap:12px;}
+    .glyph-3{grid-template-columns:1fr;}
   }
 
-  /* ---------- S4 scorecard ---------- */
-  .scorecard{border:1px solid var(--line);background:var(--panel);padding:0;}
-  .scorecard .sc-head{
-    display:flex;justify-content:space-between;align-items:center;gap:10px;
-    font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-dim);
-    padding:14px 16px;border-bottom:1px solid var(--line);
-  }
-  .scorecard .sc-tag{color:var(--ink);}
-  .sc-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line-soft);}
-  .sc-row:last-child{border-bottom:none;}
-  .sc-q{font-family:var(--mono);font-size:13.5px;color:var(--ink);}
-  .sc-q span{display:block;font-size:11px;color:var(--ink-dim);letter-spacing:0.04em;margin-top:2px;text-transform:uppercase;}
-  .sc-mark{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;white-space:nowrap;}
-  .sc-mark.bad{color:var(--red);}
-  .sc-mark.num{color:var(--ink);}
-  .sc-mark svg{width:16px;height:16px;flex:none;display:block;}
+  /* ---------- big scene wrapper ---------- */
+  .scene{border:1px solid var(--line);background:var(--panel);padding:18px;}
+  .scene svg{width:100%;height:auto;display:block;}
 
-  /* ---------- cert / deliverable previews ---------- */
-  .cert-preview{border:1px dashed var(--line);background:var(--panel);padding:16px 18px 18px;}
-  .cert-preview + .cert-preview{margin-top:14px;}
-  .cert-preview .cp-head{
-    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-    font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 14px;
+  /* ---------- S5 deliverable full-width centered ---------- */
+  .deliverable{text-align:center;}
+  .deliverable .sec-label{margin-bottom:14px;}
+  .del-line{
+    font-size:clamp(16px,1.7vw,20px);color:var(--ink);max-width:60ch;margin:0 auto 34px;line-height:1.4;
   }
-  .cert-preview .cp-stamp{
-    font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:var(--teal);border:1px solid var(--teal);
-    padding:3px 8px;transform:rotate(-2deg);white-space:nowrap;
+  .del-line b{color:var(--ink);font-weight:700;}
+  .del-stage{max-width:940px;margin:0 auto;border:1px solid var(--line);background:var(--panel);padding:clamp(14px,2vw,26px);}
+  .del-stage svg{width:100%;height:auto;display:block;}
+  .del-cap{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-dim);margin:16px 0 0;}
+  svg.del-svg-mobile{display:none;}
+  @media (max-width:560px){
+    svg.del-svg-full{display:none;}
+    svg.del-svg-mobile{display:block;}
   }
-  .cert-fields{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 24px;}
-  @media (max-width:480px){ .cert-fields{grid-template-columns:1fr;} }
-  .cert-fields.single{grid-template-columns:1fr;}
-  .cert-fields div{border-bottom:1px dotted var(--line-soft);padding-bottom:6px;}
-  .cf-label{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:3px;}
-  .cf-value{font-family:var(--mono);font-size:13.5px;color:var(--ink);}
-  .cert-preview .cp-note{font-size:12px;color:var(--ink-dim);margin:14px 0 0;line-height:1.5;}
 
-  /* ---------- S6 dual path ---------- */
-  .dualpath{border:1px solid var(--line);background:var(--panel);padding:18px;}
-  .dualpath svg{width:100%;height:auto;display:block;}
-
-  /* ---------- S7 diy full-width ---------- */
+  /* ---------- diy / two-outcome grid ---------- */
   .diy-grid{
     display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-top:8px;align-items:stretch;
     border:1px solid var(--line);background:var(--panel);
@@ -322,14 +312,18 @@
   }
   .diy-col h3{font-family:var(--mono);font-size:12.5px;letter-spacing:0.04em;text-transform:uppercase;margin:0 0 12px;color:var(--ink);}
   .diy-col ul{margin:0;padding-left:18px;}
-  .diy-col li{font-size:14.5px;color:var(--ink-dim);margin-bottom:10px;line-height:1.45;}
+  .diy-col li{font-size:14.5px;color:var(--ink-dim);margin-bottom:10px;line-height:1.4;}
   .diy-col li:last-child{margin-bottom:0;}
   @media (max-width:700px){
     .diy-grid{grid-template-columns:1fr;}
     .diy-div{border-left:none;border-right:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;}
   }
+  .price-restate{
+    font-family:var(--mono);font-size:clamp(15px,1.6vw,18px);color:var(--ink);
+    margin:26px 0 0;letter-spacing:0.01em;line-height:1.5;max-width:60ch;
+  }
 
-  /* ---------- S8 data-handling strip ---------- */
+  /* ---------- data / skip strips ---------- */
   .datastrip{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);background:var(--panel);margin-top:8px;}
   .ds-cell{padding:16px 16px 18px;border-right:1px solid var(--line-soft);min-width:0;}
   .ds-cell:last-child{border-right:none;}
@@ -347,6 +341,14 @@
     .datastrip{grid-template-columns:1fr;}
     .ds-cell{border-right:none;}
   }
+  .datastrip.skip3{grid-template-columns:repeat(3,1fr);}
+  .datastrip.skip3 .ds-k::before{content:"x ";color:var(--red);}
+  .datastrip.skip3 .ds-v{font-size:13.5px;color:var(--ink);}
+  @media (max-width:640px){
+    .datastrip.skip3{grid-template-columns:1fr;}
+    .datastrip.skip3 .ds-cell{border-right:none;border-bottom:1px solid var(--line-soft);}
+    .datastrip.skip3 .ds-cell:last-child{border-bottom:none;}
+  }
 
   /* ---------- faq ---------- */
   .faq-list{border-top:1px solid var(--line);max-width:820px;}
@@ -361,8 +363,8 @@
   .faq-list details p{margin:10px 0 0;font-size:14.5px;color:var(--ink-dim);max-width:70ch;}
   .faq-list .q-tag{color:var(--red);font-family:var(--mono);margin-right:8px;}
 
-  /* ---------- S10 decision ---------- */
-  .steps-diag{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);background:var(--panel);margin-bottom:28px;}
+  /* ---------- steps + final checkout ---------- */
+  .steps-diag{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);background:var(--panel);margin-top:8px;}
   .step-cell{padding:20px 22px;border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:10px;}
   .step-cell:last-child{border-right:none;}
   .step-n{
@@ -371,11 +373,10 @@
     display:flex;align-items:center;justify-content:center;flex:none;
   }
   .step-cell p{margin:0;font-size:13.5px;color:var(--ink-dim);line-height:1.5;}
+  .step-cell p b{color:var(--ink);font-weight:700;}
   @media (max-width:640px){ .steps-diag{grid-template-columns:1fr;} .step-cell{border-right:none;border-bottom:1px solid var(--line-soft);} .step-cell:last-child{border-bottom:none;} }
 
-  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,52px);align-items:start;}
-  @media (max-width:860px){ .req-grid{grid-template-columns:1fr;gap:36px;} }
-
+  .checkout-wrap{max-width:480px;margin:28px auto 0;}
   .checkout-col{border:2px solid var(--ink);padding:24px;}
   .co-h{font-family:var(--mono);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 14px;}
   .btn-pay{
@@ -389,33 +390,7 @@
   .refund-note{font-size:13px;color:var(--ink-dim);margin:0 0 4px;line-height:1.5;}
   .refund-note b{color:var(--teal);font-weight:700;}
   .legal-line{font-size:12px;color:var(--ink-dim);margin:16px 0 0;line-height:1.5;}
-
-  form#lead-form{border:1px solid var(--line);padding:22px;background:var(--panel);}
-  .form-intro{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 16px;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-bottom:6px;letter-spacing:0.02em;}
-  .field .req{color:var(--red);}
-  .field input, .field select, .field textarea{
-    width:100%;background:var(--paper);border:1px solid var(--line);color:var(--ink);
-    font-family:var(--sans);font-size:15px;padding:10px 11px;
-  }
-  .field textarea{resize:vertical;}
-  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--teal);outline-offset:1px;}
-  .btn{
-    width:100%;font-family:var(--mono);font-weight:700;font-size:14px;
-    background:none;color:var(--ink);border:1.5px solid var(--line);padding:13px;cursor:pointer;
-  }
-  .btn:hover{border-color:var(--ink-dim);}
-  .btn:disabled{opacity:0.6;cursor:default;}
-  .fineprint{font-size:13px;margin:10px 0 0;min-height:1.2em;color:var(--ink-dim);}
-  .fineprint.ok{color:var(--teal);}
-  .fineprint.err{color:var(--red);}
-
-  /* ---------- close ---------- */
-  section.final{padding:clamp(56px,8vh,96px) 0;border-top:1px solid var(--line);}
-  .final h2{font-family:var(--mono);font-weight:800;font-size:clamp(20px,3vw,30px);margin:0;max-width:24ch;line-height:1.16;}
-  .final .back{display:inline-block;margin-top:20px;font-family:var(--mono);font-size:13.5px;color:var(--ink-dim);text-decoration:underline;text-underline-offset:3px;}
-  .final .back:hover{color:var(--ink);}
+  .legal-line a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;}
 
   /* ---------- footer ---------- */
   footer{border-top:1px solid var(--line);padding:26px 0 34px;}
@@ -424,6 +399,38 @@
   .f-links a{text-decoration:underline;text-underline-offset:2px;color:var(--ink-dim);}
   .f-links a:hover{color:var(--ink);}
   footer .legal{font-size:12px;color:var(--ink-dim);max-width:80ch;line-height:1.5;margin:0;}
+
+  /* ---------- scroll reveal (JS + motion only; visible by default) ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    html.js-reveal .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease;}
+    html.js-reveal .reveal.in{opacity:1;transform:none;}
+    .scan-line{animation:bb-scan 5.2s ease-in-out infinite;}
+    @keyframes bb-scan{0%{transform:translateX(0);opacity:0}8%{opacity:.3}55%{transform:translateX(560px);opacity:.3}66%{opacity:0}100%{transform:translateX(0);opacity:0}}
+    .pulse-mark{animation:bb-pulse 2.6s ease-in-out infinite;}
+    @keyframes bb-pulse{0%,100%{opacity:.45}50%{opacity:1}}
+  }
+
+  /* ---------- ask-a-question (secondary, quiet lead capture) ---------- */
+  .ask-box{max-width:480px;margin:18px auto 0;border:1px solid var(--line-soft);background:var(--panel);padding:20px;}
+  .ask-h{font-family:var(--mono);font-size:13px;letter-spacing:0.03em;color:var(--ink);margin:0 0 8px;line-height:1.4;}
+  .ask-lead{font-size:13px;color:var(--ink-dim);margin:0 0 14px;line-height:1.5;}
+  .ask-lead a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;}
+  .ask-form{display:flex;flex-direction:column;gap:8px;}
+  .ask-label{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-dim);}
+  .ask-field{
+    font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);padding:9px 11px;width:100%;
+  }
+  .ask-field::placeholder{color:var(--ink-dim);opacity:0.7;}
+  .ask-field:focus{outline:none;border-color:var(--teal);}
+  textarea.ask-field{resize:vertical;min-height:62px;line-height:1.5;}
+  .ask-btn{
+    font-family:var(--mono);font-size:13px;color:var(--ink);background:none;
+    border:1px solid var(--ink-dim);padding:10px 14px;cursor:pointer;margin-top:4px;align-self:flex-start;
+  }
+  .ask-btn:hover{border-color:var(--ink);}
+  .ask-btn:disabled{opacity:0.55;cursor:default;}
+  .ask-status{font-size:12.5px;margin:6px 0 0;min-height:1.1em;line-height:1.4;}
 </style>
 
 <div class="stick">
@@ -437,29 +444,31 @@
 
 <main id="top">
 
-  <!-- ===== S1 HERO: text left, timing diagram right ===== -->
+  <!-- ===== S1 HERO: wedge left, length-contrast stakes visual right ===== -->
   <section class="hero">
     <div class="wrap">
       <div class="hero-grid">
-        <div class="hero-copy">
+        <div class="hero-copy reveal">
           <p class="kicker">barge-in reliability report</p>
-          <h1><span class="strike">Handles interruptions gracefully.</span><br>Find out where your agent talks over real callers.</h1>
-          <p class="hero-sub">Send up to 15 of your own recorded calls. Every interruption is scored on <b>whether the agent yielded</b>, how many seconds it took, and whether it talked over the caller.</p>
-          <a class="hero-cta" href="#how-scored">See how your agent handles interruptions</a>
+          <h1>Your voice agent talks over the prospect who decides the deal.</h1>
+          <p class="hero-sub">A real caller interrupts, the agent keeps going, and the person evaluating you watches it happen live. Same failure on every real call, whether it is sales, support, or scheduling. BargeBench scores exactly where that breaks across <b>up to 15 of your own recorded calls</b>.</p>
+          <p class="hero-verify">Scoring harness is open source. Check our work, or run it yourself.</p>
+          <a class="hero-cta" href="#how-scored">See how each event is scored</a>
+          <p class="hero-price">$499, once. <b>Full refund if we do not find an issue you can act on.</b></p>
         </div>
-        <div class="hero-visual">
+        <div class="hero-visual reveal">
           <div class="card">
-            <p class="card-head"><span>example scored event</span><span class="flag">talked over: yes</span></p>
-            <svg class="viz" viewBox="0 0 620 235" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="dgTitle dgDesc">
-              <title id="dgTitle">Sample barge-in event timing</title>
-              <desc id="dgDesc">Caller interrupts the agent. Agent overlaps for a measured window before reaching its yield point.</desc>
+            <p class="card-head"><span>one barge-in, your call</span><span class="flag">agent overran</span></p>
+            <svg class="viz" viewBox="0 0 620 250" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="dgTitle dgDesc">
+              <title id="dgTitle">Length contrast: a human hand-off window versus an agent overrun</title>
+              <desc id="dgDesc">A caller interrupts. A thin band marks the few-hundred-millisecond window in which a human would hand the floor back. A long bar shows the agent still talking seconds past it.</desc>
               <g id="dg-root"></g>
             </svg>
-            <p class="viz-cap">Every barge-in is timed from the caller's first word to the moment the agent goes quiet.</p>
+            <p class="viz-cap">Schematic. The human hand-off window is a few hundred milliseconds; the overrun runs seconds past it.</p>
           </div>
         </div>
       </div>
-      <div class="chip-strip">
+      <div class="chip-strip reveal">
         <span class="chip"><span class="dot"></span>Up to <b>15 calls</b></span>
         <span class="chip"><span class="dot"></span><b>3</b> fixed criteria</span>
         <span class="chip"><span class="dot"></span>Back in <b>about a week</b></span>
@@ -468,12 +477,30 @@
     </div>
   </section>
 
-  <!-- ===== S2 FAILURE MODES: glyphs left, text right ===== -->
+  <!-- ===== S2 FAILURES: 4 glyphs left, text right ===== -->
   <section class="sec">
     <div class="wrap">
       <div class="sec2 vleft">
-        <div class="visual">
+        <div class="visual reveal">
           <div class="glyph-3">
+
+            <div class="glyph-card">
+              <svg viewBox="0 0 112 60" role="img" aria-label="Agent keeps talking over the caller">
+                <line x1="4" y1="30" x2="108" y2="30" style="stroke:var(--line-soft);stroke-width:1;"/>
+                <line x1="36" y1="6" x2="36" y2="54" style="stroke:var(--red);stroke-width:1;stroke-dasharray:2,2;"/>
+                <rect x="40" y="20" width="3" height="20" style="fill:var(--teal);"/>
+                <rect x="48" y="14" width="3" height="32" style="fill:var(--teal);"/>
+                <rect x="56" y="18" width="3" height="24" style="fill:var(--teal);"/>
+                <rect x="64" y="12" width="3" height="36" style="fill:var(--teal);"/>
+                <rect x="44" y="22" width="3" height="16" style="fill:var(--red);"/>
+                <rect x="52" y="17" width="3" height="26" style="fill:var(--red);"/>
+                <rect x="60" y="20" width="3" height="20" style="fill:var(--red);"/>
+                <rect x="68" y="15" width="3" height="30" style="fill:var(--red);"/>
+                <rect x="76" y="19" width="3" height="22" style="fill:var(--red);"/>
+                <rect x="84" y="23" width="3" height="14" style="fill:var(--red);"/>
+              </svg>
+              <div class="glyph-cap"><span>failure 01</span>Agent keeps talking over the caller.</div>
+            </div>
 
             <div class="glyph-card">
               <svg viewBox="0 0 112 60" role="img" aria-label="Audio shattering after an interruption">
@@ -490,7 +517,7 @@
                 <rect x="86" y="30" width="3" height="9" style="fill:var(--red);"/>
                 <rect x="94" y="27" width="3" height="4" style="fill:var(--red);"/>
               </svg>
-              <div class="glyph-cap"><span>failure 01</span>Audio drops or garbles right after an interruption.</div>
+              <div class="glyph-cap"><span>failure 02</span>Audio drops or garbles right after an interruption.</div>
             </div>
 
             <div class="glyph-card">
@@ -505,7 +532,7 @@
                 <circle cx="76" cy="30" r="2" style="fill:var(--ink-dim);"/>
                 <circle cx="86" cy="30" r="2" style="fill:var(--ink-dim);"/>
               </svg>
-              <div class="glyph-cap"><span>failure 02</span>Agent freezes in a listening state after being cut off.</div>
+              <div class="glyph-cap"><span>failure 03</span>Agent freezes in a listening state after being cut off.</div>
             </div>
 
             <div class="glyph-card">
@@ -520,36 +547,36 @@
                 <path d="M40 16 C 52 6, 62 6, 74 16" style="fill:none;stroke:var(--ink-dim);stroke-width:1.4;"/>
                 <path d="M74 16 l -6 -1 l 3 -5 z" style="fill:var(--ink-dim);"/>
               </svg>
-              <div class="glyph-cap"><span>failure 03</span>Agent repeats itself instead of continuing.</div>
+              <div class="glyph-cap"><span>failure 04</span>Agent repeats itself instead of continuing.</div>
             </div>
 
           </div>
         </div>
-        <div class="text">
+        <div class="text reveal">
           <p class="sec-label">production failures</p>
           <h2 class="sec-title">The failures you already logged.</h2>
-          <p class="sec-body">These are the three shapes barge-in takes in production: audio breaks up in the moment the caller cuts in, the agent stalls in a listening state and never picks back up, or it restarts a sentence it already said. Every scored event is checked for exactly these.</p>
+          <p class="sec-body">Every scored event is checked for exactly these four.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== S3 REFERENCE BAND: text left, scale right ===== -->
+  <!-- ===== S3 THE STANDARD: text left, latency scale right ===== -->
   <section class="sec">
     <div class="wrap">
       <div class="sec2">
-        <div class="text">
+        <div class="text reveal">
           <p class="sec-label">the standard</p>
           <h2 class="sec-title">Humans hand the floor back in a few hundred milliseconds.</h2>
-          <p class="sec-body">In natural conversation, people yield within a few hundred milliseconds of being interrupted. An agent that keeps talking past that window reads as broken to the caller on the line.</p>
-          <p class="cite-line">Natural conversational gaps between speakers cluster around a few hundred milliseconds, across languages. <a href="https://www.pnas.org/doi/10.1073/pnas.0903616106" target="_blank" rel="noopener">Stivers et al., PNAS 2009</a>.</p>
+          <p class="sec-body">Keep talking past that window and the caller on the line hears a broken agent.</p>
+          <p class="cite-line">Conversational gaps between speakers cluster around a few hundred milliseconds, across languages. <a href="https://www.pnas.org/doi/10.1073/pnas.0903616106" target="_blank" rel="noopener">Stivers et al., PNAS 2009</a>.</p>
         </div>
-        <div class="visual">
+        <div class="visual reveal">
           <div class="card">
             <p class="card-head"><span>hand-off latency scale</span><span class="flag">gap</span></p>
             <svg class="viz" viewBox="0 0 620 150" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="rbTitle rbDesc">
               <title id="rbTitle">Human hand-off band versus an agent still talking</title>
-              <desc id="rbDesc">A teal band from zero to about five hundred milliseconds marks the natural human hand-off. A red marker far to the right marks an agent still talking.</desc>
+              <desc id="rbDesc">A teal band near zero marks the natural human hand-off. A red marker far to the right marks an agent still talking.</desc>
               <line x1="20" y1="92" x2="600" y2="92" style="stroke:var(--line);stroke-width:1;"/>
               <g style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.04em;">
                 <line x1="20" y1="88" x2="20" y2="96" style="stroke:var(--line);stroke-width:1;"/>
@@ -564,7 +591,7 @@
               <rect x="20" y="60" width="193" height="24" style="fill:var(--teal);fill-opacity:0.18;stroke:var(--teal);stroke-width:1;"/>
               <text x="116" y="46" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--teal);font-weight:700;letter-spacing:.03em;">NATURAL HUMAN HAND-OFF</text>
               <line x1="560" y1="52" x2="560" y2="92" style="stroke:var(--red);stroke-width:1;stroke-dasharray:3,3;"/>
-              <path d="M560 52 l -5 -9 l 10 0 z" style="fill:var(--red);"/>
+              <path class="pulse-mark" d="M560 52 l -5 -9 l 10 0 z" style="fill:var(--red);"/>
               <text x="600" y="38" text-anchor="end" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--red);font-weight:700;letter-spacing:.03em;">AGENT STILL TALKING</text>
             </svg>
             <p class="viz-cap">Illustrative. The band is the human standard your agent is measured against, not an aggregate of your calls.</p>
@@ -574,174 +601,298 @@
     </div>
   </section>
 
-  <!-- ===== S4 THREE CRITERIA: scorecard left, text right ===== -->
+  <!-- ===== S4 HOW IT WORKS: 3-step diagram (frictionless) ===== -->
+  <section class="sec">
+    <div class="wrap">
+      <p class="sec-label reveal">how it works</p>
+      <h2 class="sec-title reveal" style="max-width:30ch;">Send your calls. Nothing to install.</h2>
+      <div class="steps-diag reveal">
+        <div class="step-cell"><div class="step-n mono">1</div><p><b>Send up to 15 of your own recorded calls.</b> Nothing to install. No SDK. No integration. No account.</p></div>
+        <div class="step-cell"><div class="step-n mono">2</div><p>We score every interruption: human review plus audio timing.</p></div>
+        <div class="step-cell"><div class="step-n mono">3</div><p>Signed report back in about a week.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== S5 WHAT YOU GET: full-width sample deliverable (desktop + mobile variant) ===== -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="deliverable">
+        <p class="sec-label reveal">what you get</p>
+        <p class="del-line reveal">A <b>signed, dated attestation</b> and a fix for every flagged event, back in about a week, with one re-attested retest within 60 days.</p>
+        <div class="del-stage reveal">
+
+          <!-- desktop / wide variant -->
+          <svg class="viz del-svg-full" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="delTitle delDesc">
+            <title id="delTitle">The delivered report</title>
+            <desc id="delDesc">A signed attestation page beside a per-event scorecard and fix map.</desc>
+
+            <!-- LEFT: attestation page -->
+            <rect x="40" y="40" width="340" height="400" style="fill:var(--paper);stroke:var(--line);stroke-width:1;"/>
+            <rect x="40" y="40" width="340" height="52" style="fill:var(--panel-strong);"/>
+            <circle cx="64" cy="66" r="5" style="fill:var(--red);"/>
+            <text x="80" y="71" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);font-weight:700;letter-spacing:.04em;">BARGE-IN ATTESTATION</text>
+
+            <text x="62" y="128" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">STACK UNDER TEST</text>
+            <text x="62" y="150" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">Self-hosted LiveKit</text>
+            <line x1="62" y1="162" x2="358" y2="162" style="stroke:var(--line-soft);stroke-width:1;stroke-dasharray:2,3;"/>
+
+            <text x="62" y="190" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">CALLS SCORED</text>
+            <text x="62" y="212" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">15 of 15 submitted</text>
+            <line x1="62" y1="224" x2="358" y2="224" style="stroke:var(--line-soft);stroke-width:1;stroke-dasharray:2,3;"/>
+
+            <text x="62" y="252" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">SCORING METHOD</text>
+            <text x="62" y="274" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">Human + audio timing</text>
+            <line x1="62" y1="286" x2="358" y2="286" style="stroke:var(--line-soft);stroke-width:1;stroke-dasharray:2,3;"/>
+
+            <text x="62" y="314" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">RESULT</text>
+            <text x="62" y="336" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">2 events flagged, fixes attached</text>
+            <line x1="62" y1="348" x2="358" y2="348" style="stroke:var(--line-soft);stroke-width:1;stroke-dasharray:2,3;"/>
+
+            <path d="M62 404 c 14 -20, 26 18, 40 -2 c 10 -14, 20 10, 34 -2 c 12 -10, 22 8, 40 0" style="fill:none;stroke:var(--ink);stroke-width:1.6;"/>
+            <text x="62" y="426" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);letter-spacing:.04em;">Signed, dated 30 Jun 2026</text>
+            <g transform="rotate(-7 300 392)">
+              <rect x="238" y="372" width="124" height="40" style="fill:none;stroke:var(--teal);stroke-width:1.5;"/>
+              <text x="300" y="397" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--teal);font-weight:700;letter-spacing:.08em;">ATTESTED</text>
+            </g>
+
+            <!-- RIGHT: scorecard + fix map dashboard -->
+            <rect x="420" y="40" width="440" height="400" style="fill:var(--panel);stroke:var(--line);stroke-width:1;"/>
+            <rect x="420" y="40" width="440" height="52" style="fill:var(--panel-strong);"/>
+            <text x="440" y="71" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);font-weight:700;letter-spacing:.03em;">PER-EVENT SCORECARD + FIX MAP</text>
+
+            <text x="690" y="116" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.06em;">YIELD</text>
+            <text x="754" y="116" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.06em;">SECS</text>
+            <text x="812" y="116" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.06em;">OVER</text>
+
+            <rect x="440" y="126" width="400" height="46" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="456" y="154" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">call_04 / event 2</text>
+            <line x1="690" y1="143" x2="702" y2="155" style="stroke:var(--red);stroke-width:2;"/><line x1="702" y1="143" x2="690" y2="155" style="stroke:var(--red);stroke-width:2;"/>
+            <text x="748" y="154" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">1.4</text>
+            <line x1="812" y1="143" x2="824" y2="155" style="stroke:var(--red);stroke-width:2;"/><line x1="824" y1="143" x2="812" y2="155" style="stroke:var(--red);stroke-width:2;"/>
+
+            <rect x="440" y="178" width="400" height="46" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="456" y="206" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">call_07 / event 1</text>
+            <path d="M690 200 l 5 6 l 12 -14" style="fill:none;stroke:var(--teal);stroke-width:2;"/>
+            <text x="748" y="206" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">0.3</text>
+            <path d="M812 200 l 5 6 l 12 -14" style="fill:none;stroke:var(--teal);stroke-width:2;"/>
+
+            <rect x="440" y="230" width="400" height="46" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="456" y="258" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">call_11 / event 3</text>
+            <line x1="690" y1="247" x2="702" y2="259" style="stroke:var(--red);stroke-width:2;"/><line x1="702" y1="247" x2="690" y2="259" style="stroke:var(--red);stroke-width:2;"/>
+            <text x="748" y="258" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);">0.9</text>
+            <line x1="812" y1="247" x2="824" y2="259" style="stroke:var(--red);stroke-width:2;"/><line x1="824" y1="247" x2="812" y2="259" style="stroke:var(--red);stroke-width:2;"/>
+
+            <rect x="440" y="300" width="400" height="120" style="fill:var(--panel-strong);stroke:var(--line);stroke-width:1;"/>
+            <rect x="440" y="300" width="4" height="120" style="fill:var(--amber);"/>
+            <text x="460" y="328" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--amber);font-weight:700;letter-spacing:.06em;">FIX MAP: call_04 / event 2</text>
+            <text x="460" y="356" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">Cause: VAD hangover set too high.</text>
+            <text x="460" y="382" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">Fix: lower to about 300 to 500ms,</text>
+            <text x="460" y="402" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">then retest within 60 days.</text>
+          </svg>
+
+          <!-- mobile / simplified variant: larger type, fewer labels -->
+          <svg class="viz del-svg-mobile" viewBox="0 0 360 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Simplified delivered report: attestation, per-event scorecard, and fix map">
+            <!-- attestation card -->
+            <rect x="10" y="16" width="340" height="168" style="fill:var(--paper);stroke:var(--line);stroke-width:1;"/>
+            <rect x="10" y="16" width="340" height="40" style="fill:var(--panel-strong);"/>
+            <circle cx="32" cy="36" r="5" style="fill:var(--red);"/>
+            <text x="46" y="41" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);font-weight:700;letter-spacing:.02em;">BARGE-IN ATTESTATION</text>
+            <text x="24" y="84" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.06em;">RESULT</text>
+            <text x="24" y="108" style="font-family:ui-monospace,monospace;font-size:16px;fill:var(--ink);">2 events flagged, fixed</text>
+            <text x="24" y="140" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.06em;">METHOD</text>
+            <text x="24" y="164" style="font-family:ui-monospace,monospace;font-size:16px;fill:var(--ink);">Human + audio timing</text>
+            <g transform="rotate(-6 296 44)">
+              <rect x="252" y="26" width="88" height="34" style="fill:none;stroke:var(--teal);stroke-width:1.5;"/>
+              <text x="296" y="48" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--teal);font-weight:700;letter-spacing:.04em;">ATTESTED</text>
+            </g>
+
+            <!-- scorecard card -->
+            <rect x="10" y="204" width="340" height="200" style="fill:var(--panel);stroke:var(--line);stroke-width:1;"/>
+            <rect x="10" y="204" width="340" height="40" style="fill:var(--panel-strong);"/>
+            <text x="24" y="230" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);font-weight:700;letter-spacing:.02em;">PER-EVENT SCORECARD</text>
+            <text x="24" y="266" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.04em;">EVENT</text>
+            <text x="214" y="266" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.04em;">YIELD</text>
+            <text x="266" y="266" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.04em;">SECS</text>
+            <text x="316" y="266" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.04em;">OVER</text>
+
+            <rect x="20" y="278" width="320" height="36" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="30" y="301" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">call_04 / ev 2</text>
+            <line x1="208" y1="290" x2="220" y2="302" style="stroke:var(--red);stroke-width:2;"/><line x1="220" y1="290" x2="208" y2="302" style="stroke:var(--red);stroke-width:2;"/>
+            <text x="266" y="301" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">1.4</text>
+            <line x1="310" y1="290" x2="322" y2="302" style="stroke:var(--red);stroke-width:2;"/><line x1="322" y1="290" x2="310" y2="302" style="stroke:var(--red);stroke-width:2;"/>
+
+            <rect x="20" y="318" width="320" height="36" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="30" y="341" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">call_07 / ev 1</text>
+            <path d="M206 336 l 6 7 l 14 -16" style="fill:none;stroke:var(--teal);stroke-width:2;"/>
+            <text x="266" y="341" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">0.3</text>
+            <path d="M308 336 l 6 7 l 14 -16" style="fill:none;stroke:var(--teal);stroke-width:2;"/>
+
+            <rect x="20" y="358" width="320" height="36" style="fill:var(--paper);stroke:var(--line-soft);stroke-width:1;"/>
+            <text x="30" y="381" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">call_11 / ev 3</text>
+            <line x1="208" y1="370" x2="220" y2="382" style="stroke:var(--red);stroke-width:2;"/><line x1="220" y1="370" x2="208" y2="382" style="stroke:var(--red);stroke-width:2;"/>
+            <text x="266" y="381" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--ink);">0.9</text>
+            <line x1="310" y1="370" x2="322" y2="382" style="stroke:var(--red);stroke-width:2;"/><line x1="322" y1="370" x2="310" y2="382" style="stroke:var(--red);stroke-width:2;"/>
+
+            <!-- fix map card -->
+            <rect x="10" y="424" width="340" height="156" style="fill:var(--panel-strong);stroke:var(--line);stroke-width:1;"/>
+            <rect x="10" y="424" width="4" height="156" style="fill:var(--amber);"/>
+            <text x="28" y="454" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--amber);font-weight:700;letter-spacing:.03em;">FIX MAP: call_04 / ev 2</text>
+            <text x="28" y="484" style="font-family:ui-monospace,monospace;font-size:15px;fill:var(--ink);">Cause: VAD hangover</text>
+            <text x="28" y="506" style="font-family:ui-monospace,monospace;font-size:15px;fill:var(--ink);">set too high.</text>
+            <text x="28" y="536" style="font-family:ui-monospace,monospace;font-size:15px;fill:var(--ink);">Fix: lower to about</text>
+            <text x="28" y="558" style="font-family:ui-monospace,monospace;font-size:15px;fill:var(--ink);">300 to 500ms, then retest.</text>
+          </svg>
+
+          <p class="del-cap">Sample, not a real customer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== S6 VERIFY OR DIY: annotated event score left, method + open harness right ===== -->
   <section class="sec" id="how-scored">
     <div class="wrap">
       <div class="sec2 vleft">
-        <div class="visual">
-          <div class="scorecard">
-            <div class="sc-head"><span>event score</span><span class="sc-tag mono">call_04 / event 2</span></div>
-            <div class="sc-row">
-              <div class="sc-q">Did the agent yield?<span>criterion 01</span></div>
-              <div class="sc-mark bad"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="4" y1="4" x2="12" y2="12" style="stroke:var(--red);stroke-width:2;"/><line x1="12" y1="4" x2="4" y2="12" style="stroke:var(--red);stroke-width:2;"/></svg>eventually</div>
-            </div>
-            <div class="sc-row">
-              <div class="sc-q">Seconds to yield<span>criterion 02</span></div>
-              <div class="sc-mark num">1.4s</div>
-            </div>
-            <div class="sc-row">
-              <div class="sc-q">Did it talk over the caller?<span>criterion 03</span></div>
-              <div class="sc-mark bad"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="4" y1="4" x2="12" y2="12" style="stroke:var(--red);stroke-width:2;"/><line x1="12" y1="4" x2="4" y2="12" style="stroke:var(--red);stroke-width:2;"/></svg>yes</div>
-            </div>
-          </div>
-        </div>
-        <div class="text">
-          <p class="sec-label">the instrument</p>
-          <h2 class="sec-title">Every event, the same three questions.</h2>
-          <p class="sec-body">There is no vibe score. The same three checks run identically on every call you send, no matter the stack or the accent.</p>
-          <p class="sec-body">Strongest fit is self-hosted, open-source stacks: LiveKit Agents SDK, Pipecat, a custom or Twilio build. Managed platforms (Vapi, Retell, Bland) also work; see the questions below.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+        <div class="visual reveal">
+          <div class="scene">
+            <p class="card-head"><span>annotated event score</span><span class="flag">call_04 / event 2</span></p>
+            <svg class="viz" viewBox="0 0 600 372" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="scTitle scDesc">
+              <title id="scTitle">Annotated call transcript with the three scored criteria</title>
+              <desc id="scDesc">A caller turn and an agent turn overlap in a marked talk-over window, then the three fixed criteria are scored below.</desc>
 
-  <!-- ===== S5 DELIVERABLE: text left, mocked deliverable right ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <div class="sec2">
-        <div class="text">
-          <p class="sec-label">what lands on your desk</p>
-          <h2 class="sec-title">A signed page, plus a fix for every flagged event.</h2>
-          <p class="sec-body">You get a dated, signed attestation page you can hand to whoever asked, and a per-event fix map tied to your declared stack. Back in about a week, with one re-scored, re-attested retest included within 60 days if you ship a fix.</p>
-        </div>
-        <div class="visual">
-          <div class="cert-preview">
-            <div class="cp-head"><span>the attestation page</span><span class="cp-stamp">SIGNED &amp; DATED</span></div>
-            <div class="cert-fields">
-              <div><div class="cf-label">Stack under test</div><div class="cf-value">Self-hosted LiveKit</div></div>
-              <div><div class="cf-label">Calls scored</div><div class="cf-value">15 of 15 submitted</div></div>
-              <div><div class="cf-label">Scoring method</div><div class="cf-value">Human + audio timing</div></div>
-              <div><div class="cf-label">Retest window</div><div class="cf-value">1 retest, 60 days</div></div>
-            </div>
-            <p class="cp-note">Sample fields, not a real customer.</p>
-          </div>
-          <div class="cert-preview">
-            <div class="cp-head"><span>one row of the fix map</span><span class="cp-stamp">SAMPLE FINDING</span></div>
-            <div class="cert-fields single">
-              <div><div class="cf-label">Call / event</div><div class="cf-value">call_04, event 2</div></div>
-              <div><div class="cf-label">What happened</div><div class="cf-value">Talked over the caller 1.4s before yielding.</div></div>
-              <div><div class="cf-label">Likely cause</div><div class="cf-value">VAD hangover set too high for your stack.</div></div>
-              <div><div class="cf-label">Suggested fix</div><div class="cf-value">Lower hangover to about 300 to 500ms, retest.</div></div>
-            </div>
-            <p class="cp-note">Sample finding, not a real customer.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+              <text x="20" y="30" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--teal);font-weight:700;letter-spacing:.06em;">CALLER</text>
+              <rect x="20" y="40" width="360" height="52" rx="6" style="fill:var(--panel-strong);stroke:var(--teal);stroke-width:1;"/>
+              <text x="36" y="72" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">actually, I need to change my order-</text>
 
-  <!-- ===== S6 NOT A BLACK BOX: dual-path motif left, text right ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <div class="sec2 vleft">
-        <div class="visual">
-          <div class="dualpath">
-            <svg viewBox="0 0 460 210" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="dpTitle dpDesc">
-              <title id="dpTitle">Human judgment plus open harness</title>
-              <desc id="dpDesc">A human mark and the open harness both feed into one scored event.</desc>
-              <rect x="20" y="24" width="150" height="56" style="fill:none;stroke:var(--teal);stroke-width:1;"/>
-              <path d="M40 56 l 6 8 l 14 -20" style="fill:none;stroke:var(--teal);stroke-width:2;"/>
-              <text x="86" y="50" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--teal);font-weight:700;letter-spacing:.04em;">HUMAN</text>
-              <text x="86" y="66" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--teal);font-weight:700;letter-spacing:.04em;">MARK</text>
-              <rect x="290" y="24" width="150" height="56" style="fill:none;stroke:var(--ink-dim);stroke-width:1;"/>
-              <text x="308" y="60" style="font-family:ui-monospace,monospace;font-size:20px;fill:var(--ink-dim);font-weight:700;">{ }</text>
-              <text x="344" y="50" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);font-weight:700;letter-spacing:.04em;">OPEN</text>
-              <text x="344" y="66" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);font-weight:700;letter-spacing:.04em;">HARNESS</text>
-              <path d="M95 80 L 210 150" style="fill:none;stroke:var(--line);stroke-width:1;"/>
-              <path d="M365 80 L 250 150" style="fill:none;stroke:var(--line);stroke-width:1;"/>
-              <rect x="160" y="152" width="140" height="42" style="fill:var(--panel-strong);stroke:var(--ink);stroke-width:1;"/>
-              <text x="230" y="178" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink);font-weight:700;letter-spacing:.04em;">SCORED EVENT</text>
+              <text x="580" y="128" text-anchor="end" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);font-weight:700;letter-spacing:.06em;">AGENT</text>
+              <rect x="200" y="138" width="380" height="52" rx="6" style="fill:var(--panel);stroke:var(--ink-dim);stroke-width:1;"/>
+              <text x="564" y="170" text-anchor="end" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">...your total comes to forty-two-</text>
+
+              <rect x="200" y="34" width="180" height="160" rx="4" style="fill:var(--red);fill-opacity:0.08;stroke:var(--red);stroke-width:1;stroke-dasharray:3,3;"/>
+              <text x="290" y="214" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:11px;fill:var(--red);font-weight:700;letter-spacing:.04em;">TALKED OVER 1.4s</text>
+
+              <g>
+                <rect x="20" y="248" width="176" height="104" style="fill:var(--paper);stroke:var(--line);stroke-width:1;"/>
+                <rect x="20" y="248" width="176" height="4" style="fill:var(--red);"/>
+                <text x="36" y="278" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">CRITERION 01</text>
+                <text x="36" y="300" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">Did it yield?</text>
+                <line x1="36" y1="320" x2="46" y2="330" style="stroke:var(--red);stroke-width:2;"/>
+                <line x1="46" y1="320" x2="36" y2="330" style="stroke:var(--red);stroke-width:2;"/>
+                <text x="56" y="330" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--red);">eventually</text>
+
+                <rect x="212" y="248" width="176" height="104" style="fill:var(--paper);stroke:var(--line);stroke-width:1;"/>
+                <rect x="212" y="248" width="176" height="4" style="fill:var(--amber);"/>
+                <text x="228" y="278" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">CRITERION 02</text>
+                <text x="228" y="300" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">Seconds to yield</text>
+                <text x="228" y="333" style="font-family:ui-monospace,monospace;font-size:22px;fill:var(--ink);font-weight:700;">1.4s</text>
+
+                <rect x="404" y="248" width="176" height="104" style="fill:var(--paper);stroke:var(--line);stroke-width:1;"/>
+                <rect x="404" y="248" width="176" height="4" style="fill:var(--red);"/>
+                <text x="420" y="278" style="font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.08em;">CRITERION 03</text>
+                <text x="420" y="300" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);">Talked over?</text>
+                <line x1="420" y1="320" x2="430" y2="330" style="stroke:var(--red);stroke-width:2;"/>
+                <line x1="430" y1="320" x2="420" y2="330" style="stroke:var(--red);stroke-width:2;"/>
+                <text x="440" y="330" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--red);">yes</text>
+              </g>
             </svg>
           </div>
         </div>
-        <div class="text">
-          <p class="sec-label">not a black box</p>
-          <h2 class="sec-title">A person marks every event. The code is public.</h2>
-          <p class="sec-body">A human marks every flagged event on top of the audio-timing measurement, so it is not a script grading itself. The entire scoring harness is open source under MIT: <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">github.com/quantumCF/voice-agent-barge-in-tests</a>. Read it, run it, check our work.</p>
+        <div class="text reveal">
+          <p class="sec-label">verify or do it yourself</p>
+          <h2 class="sec-title">Every event, the same three questions. Marked by a person.</h2>
+          <p class="sec-body">The same three checks run on every call, plus a human mark on each flagged event.</p>
+          <p class="sec-body">The whole harness is open source under MIT: <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">read it, run it, check our work</a>. Self-hosted with clean dual-channel audio? Pull the raw yield and overlap numbers yourself in about a day.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== S7 WHEN TO SKIP US: full-width comparison ===== -->
+  <!-- ===== S7 DATA HANDLING: full-width strip ===== -->
   <section class="sec">
     <div class="wrap">
-      <p class="sec-label">when to skip us</p>
-      <h2 class="sec-title" style="max-width:34ch;">If you can pull the numbers yourself, do.</h2>
-      <div class="diy-grid">
-        <div class="diy-col earn">
-          <h3>Worth an outside read</h3>
-          <ul>
-            <li>You are on mono-recording or a hosted platform where clean dual-channel timing is hard to pull.</li>
-            <li>You need a signed attestation a third party will trust, not a self-run script.</li>
-            <li>You are mid-migration and want one consistent read across before and after.</li>
-          </ul>
-        </div>
-        <div class="diy-div"><span>or</span></div>
-        <div class="diy-col diy">
-          <h3>Do it yourself</h3>
-          <ul>
-            <li>Self-hosted with clean dual-channel audio? Pull raw yield and overlap numbers in about a day.</li>
-            <li>The repo is the actual scoring code. Nothing about the measurement is withheld.</li>
-            <li>It will not give you outside judgment or a catch on what your pipeline never logged.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== S8 DATA HANDLING: full-width icon row ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <p class="sec-label">your recordings</p>
-      <h2 class="sec-title" style="max-width:34ch;">Your recordings never leave our control.</h2>
-      <div class="datastrip">
-
+      <p class="sec-label reveal">your recordings</p>
+      <h2 class="sec-title reveal" style="max-width:34ch;">Your recordings never leave our control.</h2>
+      <div class="datastrip reveal">
         <div class="ds-cell">
           <div class="ds-k">retention</div>
           <div class="ds-v">Deleted within <b>14 days</b> of delivery.</div>
         </div>
-
         <div class="ds-cell">
           <div class="ds-k">location</div>
-          <div class="ds-v">Scored on <b>our own hardware in the US</b>, never a third-party API.</div>
+          <div class="ds-v">Scored on <b>our own US hardware</b>, never a third-party API.</div>
         </div>
-
         <div class="ds-cell">
           <div class="ds-k">training</div>
           <div class="ds-v"><b>Never</b> used to train any model.</div>
         </div>
-
         <div class="ds-cell">
           <div class="ds-k">legal</div>
-          <div class="ds-v"><b>DPA or NDA</b> signed on request, before you send.</div>
+          <div class="ds-v"><b>DPA or NDA</b> on request, before you send.</div>
         </div>
-
         <div class="ds-cell">
           <div class="ds-k">scope</div>
           <div class="ds-v">Scoring reads <b>timing, not words</b>. Redact PHI first.</div>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ===== S9 FAQ: full-width accordion (verbatim) ===== -->
+  <!-- ===== S8 PRICING: restatement + two outcomes ===== -->
+  <section class="sec">
+    <div class="wrap">
+      <p class="sec-label reveal">the price</p>
+      <h2 class="sec-title reveal" style="max-width:34ch;">$499, once. Refunded if there is nothing to fix.</h2>
+      <div class="diy-grid reveal">
+        <div class="diy-col earn">
+          <h3>If we find an issue</h3>
+          <ul>
+            <li>A fix mapped to your stack for every flagged event.</li>
+            <li>A signed, dated attestation.</li>
+            <li>One re-attested retest within 60 days.</li>
+          </ul>
+        </div>
+        <div class="diy-div"><span>or</span></div>
+        <div class="diy-col diy">
+          <h3>If it comes back clean</h3>
+          <ul>
+            <li>Full refund. You pay nothing.</li>
+            <li>You keep a dated, signed all-clear you can show a customer or your board.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="price-restate reveal">$499, once. Full refund if we do not find an issue you can act on. Delivered in about a week.</p>
+    </div>
+  </section>
+
+  <!-- ===== S9 SKIP US IF: candor strip ===== -->
+  <section class="sec">
+    <div class="wrap">
+      <p class="sec-label reveal">skip us if</p>
+      <h2 class="sec-title reveal" style="max-width:34ch;">Do not buy this if any of these is you.</h2>
+      <div class="datastrip skip3 reveal">
+        <div class="ds-cell">
+          <div class="ds-k">skip if</div>
+          <div class="ds-v">You have <b>not shipped to production</b> yet.</div>
+        </div>
+        <div class="ds-cell">
+          <div class="ds-k">skip if</div>
+          <div class="ds-v">You already run a <b>barge-in eval in CI</b>.</div>
+        </div>
+        <div class="ds-cell">
+          <div class="ds-k">skip if</div>
+          <div class="ds-v">You <b>do not run real voice or phone calls</b>.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== S10 FAQ + FINAL CTA ===== -->
   <section class="sec" id="faq">
     <div class="wrap">
-      <p class="sec-label">before you send anything</p>
-      <h2 class="sec-title" style="max-width:40ch;">Answers on scope, data handling, refunds, and the retest.</h2>
-      <div class="faq-list">
+      <p class="sec-label reveal">before you send anything</p>
+      <h2 class="sec-title reveal" style="max-width:40ch;">Scope, data, refunds, and the retest.</h2>
+      <div class="faq-list reveal">
         <details>
           <summary><span><span class="q-tag">Q</span>Is this just a script grading itself?</span></summary>
           <p>No. Every flagged barge-in event gets a human mark in addition to the audio-timing measurement. The math is public and auditable. The judgment call on each event is made by a person, not the same system scoring itself.</p>
@@ -753,6 +904,10 @@
         <details>
           <summary><span><span class="q-tag">Q</span>What if my agent cuts callers off too eagerly instead?</span></summary>
           <p>Out of scope. This report scores the agent talking over the caller during barge-in, not the opposite failure mode.</p>
+        </details>
+        <details>
+          <summary><span><span class="q-tag">Q</span>What if you find nothing?</span></summary>
+          <p>Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board.</p>
         </details>
         <details>
           <summary><span><span class="q-tag">Q</span>I'm on Retell, isn't this already covered by Retell Assure?</span></summary>
@@ -771,72 +926,37 @@
           <p>Your card statement will show the billing entity, named in the payment section below. It's BargeBench's parent company, nothing unfamiliar.</p>
         </details>
       </div>
-    </div>
-  </section>
 
-  <!-- ===== S10 THE DECISION: full-width, single checkout ===== -->
-  <section class="sec" id="request">
-    <div class="wrap">
-      <p class="sec-label">get the report</p>
-      <h2 class="sec-title" style="max-width:40ch;">Pay, upload your calls, and a signed report is back in about a week.</h2>
-
-      <div class="steps-diag">
-        <div class="step-cell"><div class="step-n mono">1</div><p>Pay through Stripe.</p></div>
-        <div class="step-cell"><div class="step-n mono">2</div><p>Land on upload instructions right away.</p></div>
-        <div class="step-cell"><div class="step-n mono">3</div><p>Send your recordings. Report back in about a week.</p></div>
-      </div>
-
-      <div class="req-grid">
-        <div>
+      <div id="request" style="margin-top:clamp(44px,6vh,72px);">
+        <p class="sec-label reveal">get the report</p>
+        <h2 class="sec-title reveal" style="max-width:40ch;">Pay, send your calls, signed report back in about a week.</h2>
+        <div class="steps-diag reveal">
+          <div class="step-cell"><div class="step-n mono">1</div><p>Pay through Stripe.</p></div>
+          <div class="step-cell"><div class="step-n mono">2</div><p>Land on upload instructions.</p></div>
+          <div class="step-cell"><div class="step-n mono">3</div><p>Send recordings and a delivery address. Report in about a week.</p></div>
+        </div>
+        <div class="checkout-wrap reveal">
           <div class="checkout-col">
-            <p class="co-h">Pay and start now</p>
+            <p class="co-h">Pay and start</p>
             <a class="btn-pay" href="https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00" target="_blank" rel="noopener">Get your barge-in report &rarr;</a>
             <p class="price-note">$499, one time. No subscription, no seats.</p>
             <p class="refund-note"><b>If the report finds no actionable issue, full refund.</b></p>
             <p class="legal-line">Charges appear on your card statement as Attention Labs Incorporated, BargeBench's parent company.</p>
           </div>
         </div>
-        <div>
-          <form id="lead-form" novalidate>
-            <p class="form-intro">Questions first, or need a DPA or NDA before you send anything.</p>
-            <div class="field">
-              <label for="lead-email">Work email <span class="req">*</span></label>
-              <input type="email" id="lead-email" name="email" required autocomplete="email" placeholder="you@company.com">
-            </div>
-            <div class="field">
-              <label for="lead-company">Company</label>
-              <input type="text" id="lead-company" name="company" autocomplete="organization" placeholder="Company name">
-            </div>
-            <div class="field">
-              <label for="lead-stack">Voice stack</label>
-              <select id="lead-stack" name="stack">
-                <option value="">Select one</option>
-                <option value="self-hosted-livekit">Self-hosted LiveKit Agents SDK</option>
-                <option value="pipecat">Pipecat</option>
-                <option value="custom-twilio">Custom / Twilio build</option>
-                <option value="vapi">Vapi</option>
-                <option value="retell">Retell</option>
-                <option value="bland">Bland</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="lead-note">Anything else we should know (optional)</label>
-              <textarea id="lead-note" name="note" rows="3" placeholder="Call volume, timeline, questions about the test"></textarea>
-            </div>
-            <button type="submit" class="btn" id="lead-submit">Send, no payment yet</button>
-            <p class="fineprint" id="lead-status" role="status"></p>
+        <div class="ask-box reveal">
+          <p class="ask-h">Questions first, or need a DPA or NDA before you send your calls?</p>
+          <p class="ask-lead">Ask before you buy. No payment taken and no calls sent yet. Prefer email? Write to <a href="mailto:contact@bargebench.com">contact@bargebench.com</a>.</p>
+          <form id="ask-form" class="ask-form" novalidate>
+            <label class="ask-label" for="ask-email">Work email</label>
+            <input class="ask-field" id="ask-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+            <label class="ask-label" for="ask-msg">Message (optional)</label>
+            <textarea class="ask-field" id="ask-msg" name="message" rows="3" placeholder="Anything to check before you buy, or a DPA request."></textarea>
+            <button class="ask-btn mono" id="ask-submit" type="submit">Ask a question, no payment</button>
+            <p class="ask-status mono" id="ask-status" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ===== S11 CLOSE ===== -->
-  <section class="final">
-    <div class="wrap">
-      <h2>One recording is enough to know where your agent talks over people.</h2>
-      <a class="back" href="#top">Back to the report</a>
     </div>
   </section>
 </main>
@@ -881,129 +1001,126 @@
     applyLabel();
   });
 
-  // ---- hero timing diagram builder ----
+  // ---- hero stakes: length-contrast timeline ----
   var svgNS = "http://www.w3.org/2000/svg";
   var g = document.getElementById('dg-root');
-  function el(name, attrs){
+  function el(name, attrs, text){
     var e = document.createElementNS(svgNS, name);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
     return e;
   }
-  var left = 16, right = 604;
-  var callerMid = 58;
-  var agentMid = 168;
-  var n = 24;
-  var step = (right - left) / n;
-  var barW = step * 0.52;
+  function LBL(c){ return 'font-family:ui-monospace,monospace;font-size:10px;fill:'+c+';font-weight:700;letter-spacing:.05em;'; }
 
-  g.appendChild(el('text', {x:left, y: 16, style:'font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);letter-spacing:.06em;'})).textContent = 'CALLER';
-  g.appendChild(el('text', {x:left, y: 126, style:'font-family:ui-monospace,monospace;font-size:11px;fill:var(--ink-dim);letter-spacing:.06em;'})).textContent = 'AGENT';
+  var left = 20, right = 600;
+  var callerMid = 56, agentMid = 138;
+  var interruptX = 200, overrunEndX = 560;
+  var n = 30, step = (right - left) / n, barW = step * 0.5;
+  var iIdx = Math.round((interruptX - left) / step);
+  var eIdx = Math.round((overrunEndX - left) / step);
+
+  g.appendChild(el('text', {x:left, y:20, style:LBL('var(--teal)')}, 'CALLER'));
+  g.appendChild(el('text', {x:left, y:112, style:LBL('var(--ink-dim)')}, 'AGENT'));
 
   g.appendChild(el('line', {x1:left, y1:callerMid, x2:right, y2:callerMid, style:'stroke:var(--line-soft);stroke-width:1;'}));
   g.appendChild(el('line', {x1:left, y1:agentMid, x2:right, y2:agentMid, style:'stroke:var(--line-soft);stroke-width:1;'}));
 
-  var callerH = [3,4,5,4,6,8,7,5,4,3,2,2,2,3,10,16,20,22,18,14,11,9,7,5];
-  var agentH  = [14,17,15,13,16,18,15,14,17,19,17,15,14,13,15,17,15,3,2,2,2,2,2,2];
-  var overlapStart = 14, overlapEnd = 16;
-  var yieldIdx = 17;
-
+  var callerH = [2,3,2,3,2,3,2,3,3, 12,16,13,15,17,14,16,13,15,14,12,15,13,16,14,12,13,11,9,7,5];
+  var agentH  = [13,16,14,17,15,13,16,14,17, 15,14,16,13,15,17,14,16,13,15,14,16,13,15,14,16,13,15,12, 3,2];
   for (var i=0;i<n;i++){
     var x = left + i*step + (step-barW)/2;
-    var ch = callerH[i];
-    var ah = agentH[i];
-    var callerColor = (i>=overlapStart && i<=overlapEnd) ? 'var(--red)' : 'var(--teal)';
-    var agentColor = (i>=overlapStart && i<=overlapEnd) ? 'var(--red)' : 'var(--ink-dim)';
-    g.appendChild(el('rect', {x:x, y:callerMid-ch, width:barW, height:ch*2, style:'fill:'+callerColor+';'}));
-    g.appendChild(el('rect', {x:x, y:agentMid-ah, width:barW, height:ah*2, style:'fill:'+agentColor+';'}));
+    var over = (i>=iIdx && i<=eIdx);
+    var cH = callerH[i] || 2, aH = agentH[i] || 2;
+    var cCol = over ? 'var(--red)' : 'var(--teal)';
+    var aCol = over ? 'var(--red)' : 'var(--ink-dim)';
+    var cStyle = 'fill:'+cCol+';' + (i<iIdx ? 'fill-opacity:0.32;' : '');
+    g.appendChild(el('rect', {x:x, y:callerMid-cH, width:barW, height:cH*2, style:cStyle}));
+    g.appendChild(el('rect', {x:x, y:agentMid-aH, width:barW, height:aH*2, style:'fill:'+aCol+';'}));
   }
 
-  var ox1 = left + overlapStart*step;
-  var ox2 = left + (overlapEnd+1)*step;
-  var bandTop = 30, bandBottom = agentMid + 30;
+  // caller interruption marker
+  var onset = el('line', {x1:interruptX, y1:12, x2:interruptX, y2:agentMid+28, style:'stroke:var(--red);stroke-width:1;stroke-dasharray:2,2;'});
+  onset.setAttribute('class','pulse-mark');
+  g.appendChild(onset);
+  g.appendChild(el('text', {x:interruptX-6, y:14, 'text-anchor':'end', style:LBL('var(--red)')}, 'CALLER CUTS IN'));
 
-  g.appendChild(el('line', {x1:ox1, y1:8, x2:ox1, y2:bandTop, style:'stroke:var(--red);stroke-width:1;stroke-dasharray:2,2;'}));
-  var lblOnset = el('text', {x:ox1-4, y:22, 'text-anchor':'end', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--red);letter-spacing:.03em;font-weight:700;'});
-  lblOnset.textContent = 'CALLER INTERRUPTS';
-  g.appendChild(lblOnset);
+  // contrast timeline: thin human window vs long overrun
+  var bandY = 198, bandH = 16, humanW = 30;
+  g.appendChild(el('rect', {x:interruptX, y:bandY, width:overrunEndX-interruptX, height:bandH, style:'fill:var(--red);fill-opacity:0.14;stroke:var(--red);stroke-width:1;'}));
+  g.appendChild(el('rect', {x:interruptX, y:bandY-4, width:humanW, height:bandH+8, style:'fill:var(--teal);'}));
 
-  g.appendChild(el('rect', {x:ox1, y: bandTop, width: ox2-ox1, height: bandBottom-bandTop, style:'fill:none;stroke:var(--red);stroke-width:1;stroke-dasharray:3,3;'}));
-  var lblWin = el('text', {x:(ox1+ox2)/2, y: bandBottom+16, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--red);font-weight:700;letter-spacing:.03em;'});
-  lblWin.textContent = 'TALK-OVER WINDOW';
-  g.appendChild(lblWin);
-  var lblWinMs = el('text', {x:(ox1+ox2)/2, y: bandBottom+29, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--red);'});
-  lblWinMs.textContent = '~390ms';
-  g.appendChild(lblWinMs);
+  // teal callout
+  g.appendChild(el('line', {x1:interruptX+humanW/2, y1:bandY-4, x2:interruptX+humanW/2, y2:176, style:'stroke:var(--teal);stroke-width:1;'}));
+  g.appendChild(el('text', {x:interruptX-2, y:164, style:LBL('var(--teal)')}, 'HUMAN HANDS BACK'));
+  g.appendChild(el('text', {x:interruptX-2, y:178, style:'font-family:ui-monospace,monospace;font-size:9.5px;fill:var(--teal);letter-spacing:.03em;'}, 'a few hundred ms . PNAS 2009'));
 
-  var yx = left + yieldIdx*step;
-  g.appendChild(el('line', {x1:yx, y1:bandTop, x2:yx, y2:bandBottom, style:'stroke:var(--ink-dim);stroke-width:1;stroke-dasharray:2,2;'}));
-  var lbl2 = el('text', {x:yx+4, y: 22, 'text-anchor':'start', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.03em;'});
-  lbl2.textContent = 'AGENT YIELD POINT';
-  g.appendChild(lbl2);
-})();
-</script>
+  // red overrun label + real failures
+  g.appendChild(el('text', {x:(interruptX+humanW+overrunEndX)/2, y:bandY+11, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--red);font-weight:700;letter-spacing:.04em;'}, 'AGENT STILL TALKING'));
+  g.appendChild(el('text', {x:(interruptX+overrunEndX)/2, y:bandY+bandH+16, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.03em;'}, 'keeps talking . freezes . garbles . repeats'));
 
-<script>
-(function(){
-  var ENDPOINT = "https://formsubmit.co/ajax/contact@bargebench.com";
-  var form = document.getElementById("lead-form");
-  if (!form) return;
-  var statusEl = document.getElementById("lead-status");
-  var submitBtn = document.getElementById("lead-submit");
-  form.addEventListener("submit", function(e){
-    e.preventDefault();
-    statusEl.className = "fineprint";
-    statusEl.textContent = "";
-    var email = document.getElementById("lead-email").value.trim();
-    if (!email || email.indexOf("@") === -1) {
-      statusEl.className = "fineprint err";
-      statusEl.textContent = "Enter a valid email address.";
-      return;
-    }
-    var lead_source = "";
-    try {
-      var q = new URLSearchParams(location.search);
-      var parts = [];
-      ["src","utm_source","utm_medium","utm_campaign"].forEach(function(k){
-        var v = q.get(k); if (v) parts.push(k + "=" + v);
-      });
-      if (document.referrer) parts.push("ref=" + document.referrer);
-      lead_source = parts.join(" ").slice(0, 300);
-    } catch (err) {}
-    var payload = {
-      email: email,
-      company: document.getElementById("lead-company").value.trim(),
-      stack: document.getElementById("lead-stack").value,
-      note: document.getElementById("lead-note").value.trim(),
-      source: lead_source,
-      _subject: "BargeBench pre-payment question",
-      _template: "table",
-      _autoresponse: "Got your message. No charge yet. We reply within one business day with answers, a DPA or NDA if you need one, and two ways to send your recordings: share a Drive or Dropbox link, or reply and we send you a direct secure upload link.\n\nIf you'd rather skip ahead, you can pay directly here: https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00\n\nTalk soon,\nBargeBench"
-    };
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-    fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(payload)
-    }).then(function(res){ return res.json(); }).then(function(data){
-      if (data && (data.success === "true" || data.success === true)) {
-        form.reset();
-        statusEl.className = "fineprint ok";
-        statusEl.textContent = "Thanks. Check your inbox: we reply from contact@bargebench.com within one business day with a Drive or Dropbox option, or a direct secure upload link. No charge yet.";
-        submitBtn.textContent = "Sent";
-        submitBtn.disabled = true;
-      } else {
-        statusEl.className = "fineprint err";
-        statusEl.textContent = "That did not go through. Please try again in a moment.";
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send, no payment yet";
+  // animated scan line, waveform region only (never over the labels below)
+  var scan = el('rect', {x:left, y:12, width:2, height:158, style:'fill:var(--teal);'});
+  scan.setAttribute('class','scan-line');
+  g.appendChild(scan);
+
+  // ---- ask-a-question form (formsubmit ajax; JSON {email, message}) ----
+  var askForm = document.getElementById('ask-form');
+  if (askForm) {
+    var askStatus = document.getElementById('ask-status');
+    var askEmail = document.getElementById('ask-email');
+    var askMsg = document.getElementById('ask-msg');
+    var askBtn = document.getElementById('ask-submit');
+    askForm.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var email = (askEmail.value || '').trim();
+      if (!email || email.indexOf('@') < 1 || email.indexOf('.') < 0) {
+        askStatus.style.color = 'var(--red)';
+        askStatus.textContent = 'Enter a work email so we can reply.';
+        return;
       }
-    }).catch(function(){
-      statusEl.className = "fineprint err";
-      statusEl.textContent = "Something went wrong sending that. Please email us and we will sort it out.";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Send, no payment yet";
+      askBtn.disabled = true;
+      askStatus.style.color = 'var(--ink-dim)';
+      askStatus.textContent = 'Sending...';
+      fetch('https://formsubmit.co/ajax/contact@bargebench.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          message: (askMsg.value || '').trim(),
+          _subject: 'BargeBench question before purchase',
+          _autoresponse: 'Thanks for reaching out to BargeBench. We got your note and will reply from contact@bargebench.com. No payment has been taken and no calls have been sent.'
+        })
+      }).then(function(r){ return r.json(); }).then(function(){
+        askForm.reset();
+        askBtn.disabled = false;
+        askStatus.style.color = 'var(--teal)';
+        askStatus.textContent = 'Sent. We will reply by email. No payment taken.';
+      }).catch(function(){
+        askBtn.disabled = false;
+        askStatus.style.color = 'var(--red)';
+        askStatus.textContent = 'Could not send. Email contact@bargebench.com instead.';
+      });
     });
-  });
+  }
+
+  // ---- scroll reveal (guarded; content visible without JS or under reduced-motion) ----
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce && 'IntersectionObserver' in window) {
+    root.classList.add('js-reveal');
+    var revs = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+    revs.forEach(function(elm){
+      var sec = elm.closest('section');
+      if (!sec) return;
+      if (typeof sec.__rev !== 'number') sec.__rev = 0;
+      elm.style.transitionDelay = (sec.__rev * 80) + 'ms';
+      sec.__rev += 1;
+    });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    revs.forEach(function(elm){ io.observe(elm); });
+  }
 })();
 </script>
