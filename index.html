@@ -53,14 +53,6 @@
     },
     {
       "@type": "Question",
-      "name": "Who should not buy this?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Skip this if you have not shipped to production yet, if you already run a barge-in eval in CI, or if you do not run real voice or phone calls."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "What if you find nothing?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -81,14 +73,6 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Deleted within 14 days of delivery. Scored on our own US hardware, never a third-party API, never used to train any model. NDA or DPA available on request. Scoring reads timing, not words, so you can redact PHI first."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What shows up on my card statement?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Your card statement will show the billing entity, named in the payment section below. It's BargeBench's parent company, nothing unfamiliar."
       }
     }
   ]
@@ -682,7 +666,6 @@
   <section class="sec">
     <div class="wrap">
       <p class="sec-label reveal">how it works</p>
-      <h2 class="sec-title reveal" style="max-width:30ch;">Send your calls. Nothing to install.</h2>
       <div class="steps-diag reveal">
         <div class="step-cell"><div class="step-n mono">1</div><p><b>Send up to 15 of your own recorded calls.</b></p></div>
         <div class="step-cell"><div class="step-n mono">2</div><p>We score every interruption event.</p></div>
@@ -907,10 +890,6 @@
           <p>Out of scope. This report scores the agent talking over the caller during barge-in, not the opposite failure mode.</p>
         </details>
         <details>
-          <summary><span><span class="q-tag">Q</span>Who should not buy this?</span></summary>
-          <p>Skip this if you have not shipped to production yet, if you already run a barge-in eval in CI, or if you do not run real voice or phone calls.</p>
-        </details>
-        <details>
           <summary><span><span class="q-tag">Q</span>What if you find nothing?</span></summary>
           <p>Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board.</p>
         </details>
@@ -921,10 +900,6 @@
         <details>
           <summary><span><span class="q-tag">Q</span>What actually happens to my recordings after?</span></summary>
           <p>Deleted within 14 days of delivery. Scored on our own US hardware, never a third-party API, never used to train any model. NDA or DPA available on request. Scoring reads timing, not words, so you can redact PHI first.</p>
-        </details>
-        <details>
-          <summary><span><span class="q-tag">Q</span>What shows up on my card statement?</span></summary>
-          <p>Your card statement will show the billing entity, named in the payment section below. It's BargeBench's parent company, nothing unfamiliar.</p>
         </details>
       </div>
 
@@ -937,9 +912,7 @@
             <a class="btn-pay" href="https://buy.stripe.com/aFafZgeRie6va9Kesfa3u00" target="_blank" rel="noopener">Get your barge-in report&nbsp;&rarr;</a>
             <p class="price-note">One time, per batch of up to 15 calls. No subscription, no seats.</p>
             <p class="refund-note"><b>If we find nothing to fix, you pay nothing. Full refund.</b></p>
-            <p class="refund-note">Includes one re-scored, re-attested retest within 60 days once you ship a fix.</p>
             <p class="legal-line">Recordings are scored on our own US hardware, never a third-party API, and deleted within 14 days. NDA or DPA on request.</p>
-            <p class="legal-line">Charges appear on your card statement as Attention Labs Incorporated, BargeBench's parent company.</p>
           </div>
         </div>
         <div class="ask-box reveal">
@@ -984,7 +957,7 @@
         <a href="#request">Payment and upload</a>
       </div>
     </div>
-    <p class="legal">BargeBench is a one-time barge-in reliability report that scores your own recorded calls on three fixed criteria: yield, seconds to yield, talk-over. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as sources of your own call recordings. Your card statement will show the billing entity, as stated in the payment section above.</p>
+    <p class="legal">BargeBench is a one-time barge-in reliability report that scores your own recorded calls on three fixed criteria: yield, seconds to yield, talk-over. Vapi, Retell, Bland, Pipecat, and LiveKit are named only as sources of your own call recordings.</p>
   </div>
 </footer>
 
