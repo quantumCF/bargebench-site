@@ -34,18 +34,18 @@
     },
     {
       "@type": "Question",
-      "name": "What if you find nothing?",
+      "name": "Who should not buy this?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board."
+        "text": "Skip this if you have not shipped to production yet, if you already run a barge-in eval in CI, or if you do not run real voice or phone calls."
       }
     },
     {
       "@type": "Question",
-      "name": "I'm on Retell, isn't this already covered by Retell Assure?",
+      "name": "What if you find nothing?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Retell shipped a native automated QA feature, Retell Assure, in January 2026, which monitors calls for interruptions and other issues inside the platform. If you're already relying on that, you may get less incremental value from an outside report than someone without built-in monitoring. Worth weighing before you buy."
+        "text": "Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board."
       }
     },
     {
@@ -61,7 +61,7 @@
       "name": "What actually happens to my recordings after?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Deleted within 14 days of delivery. Scored on our own hardware in the US, never a third-party API, never used to train any model."
+        "text": "Deleted within 14 days of delivery. Scored on our own US hardware, never a third-party API, never used to train any model. NDA or DPA available on request. Scoring reads timing, not words, so you can redact PHI first."
       }
     },
     {
@@ -85,6 +85,7 @@
     --red:#C22A2A;
     --teal:#12796B;
     --amber:#B4790F;
+    --accent:#3E5BD6;
     --panel:#E3E7DE;
     --panel-strong:#DBDFD5;
     --shadow: 0 1px 0 rgba(18,24,28,0.06);
@@ -101,6 +102,7 @@
       --red:#FF6B5E;
       --teal:#3FCBA8;
       --amber:#E8B04A;
+      --accent:#8FA4FF;
       --panel:#161C18;
       --panel-strong:#1E2620;
       --shadow: 0 1px 0 rgba(0,0,0,0.4);
@@ -115,6 +117,7 @@
     --red:#FF6B5E;
     --teal:#3FCBA8;
     --amber:#E8B04A;
+    --accent:#8FA4FF;
     --panel:#161C18;
     --panel-strong:#1E2620;
     --shadow: 0 1px 0 rgba(0,0,0,0.4);
@@ -128,6 +131,7 @@
     --red:#C22A2A;
     --teal:#12796B;
     --amber:#B4790F;
+    --accent:#3E5BD6;
     --panel:#E3E7DE;
     --panel-strong:#DBDFD5;
     --shadow: 0 1px 0 rgba(18,24,28,0.06);
@@ -204,7 +208,7 @@
   .sec-body a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;}
   .cite-line{
     font-size:12.5px;color:var(--ink-dim);margin:16px 0 0;line-height:1.45;
-    border-top:1px dashed var(--line-soft);padding-top:12px;max-width:52ch;
+    padding-top:12px;max-width:52ch;
   }
   .cite-line a{color:var(--ink-dim);text-decoration:underline;text-underline-offset:2px;}
 
@@ -232,7 +236,7 @@
   .hero-cta:hover{color:var(--teal);}
   .hero-price{
     font-family:var(--mono);font-size:14px;color:var(--ink-dim);margin:14px 0 0;line-height:1.55;
-    padding-top:14px;border-top:1px dashed var(--line-soft);max-width:46ch;
+    padding-top:14px;max-width:46ch;
   }
   .hero-price b{color:var(--ink);font-weight:700;}
   .hero-grid{display:grid;grid-template-columns:0.94fr 1.06fr;gap:clamp(36px,5vw,56px);align-items:center;}
@@ -243,7 +247,7 @@
   }
   .chip-strip{
     display:flex;flex-wrap:wrap;gap:10px;
-    margin-top:34px;padding-top:24px;border-top:1px dashed var(--line-soft);
+    margin-top:34px;padding-top:24px;
   }
   .chip{
     font-family:var(--mono);font-size:12px;letter-spacing:0.01em;
@@ -251,7 +255,8 @@
     display:flex;align-items:center;gap:7px;background:var(--panel);white-space:nowrap;
   }
   .chip b{color:var(--ink);font-weight:700;}
-  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none;}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;}
+  .hero-visual .card{border-top:2px solid var(--accent);}
 
   /* ---------- card chrome (shared) ---------- */
   .card{border:1px solid var(--line);background:var(--panel);padding:18px 18px 16px;}
@@ -278,7 +283,7 @@
   }
 
   /* ---------- big scene wrapper ---------- */
-  .scene{border:1px solid var(--line);background:var(--panel);padding:18px;}
+  .scene{padding:0;}
   .scene svg{width:100%;height:auto;display:block;}
 
   /* ---------- S5 deliverable full-width centered ---------- */
@@ -288,7 +293,7 @@
     font-size:clamp(16px,1.7vw,20px);color:var(--ink);max-width:60ch;margin:0 auto 34px;line-height:1.4;
   }
   .del-line b{color:var(--ink);font-weight:700;}
-  .del-stage{max-width:940px;margin:0 auto;border:1px solid var(--line);background:var(--panel);padding:clamp(14px,2vw,26px);}
+  .del-stage{max-width:940px;margin:0 auto;padding:0;}
   .del-stage svg{width:100%;height:auto;display:block;}
   .del-cap{font-family:var(--mono);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-dim);margin:16px 0 0;}
   svg.del-svg-mobile{display:none;}
@@ -368,8 +373,8 @@
   .step-cell{padding:20px 22px;border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:10px;}
   .step-cell:last-child{border-right:none;}
   .step-n{
-    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);
-    width:30px;height:30px;border:1px solid var(--ink-dim);border-radius:50%;
+    font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);
+    width:30px;height:30px;border:1px solid var(--accent);border-radius:50%;
     display:flex;align-items:center;justify-content:center;flex:none;
   }
   .step-cell p{margin:0;font-size:13.5px;color:var(--ink-dim);line-height:1.5;}
@@ -451,27 +456,31 @@
         <div class="hero-copy reveal">
           <p class="kicker">barge-in reliability report</p>
           <h1>Your voice agent talks over the prospect who decides the deal.</h1>
-          <p class="hero-sub">A real caller interrupts, the agent keeps going, and the person evaluating you watches it happen live. Same failure on every real call, whether it is sales, support, or scheduling. BargeBench scores exactly where that breaks across <b>up to 15 of your own recorded calls</b>.</p>
-          <p class="hero-verify">Scoring harness is open source. Check our work, or run it yourself.</p>
+          <p class="hero-sub">On a live call the caller interrupts, the agent <b>keeps talking</b>, and the person hears a <b>broken agent</b>.</p>
           <a class="hero-cta" href="#how-scored">See how each event is scored</a>
-          <p class="hero-price">$499, once. <b>Full refund if we do not find an issue you can act on.</b></p>
+          <p class="hero-price"><b>$499</b>, refundable.</p>
         </div>
         <div class="hero-visual reveal">
           <div class="card">
             <p class="card-head"><span>one barge-in, your call</span><span class="flag">agent overran</span></p>
             <svg class="viz" viewBox="0 0 620 250" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="dgTitle dgDesc">
-              <title id="dgTitle">Length contrast: a human hand-off window versus an agent overrun</title>
-              <desc id="dgDesc">A caller interrupts. A thin band marks the few-hundred-millisecond window in which a human would hand the floor back. A long bar shows the agent still talking seconds past it.</desc>
-              <g id="dg-root"></g>
+              <title id="dgTitle">Human hands the floor back fast; the agent keeps talking</title>
+              <desc id="dgDesc">A short bar shows a human handing the floor back in a few hundred milliseconds. A long bar shows the agent still talking seconds later.</desc>
+              <line x1="150" y1="44" x2="150" y2="206" style="stroke:var(--ink-dim);stroke-width:1;stroke-dasharray:3,3;"/>
+              <text x="150" y="30" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:12px;fill:var(--ink-dim);letter-spacing:.05em;">CALLER INTERRUPTS</text>
+              <text x="20" y="96" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--teal);font-weight:700;letter-spacing:.04em;">HUMAN</text>
+              <rect x="150" y="74" width="74" height="38" rx="4" style="fill:var(--teal);"/>
+              <text x="238" y="98" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink-dim);">hands back, a few hundred ms</text>
+              <text x="20" y="176" style="font-family:ui-monospace,monospace;font-size:14px;fill:var(--red);font-weight:700;letter-spacing:.04em;">AGENT</text>
+              <rect class="pulse-mark" x="150" y="154" width="432" height="38" rx="4" style="fill:var(--red);"/>
+              <text x="366" y="178" text-anchor="middle" style="font-family:ui-monospace,monospace;font-size:13px;fill:var(--paper);font-weight:700;letter-spacing:.04em;">still talking</text>
             </svg>
-            <p class="viz-cap">Schematic. The human hand-off window is a few hundred milliseconds; the overrun runs seconds past it.</p>
+            <p class="viz-cap">Schematic. Human hands back in a few hundred ms; the agent runs seconds past.</p>
           </div>
         </div>
       </div>
       <div class="chip-strip reveal">
-        <span class="chip"><span class="dot"></span>Up to <b>15 calls</b></span>
         <span class="chip"><span class="dot"></span><b>3</b> fixed criteria</span>
-        <span class="chip"><span class="dot"></span>Back in <b>about a week</b></span>
         <span class="chip"><span class="dot"></span><b>MIT</b> harness</span>
       </div>
     </div>
@@ -517,7 +526,7 @@
                 <rect x="86" y="30" width="3" height="9" style="fill:var(--red);"/>
                 <rect x="94" y="27" width="3" height="4" style="fill:var(--red);"/>
               </svg>
-              <div class="glyph-cap"><span>failure 02</span>Audio drops or garbles right after an interruption.</div>
+              <div class="glyph-cap"><span>failure 02</span>Audio garbles after an interruption.</div>
             </div>
 
             <div class="glyph-card">
@@ -532,7 +541,7 @@
                 <circle cx="76" cy="30" r="2" style="fill:var(--ink-dim);"/>
                 <circle cx="86" cy="30" r="2" style="fill:var(--ink-dim);"/>
               </svg>
-              <div class="glyph-cap"><span>failure 03</span>Agent freezes in a listening state after being cut off.</div>
+              <div class="glyph-cap"><span>failure 03</span>Agent freezes after being cut off.</div>
             </div>
 
             <div class="glyph-card">
@@ -607,8 +616,8 @@
       <p class="sec-label reveal">how it works</p>
       <h2 class="sec-title reveal" style="max-width:30ch;">Send your calls. Nothing to install.</h2>
       <div class="steps-diag reveal">
-        <div class="step-cell"><div class="step-n mono">1</div><p><b>Send up to 15 of your own recorded calls.</b> Nothing to install. No SDK. No integration. No account.</p></div>
-        <div class="step-cell"><div class="step-n mono">2</div><p>We score every interruption: human review plus audio timing.</p></div>
+        <div class="step-cell"><div class="step-n mono">1</div><p><b>Send up to 15 of your own recorded calls.</b> Works from the recordings you already have.</p></div>
+        <div class="step-cell"><div class="step-n mono">2</div><p>We score every interruption event.</p></div>
         <div class="step-cell"><div class="step-n mono">3</div><p>Signed report back in about a week.</p></div>
       </div>
     </div>
@@ -619,7 +628,7 @@
     <div class="wrap">
       <div class="deliverable">
         <p class="sec-label reveal">what you get</p>
-        <p class="del-line reveal">A <b>signed, dated attestation</b> and a fix for every flagged event, back in about a week, with one re-attested retest within 60 days.</p>
+        <p class="del-line reveal">A <b>signed, dated attestation</b> and a fix for every flagged event, with one re-attested retest within 60 days.</p>
         <div class="del-stage reveal">
 
           <!-- desktop / wide variant -->
@@ -801,87 +810,7 @@
         <div class="text reveal">
           <p class="sec-label">verify or do it yourself</p>
           <h2 class="sec-title">Every event, the same three questions. Marked by a person.</h2>
-          <p class="sec-body">The same three checks run on every call, plus a human mark on each flagged event.</p>
           <p class="sec-body">The whole harness is open source under MIT: <a href="https://github.com/quantumCF/voice-agent-barge-in-tests" target="_blank" rel="noopener">read it, run it, check our work</a>. Self-hosted with clean dual-channel audio? Pull the raw yield and overlap numbers yourself in about a day.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== S7 DATA HANDLING: full-width strip ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <p class="sec-label reveal">your recordings</p>
-      <h2 class="sec-title reveal" style="max-width:34ch;">Your recordings never leave our control.</h2>
-      <div class="datastrip reveal">
-        <div class="ds-cell">
-          <div class="ds-k">retention</div>
-          <div class="ds-v">Deleted within <b>14 days</b> of delivery.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">location</div>
-          <div class="ds-v">Scored on <b>our own US hardware</b>, never a third-party API.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">training</div>
-          <div class="ds-v"><b>Never</b> used to train any model.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">legal</div>
-          <div class="ds-v"><b>DPA or NDA</b> on request, before you send.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">scope</div>
-          <div class="ds-v">Scoring reads <b>timing, not words</b>. Redact PHI first.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== S8 PRICING: restatement + two outcomes ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <p class="sec-label reveal">the price</p>
-      <h2 class="sec-title reveal" style="max-width:34ch;">$499, once. Refunded if there is nothing to fix.</h2>
-      <div class="diy-grid reveal">
-        <div class="diy-col earn">
-          <h3>If we find an issue</h3>
-          <ul>
-            <li>A fix mapped to your stack for every flagged event.</li>
-            <li>A signed, dated attestation.</li>
-            <li>One re-attested retest within 60 days.</li>
-          </ul>
-        </div>
-        <div class="diy-div"><span>or</span></div>
-        <div class="diy-col diy">
-          <h3>If it comes back clean</h3>
-          <ul>
-            <li>Full refund. You pay nothing.</li>
-            <li>You keep a dated, signed all-clear you can show a customer or your board.</li>
-          </ul>
-        </div>
-      </div>
-      <p class="price-restate reveal">$499, once. Full refund if we do not find an issue you can act on. Delivered in about a week.</p>
-    </div>
-  </section>
-
-  <!-- ===== S9 SKIP US IF: candor strip ===== -->
-  <section class="sec">
-    <div class="wrap">
-      <p class="sec-label reveal">skip us if</p>
-      <h2 class="sec-title reveal" style="max-width:34ch;">Do not buy this if any of these is you.</h2>
-      <div class="datastrip skip3 reveal">
-        <div class="ds-cell">
-          <div class="ds-k">skip if</div>
-          <div class="ds-v">You have <b>not shipped to production</b> yet.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">skip if</div>
-          <div class="ds-v">You already run a <b>barge-in eval in CI</b>.</div>
-        </div>
-        <div class="ds-cell">
-          <div class="ds-k">skip if</div>
-          <div class="ds-v">You <b>do not run real voice or phone calls</b>.</div>
         </div>
       </div>
     </div>
@@ -906,12 +835,12 @@
           <p>Out of scope. This report scores the agent talking over the caller during barge-in, not the opposite failure mode.</p>
         </details>
         <details>
-          <summary><span><span class="q-tag">Q</span>What if you find nothing?</span></summary>
-          <p>Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board.</p>
+          <summary><span><span class="q-tag">Q</span>Who should not buy this?</span></summary>
+          <p>Skip this if you have not shipped to production yet, if you already run a barge-in eval in CI, or if you do not run real voice or phone calls.</p>
         </details>
         <details>
-          <summary><span><span class="q-tag">Q</span>I'm on Retell, isn't this already covered by Retell Assure?</span></summary>
-          <p>Retell shipped a native automated QA feature, Retell Assure, in January 2026, which monitors calls for interruptions and other issues inside the platform. If you're already relying on that, you may get less incremental value from an outside report than someone without built-in monitoring. Worth weighing before you buy.</p>
+          <summary><span><span class="q-tag">Q</span>What if you find nothing?</span></summary>
+          <p>Full refund, you pay nothing. You also keep a dated, signed attestation that your barge-in handling came back clean, which you can show a customer or your board.</p>
         </details>
         <details>
           <summary><span><span class="q-tag">Q</span>Is this a subscription I'll forget to cancel?</span></summary>
@@ -919,7 +848,7 @@
         </details>
         <details>
           <summary><span><span class="q-tag">Q</span>What actually happens to my recordings after?</span></summary>
-          <p>Deleted within 14 days of delivery. Scored on our own hardware in the US, never a third-party API, never used to train any model.</p>
+          <p>Deleted within 14 days of delivery. Scored on our own US hardware, never a third-party API, never used to train any model. NDA or DPA available on request. Scoring reads timing, not words, so you can redact PHI first.</p>
         </details>
         <details>
           <summary><span><span class="q-tag">Q</span>What shows up on my card statement?</span></summary>
@@ -929,12 +858,8 @@
 
       <div id="request" style="margin-top:clamp(44px,6vh,72px);">
         <p class="sec-label reveal">get the report</p>
-        <h2 class="sec-title reveal" style="max-width:40ch;">Pay, send your calls, signed report back in about a week.</h2>
-        <div class="steps-diag reveal">
-          <div class="step-cell"><div class="step-n mono">1</div><p>Pay through Stripe.</p></div>
-          <div class="step-cell"><div class="step-n mono">2</div><p>Land on upload instructions.</p></div>
-          <div class="step-cell"><div class="step-n mono">3</div><p>Send recordings and a delivery address. Report in about a week.</p></div>
-        </div>
+        <h2 class="sec-title reveal" style="max-width:40ch;">Pay, send your calls, get your signed report.</h2>
+        <p class="reveal mono" style="font-size:13px;color:var(--ink-dim);margin:0;letter-spacing:0.02em;line-height:1.55;">Pay through Stripe, land on upload instructions, then send your recordings and a delivery address.</p>
         <div class="checkout-wrap reveal">
           <div class="checkout-col">
             <p class="co-h">Pay and start</p>
@@ -945,14 +870,14 @@
           </div>
         </div>
         <div class="ask-box reveal">
-          <p class="ask-h">Questions first, or need a DPA or NDA before you send your calls?</p>
-          <p class="ask-lead">Ask before you buy. No payment taken and no calls sent yet. Prefer email? Write to <a href="mailto:contact@bargebench.com">contact@bargebench.com</a>.</p>
+          <p class="ask-h">Have a question before you buy?</p>
+          <p class="ask-lead">Send it and we will reply by email, or write to <a href="mailto:contact@bargebench.com">contact@bargebench.com</a>.</p>
           <form id="ask-form" class="ask-form" novalidate>
             <label class="ask-label" for="ask-email">Work email</label>
             <input class="ask-field" id="ask-email" name="email" type="email" required autocomplete="email" placeholder="you@company.com">
             <label class="ask-label" for="ask-msg">Message (optional)</label>
-            <textarea class="ask-field" id="ask-msg" name="message" rows="3" placeholder="Anything to check before you buy, or a DPA request."></textarea>
-            <button class="ask-btn mono" id="ask-submit" type="submit">Ask a question, no payment</button>
+            <textarea class="ask-field" id="ask-msg" name="message" rows="3" placeholder="Anything you want to check first."></textarea>
+            <button class="ask-btn mono" id="ask-submit" type="submit">Ask a question</button>
             <p class="ask-status mono" id="ask-status" role="status" aria-live="polite"></p>
           </form>
         </div>
@@ -1001,68 +926,6 @@
     applyLabel();
   });
 
-  // ---- hero stakes: length-contrast timeline ----
-  var svgNS = "http://www.w3.org/2000/svg";
-  var g = document.getElementById('dg-root');
-  function el(name, attrs, text){
-    var e = document.createElementNS(svgNS, name);
-    for (var k in attrs) e.setAttribute(k, attrs[k]);
-    if (text != null) e.textContent = text;
-    return e;
-  }
-  function LBL(c){ return 'font-family:ui-monospace,monospace;font-size:10px;fill:'+c+';font-weight:700;letter-spacing:.05em;'; }
-
-  var left = 20, right = 600;
-  var callerMid = 56, agentMid = 138;
-  var interruptX = 200, overrunEndX = 560;
-  var n = 30, step = (right - left) / n, barW = step * 0.5;
-  var iIdx = Math.round((interruptX - left) / step);
-  var eIdx = Math.round((overrunEndX - left) / step);
-
-  g.appendChild(el('text', {x:left, y:20, style:LBL('var(--teal)')}, 'CALLER'));
-  g.appendChild(el('text', {x:left, y:112, style:LBL('var(--ink-dim)')}, 'AGENT'));
-
-  g.appendChild(el('line', {x1:left, y1:callerMid, x2:right, y2:callerMid, style:'stroke:var(--line-soft);stroke-width:1;'}));
-  g.appendChild(el('line', {x1:left, y1:agentMid, x2:right, y2:agentMid, style:'stroke:var(--line-soft);stroke-width:1;'}));
-
-  var callerH = [2,3,2,3,2,3,2,3,3, 12,16,13,15,17,14,16,13,15,14,12,15,13,16,14,12,13,11,9,7,5];
-  var agentH  = [13,16,14,17,15,13,16,14,17, 15,14,16,13,15,17,14,16,13,15,14,16,13,15,14,16,13,15,12, 3,2];
-  for (var i=0;i<n;i++){
-    var x = left + i*step + (step-barW)/2;
-    var over = (i>=iIdx && i<=eIdx);
-    var cH = callerH[i] || 2, aH = agentH[i] || 2;
-    var cCol = over ? 'var(--red)' : 'var(--teal)';
-    var aCol = over ? 'var(--red)' : 'var(--ink-dim)';
-    var cStyle = 'fill:'+cCol+';' + (i<iIdx ? 'fill-opacity:0.32;' : '');
-    g.appendChild(el('rect', {x:x, y:callerMid-cH, width:barW, height:cH*2, style:cStyle}));
-    g.appendChild(el('rect', {x:x, y:agentMid-aH, width:barW, height:aH*2, style:'fill:'+aCol+';'}));
-  }
-
-  // caller interruption marker
-  var onset = el('line', {x1:interruptX, y1:12, x2:interruptX, y2:agentMid+28, style:'stroke:var(--red);stroke-width:1;stroke-dasharray:2,2;'});
-  onset.setAttribute('class','pulse-mark');
-  g.appendChild(onset);
-  g.appendChild(el('text', {x:interruptX-6, y:14, 'text-anchor':'end', style:LBL('var(--red)')}, 'CALLER CUTS IN'));
-
-  // contrast timeline: thin human window vs long overrun
-  var bandY = 198, bandH = 16, humanW = 30;
-  g.appendChild(el('rect', {x:interruptX, y:bandY, width:overrunEndX-interruptX, height:bandH, style:'fill:var(--red);fill-opacity:0.14;stroke:var(--red);stroke-width:1;'}));
-  g.appendChild(el('rect', {x:interruptX, y:bandY-4, width:humanW, height:bandH+8, style:'fill:var(--teal);'}));
-
-  // teal callout
-  g.appendChild(el('line', {x1:interruptX+humanW/2, y1:bandY-4, x2:interruptX+humanW/2, y2:176, style:'stroke:var(--teal);stroke-width:1;'}));
-  g.appendChild(el('text', {x:interruptX-2, y:164, style:LBL('var(--teal)')}, 'HUMAN HANDS BACK'));
-  g.appendChild(el('text', {x:interruptX-2, y:178, style:'font-family:ui-monospace,monospace;font-size:9.5px;fill:var(--teal);letter-spacing:.03em;'}, 'a few hundred ms . PNAS 2009'));
-
-  // red overrun label + real failures
-  g.appendChild(el('text', {x:(interruptX+humanW+overrunEndX)/2, y:bandY+11, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--red);font-weight:700;letter-spacing:.04em;'}, 'AGENT STILL TALKING'));
-  g.appendChild(el('text', {x:(interruptX+overrunEndX)/2, y:bandY+bandH+16, 'text-anchor':'middle', style:'font-family:ui-monospace,monospace;font-size:10px;fill:var(--ink-dim);letter-spacing:.03em;'}, 'keeps talking . freezes . garbles . repeats'));
-
-  // animated scan line, waveform region only (never over the labels below)
-  var scan = el('rect', {x:left, y:12, width:2, height:158, style:'fill:var(--teal);'});
-  scan.setAttribute('class','scan-line');
-  g.appendChild(scan);
-
   // ---- ask-a-question form (formsubmit ajax; JSON {email, message}) ----
   var askForm = document.getElementById('ask-form');
   if (askForm) {
@@ -1088,13 +951,13 @@
           email: email,
           message: (askMsg.value || '').trim(),
           _subject: 'BargeBench question before purchase',
-          _autoresponse: 'Thanks for reaching out to BargeBench. We got your note and will reply from contact@bargebench.com. No payment has been taken and no calls have been sent.'
+          _autoresponse: 'Thanks for reaching out to BargeBench. We got your note and will reply from contact@bargebench.com.'
         })
       }).then(function(r){ return r.json(); }).then(function(){
         askForm.reset();
         askBtn.disabled = false;
         askStatus.style.color = 'var(--teal)';
-        askStatus.textContent = 'Sent. We will reply by email. No payment taken.';
+        askStatus.textContent = 'Sent. We will reply by email.';
       }).catch(function(){
         askBtn.disabled = false;
         askStatus.style.color = 'var(--red)';
